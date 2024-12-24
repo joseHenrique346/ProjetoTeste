@@ -1,0 +1,15 @@
+bin/
+obj/
+.vs/
+vs/
+
+*.cache
+*.nuget.dgspec.json
+*.nuget.g.props
+*.nuget.g.targets
+*.json
+*.g.cs
+*.editorconfig
+
+*.user
+*.suo
