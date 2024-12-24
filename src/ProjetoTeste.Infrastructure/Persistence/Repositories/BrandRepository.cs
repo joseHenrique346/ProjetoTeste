@@ -3,7 +3,8 @@ using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Persistence.Repositories
 {
-    public class BrandRepository(AppDbContext context) : Repository<Brand>(context)
+    public class BrandRepository : Repository<Brand>
     {
+        public BrandRepository(AppDbContext context) : base(context) { }
     }
 }

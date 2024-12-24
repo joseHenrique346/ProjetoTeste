@@ -12,5 +12,9 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
         {
             await context.Database.CommitTransactionAsync();
         }
+        public void Commit()
+        {
+            context.Database.CommitTransaction();
+        }
     }
 }

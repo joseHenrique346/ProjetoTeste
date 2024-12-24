@@ -4,7 +4,8 @@ using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Persistence.Repositories
 {
-    public class OrderRepository(AppDbContext context) : Repository<Order>(context), IOrderRepository
+    public class OrderRepository : Repository<Order>, IOrderRepository
     {
+        public OrderRepository(AppDbContext context) : base(context) { }
     }
 }
