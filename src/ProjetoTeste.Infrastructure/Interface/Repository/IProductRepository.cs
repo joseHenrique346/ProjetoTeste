@@ -7,5 +7,5 @@ using System.Threading.Tasks;
 
 namespace ProjetoTeste.Infrastructure.Interface.Repository
 {
-    internal interface IProductRepository : IRepository<Product> { }
+    public interface IProductRepository : IRepository<Product> { }
 }

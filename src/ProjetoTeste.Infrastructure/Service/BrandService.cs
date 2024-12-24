@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjetoTeste.Arguments.Arguments.Brand;
+using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Conversor;
+using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 
@@ -9,38 +11,68 @@ namespace ProjetoTeste.Infrastructure.Service
     public class BrandService
     {
         private readonly IUnitOfWork _uof;
-        public BrandService(IUnitOfWork uof)
+        private readonly IProductRepository _productRepository;
+        private readonly IBrandRepository _brandRepository;
+        public BrandService(IUnitOfWork uof, IBrandRepository brandRepository, IProductRepository productRepository)
         {
             _uof = uof;
+            _brandRepository = brandRepository;
+            _productRepository = productRepository;
         }
 
-        public async Task<string?> ValidateGetBrandAsync(long id)
+        public async Task<Response<string?>> ValidateGetBrandAsync(long id)
         {
-            var existingId = await _uof.BrandRepository.GetAsync(id);
+            var existingId = await _brandRepository.GetAsync(id);
             if (existingId is null)
             {
-                return "*ERRO* Tem certeza que digitou o ID certo?";
+                return new Response<string?>
+                {
+                    Success = false,
+                    Message = "*ERRO* Tem certeza que digitou o ID certo?"
+                };
             }
 
-            return null;
-        }
-
-        public async Task<object> GetBrandAsync(long id)
-        {
-            var validationMessage = await ValidateGetBrandAsync(id);
-            if (validationMessage != null)
+            return new Response<string?>
             {
-                return validationMessage;
+                Success = true
+            };
+        }
+
+        public async Task<Response<object>> GetBrandAsync(long id)
+        {
+            var validationResponse = await ValidateGetBrandAsync(id); 
+
+            if (!validationResponse.Success) 
+            {
+                return new Response<object>
+                {
+                    Success = false,
+                    Message = validationResponse.Message 
+                };
             }
 
-            var brand = await _uof.BrandRepository.GetAsync(id);
+            var brand = await _brandRepository.GetAsync(id); 
 
-            return brand;
+            if (brand == null)
+            {
+                return new Response<object>
+                {
+                    Success = false,
+                    Message = "Marca não encontrada."
+                };
+            }
+
+            return new Response<object>
+            {
+                Success = true,
+                Request = brand 
+            };
         }
+
 
         public async Task<string?> ValidateCreateBrandAsync(InputCreateBrand input)
         {
-            var existingBrand = (await _uof.BrandRepository.GetAllAsync())
+            var existingBrand = (await _brandRepository.GetAllAsync())
                                 .FirstOrDefault(x => x.Name
                                 .Equals(input.Name,
                                 StringComparison.OrdinalIgnoreCase));
@@ -50,7 +82,7 @@ namespace ProjetoTeste.Infrastructure.Service
                 return "Este nome já está em uso!";
             }
 
-            var existingCode = (await _uof.BrandRepository.GetAllAsync())
+            var existingCode = (await _brandRepository.GetAllAsync())
                                 .FirstOrDefault(x =>
                                 x.Code.Equals(input.Code));
 
@@ -72,29 +104,37 @@ namespace ProjetoTeste.Infrastructure.Service
             return null;
         }
 
-        public async Task<Brand> CreateBrandAsync(InputCreateBrand input)
+        public async Task<Response<Brand>> CreateBrandAsync(InputCreateBrand input)
         {
             var validationMessage = await ValidateCreateBrandAsync(input);
             if (validationMessage != null)
             {
-                throw new ValidationException(validationMessage);
+                new Response<Brand>()
+                {
+                    Success = false,
+                    Message = validationMessage
+                };
             }
 
-            var brand = await _uof.BrandRepository.CreateAsync(input.ToBrand());
+            var brand = await _brandRepository.CreateAsync(input.ToBrand());
             await _uof.CommitAsync();
-            return brand;
+            return new Response<Brand>()
+            {
+                Success = true,
+                Request = brand
+            };
         }
 
         public string? ValidateUpdateBrand(long id, InputUpdateBrand input)
         {
-            var currentBrand = _uof.BrandRepository.Get(id);
+            var currentBrand = _brandRepository.Get(id);
 
             if (currentBrand == null)
             {
                 return "A marca especificada não foi encontrada.";
             }
 
-            var allBrands = _uof.BrandRepository.GetAll();
+            var allBrands = _brandRepository.GetAll();
 
             var existingNameBrand = allBrands.FirstOrDefault(x =>
                 x.Name.Equals(input.Name, StringComparison.OrdinalIgnoreCase) &&
@@ -122,30 +162,38 @@ namespace ProjetoTeste.Infrastructure.Service
             return null;
         }
 
-        public Brand UpdateBrand(int id, InputUpdateBrand input)
+        public Response<Brand> UpdateBrand(int id, InputUpdateBrand input)
         {
             var validationMessage = ValidateUpdateBrand(id, input);
-            var currentBrand = _uof.BrandRepository.Get(id);
+            var currentBrand = _brandRepository.Get(id);
 
             if (validationMessage is string)
             {
-                throw new ValidationException(validationMessage);
+                return new Response<Brand>
+                {
+                    Success = false,
+                    Message = validationMessage
+                };
             }
 
             currentBrand.Name = input.Name;
             currentBrand.Code = input.Code;
             currentBrand.Description = input.Description;
 
-            _uof.BrandRepository.Update(currentBrand);
+            _brandRepository.Update(currentBrand);
             _uof.Commit();
 
-            return currentBrand;
+            return new Response<Brand>
+            {
+                Success = true,
+                Request = currentBrand
+            };
         }
 
         private async Task<Brand> GetOrCreateGenericBrandAsync()
         {
             const string genericBrandCode = "GEN";
-            var genericBrand = (await _uof.BrandRepository.GetAllAsync())
+            var genericBrand = (await _brandRepository.GetAllAsync())
                                .FirstOrDefault(b => b.Code == genericBrandCode);
 
             if (genericBrand == null)
@@ -157,7 +205,7 @@ namespace ProjetoTeste.Infrastructure.Service
                     Code = genericBrandCode
                 };
 
-                await _uof.BrandRepository.CreateAsync(genericBrand);
+                await _brandRepository.CreateAsync(genericBrand);
                 await _uof.CommitAsync();
             }
 
@@ -165,54 +213,67 @@ namespace ProjetoTeste.Infrastructure.Service
         }
 
 
-        public async Task<string?> ValidateDeleteBrandAsync(long id)
+        public async Task<Response<string?>> ValidateDeleteBrandAsync(long id)
         {
-            var existingBrand = (await _uof.BrandRepository.GetAllAsync())
+            var existingBrand = (await _brandRepository.GetAllAsync())
                                 .FirstOrDefault(x => x.Id == id);
 
             if (existingBrand is null)
             {
-                return "Não foi encontrado o ID inserido, foi informado corretamente?";
+                return new Response<string?>
+                {
+                    Success = false,
+                    Message = "Não foi encontrado o ID inserido, foi informado corretamente?";
+                };
             }
 
-            return null;
+            return new Response<string?>
+            {
+                Success = true
+            };
         }
 
-        public async Task<bool> DeleteBrandAsync(long id)
+        public async Task<Response<bool>> DeleteBrandAsync(long id)
         {
-            var validationMessage = await ValidateDeleteBrandAsync(id);
-            if (validationMessage is string)
+            var validationResponse = await ValidateDeleteBrandAsync(id);
+            if (!validationResponse.Success)
             {
-                throw new ValidationException(validationMessage);
+                return new Response<bool>
+                {
+                    Success = false,
+                    Message = validationResponse.Message
+                };
             }
 
-            var brand = await _uof.BrandRepository.GetAsync(id);
+            var brand = await _brandRepository.GetAsync(id);
             if (brand == null)
             {
-                throw new ValidationException("Marca não encontrada.");
+                return new Response<bool>
+                {
+                    Success = false,
+                    Message = "Marca não encontrada."
+                };
             }
 
             var genericBrand = await GetOrCreateGenericBrandAsync();
             if (genericBrand == null)
             {
-                throw new ValidationException("Marca genérica não encontrada.");
+                return new Response<bool>
+                {
+                    Success = false,
+                    Message = "Marca genérica não encontrada."
+                };
             }
 
-            genericBrand = await GetOrCreateGenericBrandAsync();
-
-            var products = await _uof.ProductRepository.GetAllAsync();
-            var productsToUpdate = products.Where(p => p.BrandId == id).ToList();
-
-            foreach (var product in productsToUpdate)
-            {
-                product.BrandId = genericBrand.Id;
-                _uof.ProductRepository.Update(product);
-            }
-
-            await _uof.BrandRepository.DeleteAsync(id);
+            await _brandRepository.DeleteAsync(id);
             await _uof.CommitAsync();
 
-            return true;
+            return new Response<bool>
+            {
+                Success = true,
+                Request = true
+            };
         }
+
     }
 }

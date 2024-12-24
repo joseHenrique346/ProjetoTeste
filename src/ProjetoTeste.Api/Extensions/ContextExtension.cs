@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProjetoTesteAPI.Context;
+using ProjetoTeste.Infrastructure.Persistence.Context;
 using System;
 
 namespace ProjetoTeste.Api.Extensions

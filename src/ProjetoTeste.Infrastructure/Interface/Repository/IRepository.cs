@@ -8,6 +8,8 @@ namespace ProjetoTeste.Infrastructure.Interface.Repository
 {
     public interface IRepository<T> where T : class
     {
+        T GetAll();
+        T Get(long id);
         Task<List<T>> GetAllAsync();
         Task<T?> GetAsync(long id);
         Task<T> CreateAsync(T entity);

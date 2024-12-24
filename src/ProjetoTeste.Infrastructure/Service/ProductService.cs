@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjetoTeste.Arguments.Arguments.Product;
+using ProjetoTeste.Arguments.Arguments.Response;
+using ProjetoTeste.Infrastructure.Conversor;
+using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 
@@ -7,15 +10,19 @@ namespace ProjetoTeste.Infrastructure.Service
 {
     public class ProductService
     {
+        private readonly IProductRepository _productRepository;
+        private readonly IBrandRepository _brandRepository;
         private readonly IUnitOfWork _uof;
-        public ProductService(IUnitOfWork uof)
+        public ProductService(IUnitOfWork uof, IProductRepository productRepository, IBrandRepository brandRepository)
         {
             _uof = uof;
+            _productRepository = productRepository;
+            _brandRepository = brandRepository;
         }
 
         public async Task<string?> ValidateGetProductAsync(long id)
         {
-            var existingProduct = await _uof.ProductRepository.GetWithIncludesAsync(id, p => p.Brand);
+            var existingProduct = await _productRepository.GetWithIncludesAsync(id, p => p.Brand);
             if (existingProduct is null)
             {
                 return "*ERRO* Tem certeza que digitou o ID certo?";
@@ -24,21 +31,25 @@ namespace ProjetoTeste.Infrastructure.Service
             return null;
         }
 
-        public async Task<Product?> GetProductAsync(long id)
+        public async Task<Response<Product?>> GetProductAsync(long id)
         {
             var validationMessage = await ValidateGetProductAsync(id);
             if (validationMessage != null)
             {
-                throw new ValidationException(validationMessage);
+                return new Response<Product?>
+                {
+                    Success = false,
+                    Message = validationMessage
+                };
             }
 
-            var product = await _uof.ProductRepository.GetWithIncludesAsync(id, p => p.Brand);
+            var product = await _productRepository.GetWithIncludesAsync(id, p => p.Brand);
             return product;
         }
 
         public async Task<string?> ValidateCreateProductAsync(InputCreateProduct input)
         {
-            var existingProduct = (await _uof.ProductRepository.GetAllAsync())
+            var existingProduct = (await _productRepository.GetAllAsync())
                                   .FirstOrDefault(x => x.Code.Equals(input.Code));
 
             if (existingProduct != null)
@@ -73,7 +84,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
             if (input.BrandId.HasValue)
             {
-                var brandExists = await _uof.BrandRepository.GetAsync(input.BrandId.Value);
+                var brandExists = await _brandRepository.GetAsync(input.BrandId.Value);
 
                 if (brandExists == null)
                 {
@@ -83,7 +94,7 @@ namespace ProjetoTeste.Infrastructure.Service
                         Name = "Marca Padrão"
                     };
 
-                    await _uof.BrandRepository.CreateAsync(newBrand);
+                    await _brandRepository.CreateAsync(newBrand);
                     await _uof.CommitAsync();
                 }
             }
@@ -97,24 +108,32 @@ namespace ProjetoTeste.Infrastructure.Service
 
 
 
-        public async Task<Product> CreateProductAsync(InputCreateProduct input)
+        public async Task<Response<Product>> CreateProductAsync(InputCreateProduct input)
         {
             var validationMessage = await ValidateCreateProductAsync(input);
             if (validationMessage != null)
             {
-                throw new ValidationException(validationMessage);
+                return new Response<Product>
+                {
+                    Success = false,
+                    Message = validationMessage
+                };
             }
 
-            var product = await _uof.ProductRepository.CreateAsync(input.ToProduct());
+            var product = await _productRepository.CreateAsync(input.ToProduct());
             await _uof.CommitAsync();
-            return product;
+            return new Response<Product>
+            {
+                Success = true,
+                Request = product
+            };
         }
 
         public string? ValidateUpdateProduct(long id, InputUpdateProduct input)
         {
-            var allProducts = _uof.ProductRepository.GetAll();
+            var allProducts = _productRepository.GetAll();
 
-            var currentProduct = _uof.ProductRepository.Get(id);
+            var currentProduct = _productRepository.Get(id);
 
             if (currentProduct == null)
             {
@@ -139,19 +158,27 @@ namespace ProjetoTeste.Infrastructure.Service
             return null;
         }
 
-        public Product UpdateProduct(long id, InputUpdateProduct input)
+        public Response<Product> UpdateProduct(long id, InputUpdateProduct input)
         {
             var validationMessage = ValidateUpdateProduct(id, input);
             if (validationMessage != null)
             {
-                throw new ValidationException(validationMessage);
+                return new Response<Product>
+                {
+                    Success = false,
+                    Message = validationMessage
+                };
             }
 
-            var existingProduct = _uof.ProductRepository.Get(id);
+            var existingProduct = _productRepository.Get(id);
 
             if (existingProduct == null)
             {
-                throw new ValidationException("Produto não encontrado.");
+                return new Response<Product>
+                {
+                    Success = false,
+                    Message = "Produto não encontrado."
+                };
             }
 
             existingProduct.Name = input.Name;
@@ -161,36 +188,54 @@ namespace ProjetoTeste.Infrastructure.Service
             existingProduct.Stock = input.Stock;
             existingProduct.BrandId = input.BrandId;
 
-            _uof.ProductRepository.Update(existingProduct);
+            _productRepository.Update(existingProduct);
             _uof.Commit();
 
-            return existingProduct;
+            return new Response<Product>
+            {
+                Success = true,
+                Request = existingProduct
+            };
         }
 
-        public async Task<string?> ValidateDeleteProductAsync(long id)
+        public async Task<Response<string?>> ValidateDeleteProductAsync(long id)
         {
-            var products = await _uof.ProductRepository.GetAllAsync();
+            var products = await _productRepository.GetAllAsync();
             var existingProduct = products.FirstOrDefault(x => x.Id == id);
 
             if (existingProduct is null)
             {
-                return "Não foi encontrado o ID inserido, foi informado corretamente?";
+                return new Response<string?>
+                {
+                    Success = false,
+                    Message = "Não foi encontrado o ID inserido, foi informado corretamente?"
+                };
             }
 
-            return null;
+            return new Response<string?>
+            {
+                Success = true,
+            };
         }
 
-        public async Task<bool> DeleteProductAsync(long id)
+        public async Task<Response<bool>> DeleteProductAsync(long id)
         {
             var validationMessage = await ValidateDeleteProductAsync(id);
-            if (validationMessage is string)
+            if (!validationMessage.Success)
             {
-                throw new ValidationException(validationMessage);
+                return new Response<bool>
+                {
+                    Success = false,
+                    Message = validationMessage.Message
+                };
             }
 
-            await _uof.ProductRepository.DeleteAsync(id);
+            await _productRepository.DeleteAsync(id);
             await _uof.CommitAsync();
-            return true;
+            return new Response<bool>
+            {
+                Success = true
+            };
         }
     }
 }

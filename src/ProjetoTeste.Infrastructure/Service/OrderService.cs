@@ -1,4 +1,6 @@
-﻿using ProjetoTeste.Infrastructure.Core.Entities;
+﻿
+using ProjetoTeste.Infrastructure.Interface.Repository;
+using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
