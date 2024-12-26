@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ProjetoTeste.Arguments.Arguments.Product;
+﻿using ProjetoTeste.Arguments.Arguments.Product;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;

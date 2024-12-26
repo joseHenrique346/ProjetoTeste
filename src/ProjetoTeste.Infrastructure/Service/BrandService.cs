@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ProjetoTeste.Arguments.Arguments.Brand;
+﻿using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
@@ -223,7 +222,7 @@ namespace ProjetoTeste.Infrastructure.Service
                 return new Response<string?>
                 {
                     Success = false,
-                    Message = "Não foi encontrado o ID inserido, foi informado corretamente?";
+                    Message = "Não foi encontrado o ID inserido, foi informado corretamente?"
                 };
             }
 
