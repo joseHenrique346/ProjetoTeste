@@ -7,7 +7,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
     {
         public long ClientId { get; set; }
         public DateTime CreatedDate { get; set; }
-        public virtual List<ProductOrderDto> ProductOrders { get; set; }
+        public virtual List<ProductOrder> ProductOrders { get; set; }
 
         [JsonIgnore]
         public virtual Client Client { get; set; }

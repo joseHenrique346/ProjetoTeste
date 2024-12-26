@@ -24,10 +24,16 @@ namespace ProjetoTeste.Infrastructure.Conversor
 
         public static Order ToOrder(this InputCreateOrder input)
         {
+            var productOrders = input.ProductOrder.Select(dto => new ProductOrder
+            {
+                ProductId = dto.ProductId,
+                Quantity = dto.Quantity,
+            }).ToList();
+
             return new Order
             {
                 ClientId = input.ClientId,
-                ProductOrders = input.ProductOrder
+                ProductOrders = productOrders
             };
         }
 
