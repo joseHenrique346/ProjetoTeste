@@ -17,7 +17,7 @@ namespace ProjetoTeste.Api.Controllers
             _orderService = orderService;
         }
 
-        [HttpGet("Busca de todos os Pedidos")]
+        [HttpGet("GetOrders")]
         public async Task<ActionResult> GetAllAsync()
         {
             var AllOrder = await _orderService.GetAllOrderAsync();

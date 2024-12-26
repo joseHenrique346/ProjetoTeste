@@ -22,7 +22,7 @@ namespace ProjetoTeste.Api.Controllers
         }
 
         [Authorize]
-        [HttpGet("Busca de Marcas")]
+        [HttpGet("GetBrands")]
         public async Task<ActionResult<List<OutputBrand>>> GetAll()
         {
             var brands = await _brandService.GetAllBrandAsync();
@@ -30,7 +30,7 @@ namespace ProjetoTeste.Api.Controllers
         }
 
         [Authorize]
-        [HttpGet("Busca de Marca por ID")]
+        [HttpGet("GetBrandById")]
         public async Task<ActionResult<OutputBrand>> Get(int id)
         {
             var result = await _brandService.GetBrandAsync(id);
@@ -49,7 +49,7 @@ namespace ProjetoTeste.Api.Controllers
         }
 
 
-        [HttpPost("Criação de Marca")]
+        [HttpPost("BrandCreation")]
         public async Task<ActionResult<OutputBrand>> CreateAsync(InputCreateBrand input)
         {
             var brand = await _brandService.CreateBrandAsync(input);
@@ -68,7 +68,7 @@ namespace ProjetoTeste.Api.Controllers
             return CreatedAtAction(nameof(Get), newBrand.ToOutputBrand());
         }
 
-        [HttpPut("Atualização de Marca")]
+        [HttpPut("BrandUpdate")]
         public ActionResult<OutputBrand> Update(int id, InputUpdateBrand input)
         {
             var result = _brandService.UpdateBrand(id, input);
@@ -86,7 +86,7 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(updatedBrand.ToOutputBrand());
         }
 
-        [HttpDelete("Removendo Marca")]
+        [HttpDelete("BrandDeletion")]
         public async Task<ActionResult<bool>> Delete(int id)
         {
             var result = await _brandService.DeleteBrandAsync(id);

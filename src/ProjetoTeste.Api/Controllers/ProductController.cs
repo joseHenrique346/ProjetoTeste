@@ -22,7 +22,7 @@ namespace ProjetoTeste.Api.Controllers
         }
 
         [Authorize]
-        [HttpGet("Busca de Produtos")]
+        [HttpGet("GetProducts")]
         public async Task<ActionResult<List<OutputProduct>>> GetAll()
         {
             var result = await _productService.GetAllProductAsync();
@@ -30,7 +30,7 @@ namespace ProjetoTeste.Api.Controllers
         }
 
         [Authorize]
-        [HttpGet("Busca Por Id")]
+        [HttpGet("GetProductById")]
         public async Task<ActionResult<Product>> GetId(long id)
         {
             var result = await _productService.GetProductAsync(id);
@@ -55,7 +55,7 @@ namespace ProjetoTeste.Api.Controllers
             return await _productService.GetWithIncludesAsync(id, p => p.Brand);
         }
 
-        [HttpPost("Criação de Produto")]
+        [HttpPost("ProductCreation")]
         public async Task<ActionResult<OutputProduct>> Create(InputCreateProduct input)
         {
             var result = await _productService.CreateProductAsync(input);
@@ -74,7 +74,7 @@ namespace ProjetoTeste.Api.Controllers
             return CreatedAtAction(nameof(Create), createdProduct.ToOutputProduct());
         }
 
-        [HttpPut("Atualização de Produto")]
+        [HttpPut("ProductUpdate")]
         public ActionResult<OutputProduct> Update(int id, InputUpdateProduct input)
         {
             var result = _productService.UpdateProduct(id, input);
@@ -93,7 +93,7 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(updatedProduct.ToOutputProduct());
         }
 
-        [HttpDelete("Removendo Produto")]
+        [HttpDelete("ProductDeletion")]
         public async Task<ActionResult<bool>> Delete(int id)
         {
             var result = await _productService.DeleteProductAsync(id);
