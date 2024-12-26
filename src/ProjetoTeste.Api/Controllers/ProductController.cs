@@ -8,7 +8,7 @@ using ProjetoTeste.Infrastructure.Conversor;
 
 namespace ProjetoTeste.Api.Controllers
 {
-    [Route("produtos")]
+    [Route("product")]
     [ApiController]
     [Authorize(Roles = "Admin")]
     public class ProductController : ControllerBase

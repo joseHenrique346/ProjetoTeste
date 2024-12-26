@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.ConfigureContext(builder.Configuration);
 builder.Services.ConfigureInjectionDependency();
+builder.Services.AddControllers();
 
 //builder.Services.AddControllers(options =>
 //{

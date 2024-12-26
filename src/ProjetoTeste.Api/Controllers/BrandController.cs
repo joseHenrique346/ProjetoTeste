@@ -7,7 +7,7 @@ using ProjetoTeste.Infrastructure.Conversor;
 
 namespace ProjetoTeste.Api.Controllers
 {
-    [Route("marca")]
+    [Route("brand")]
     [ApiController]
     [Authorize(Roles = "Admin")]
     public class BrandController : ControllerBase

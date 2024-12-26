@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Service;
@@ -6,6 +7,9 @@ using ProjetoTeste.Infrastructure.Service;
 
 namespace ProjetoTeste.Api.Controllers
 {
+    [Route("order")]
+    [ApiController]
+    [Authorize(Roles = "Admin")]
     public class OrderController : Controller
     {
         private readonly IUnitOfWork _uof;
