@@ -2,9 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
-using ProjetoTeste.Infrastructure.Persistence.Entities;
 using ProjetoTeste.Infrastructure.Service;
-
+using ProjetoTeste.Infrastructure.Conversor;
 
 namespace ProjetoTeste.Api.Controllers
 {
@@ -26,8 +25,8 @@ namespace ProjetoTeste.Api.Controllers
         [HttpGet("Busca de Marcas")]
         public async Task<ActionResult<List<OutputBrand>>> GetAll()
         {
-            var brand = await _uof.BrandRepository.GetAllAsync();
-            return Ok(brand.ToListOutputBrand());
+            var brands = await _brandService.GetAllBrandAsync();
+            return Ok(brands.ToListOutputBrand());
         }
 
         [Authorize]
@@ -35,31 +34,56 @@ namespace ProjetoTeste.Api.Controllers
         public async Task<ActionResult<OutputBrand>> Get(int id)
         {
             var result = await _brandService.GetBrandAsync(id);
-            if (result is string errorMessage)
+            if (!result.Success)
             {
-                return BadRequest(errorMessage);
+                return BadRequest(result.Message);
             }
-            var brand = result as Brand;
-            if (brand == null)
+
+            var brand = result.Request;
+            if (brand is null)
             {
-                return NotFound();
+                return NotFound(result.Message);
             }
 
             return Ok(brand.ToOutputBrand());
         }
 
+
         [HttpPost("Criação de Marca")]
         public async Task<ActionResult<OutputBrand>> CreateAsync(InputCreateBrand input)
         {
             var brand = await _brandService.CreateBrandAsync(input);
-            return CreatedAtAction(nameof(Get), new { id = brand.Id }, brand.ToOutputBrand());
+
+            if (brand is null)
+            {
+                return NotFound(brand.Message);
+            }
+
+            if (!brand.Success)
+            {
+                return BadRequest(brand.Message);
+            }
+
+            var newBrand = brand.Request;
+            return CreatedAtAction(nameof(Get), newBrand.ToOutputBrand());
         }
 
         [HttpPut("Atualização de Marca")]
         public ActionResult<OutputBrand> Update(int id, InputUpdateBrand input)
         {
             var result = _brandService.UpdateBrand(id, input);
-            return Ok(result.ToOutputBrand());
+
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+            if (result is null)
+            {
+                return NotFound(result.Message);
+            }
+
+            var updatedBrand = result.Request;
+            return Ok(updatedBrand.ToOutputBrand());
         }
 
         [HttpDelete("Removendo Marca")]

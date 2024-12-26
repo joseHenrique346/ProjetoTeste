@@ -4,6 +4,7 @@ using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
+using System.Linq.Expressions;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
@@ -48,6 +49,18 @@ namespace ProjetoTeste.Infrastructure.Service
                 Success = true,
                 Request = product
             };
+        }
+
+        public async Task<List<Product?>> GetAllProductAsync()
+        {
+            var allProducts = await _productRepository.GetAllAsync();
+            return allProducts;
+        }
+
+        public async Task<Product?> GetWithIncludesAsync(long id, params Expression<Func<Product, object>>[] includes)
+        {
+            var productsWithIncludes = await _productRepository.GetWithIncludesAsync(id, includes);
+            return productsWithIncludes;
         }
 
         public async Task<string?> ValidateCreateProductAsync(InputCreateProduct input)

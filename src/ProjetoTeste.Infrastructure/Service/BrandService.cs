@@ -37,13 +37,13 @@ namespace ProjetoTeste.Infrastructure.Service
             };
         }
 
-        public async Task<Response<object>> GetBrandAsync(long id)
+        public async Task<Response<Brand?>> GetBrandAsync(long id)
         {
             var validationResponse = await ValidateGetBrandAsync(id); 
 
             if (!validationResponse.Success) 
             {
-                return new Response<object>
+                return new Response<Brand?>
                 {
                     Success = false,
                     Message = validationResponse.Message 
@@ -54,20 +54,25 @@ namespace ProjetoTeste.Infrastructure.Service
 
             if (brand == null)
             {
-                return new Response<object>
+                return new Response<Brand?>
                 {
                     Success = false,
                     Message = "Marca não encontrada."
                 };
             }
 
-            return new Response<object>
+            return new Response<Brand?>
             {
                 Success = true,
                 Request = brand 
             };
         }
 
+        public async Task<List<Brand?>> GetAllBrandAsync()
+        {
+            var allBrands = await _brandRepository.GetAllAsync();
+            return allBrands;
+        }
 
         public async Task<string?> ValidateCreateBrandAsync(InputCreateBrand input)
         {

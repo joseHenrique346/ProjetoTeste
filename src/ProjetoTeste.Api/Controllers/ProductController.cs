@@ -4,7 +4,7 @@ using ProjetoTeste.Arguments.Arguments.Product;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 using ProjetoTeste.Infrastructure.Service;
-
+using ProjetoTeste.Infrastructure.Conversor;
 
 namespace ProjetoTeste.Api.Controllers
 {
@@ -25,7 +25,7 @@ namespace ProjetoTeste.Api.Controllers
         [HttpGet("Busca de Produtos")]
         public async Task<ActionResult<List<OutputProduct>>> GetAll()
         {
-            var result = await _uof.ProductRepository.GetAllAsync();
+            var result = await _productService.GetAllProductAsync();
             return Ok(result.ToListOutputProduct());
         }
 
@@ -33,34 +33,64 @@ namespace ProjetoTeste.Api.Controllers
         [HttpGet("Busca Por Id")]
         public async Task<ActionResult<Product>> GetId(long id)
         {
-            var product = await _productService.GetProductAsync(id);
+            var result = await _productService.GetProductAsync(id);
 
-            if (product == null)
+            if (!result.Success)
             {
-                return NotFound();
+                return BadRequest(result.Message);
             }
 
-            return Ok(product.ToOutputProduct());
+            if (result == null)
+            {
+                return NotFound(result.Message);
+            }
+
+            var getProduct = result.Request;
+            return Ok(getProduct.ToOutputProduct());
         }
 
-        //[HttpGet]
-        //public async Task<Product?> GetProductWithBrandAsync(long id)
-        //{
-        //    return await _uof.ProductRepository.GetWithIncludesAsync(id, p => p.Brand);
-        //}
+        [HttpGet]
+        public async Task<Product?> GetProductWithBrandAsync(long id)
+        {
+            return await _productService.GetWithIncludesAsync(id, p => p.Brand);
+        }
 
         [HttpPost("Criação de Produto")]
         public async Task<ActionResult<OutputProduct>> Create(InputCreateProduct input)
         {
-            var product = await _productService.CreateProductAsync(input);
-            return CreatedAtAction(nameof(Create), new { id = product.Id }, product.ToOutputProduct());
+            var result = await _productService.CreateProductAsync(input);
+
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+
+            if (result is null)
+            {
+                return NotFound(result.Message);
+            }
+
+            var createdProduct = result.Request;
+            return CreatedAtAction(nameof(Create), createdProduct.ToOutputProduct());
         }
 
         [HttpPut("Atualização de Produto")]
         public ActionResult<OutputProduct> Update(int id, InputUpdateProduct input)
         {
             var result = _productService.UpdateProduct(id, input);
-            return Ok(result.ToOutputProduct());
+
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+
+            if (result is null)
+            {
+                return NotFound(result.Message);
+            }
+
+            var updatedProduct = result.Request;
+            return Ok(updatedProduct.ToOutputProduct());
         }
 
         [HttpDelete("Removendo Produto")]
