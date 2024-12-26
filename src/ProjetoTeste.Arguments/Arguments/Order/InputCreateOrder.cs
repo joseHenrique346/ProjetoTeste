@@ -1,13 +1,16 @@
-﻿using System.Text.Json.Serialization;
+﻿using ProjetoTeste.Arguments.Arguments.DTOs;
+using System.Text.Json.Serialization;
+
 
 namespace ProjetoTeste.Arguments.Arguments.Order
 {
     [method: JsonConstructor]
-    public class InputCreateOrder(long clientId, List<ProductOrder> productList)
+    public class InputCreateOrder(long clientId, List<ProductOrderDto> productList)
     {
         public long ClientId { get; } = clientId;
+        public List<ProductOrderDto> ProductOrder { get; } = productList;
+
         [JsonIgnore]
         public DateTime CreatedDate { get; } = DateTime.Now.Date;
-        public List<ProductOrder> ProductList { get; } = productList;
     }
 }

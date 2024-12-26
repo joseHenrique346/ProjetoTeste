@@ -1,4 +1,4 @@
-﻿
+﻿using ProjetoTeste.Arguments.Arguments.DTOs;
 using ProjetoTeste.Arguments.Arguments.Order;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 
@@ -8,10 +8,17 @@ namespace ProjetoTeste.Infrastructure.Conversor
     {
         public static OutputOrder ToOutputOrder(this Order order)
         {
+            var productOrderDto = order.ProductOrders.Select(po => new ProductOrderDto
+            {
+                OrderId = po.OrderId,
+                ProductId = po.ProductId,
+                Quantity = po.Quantity,
+            }).ToList();
+
             return new OutputOrder(
                 order.Id,
                 order.ClientId,
-                order.ProductOrders
+                productOrderDto
             );
         }
 
@@ -20,16 +27,22 @@ namespace ProjetoTeste.Infrastructure.Conversor
             return new Order
             {
                 ClientId = input.ClientId,
+                ProductOrders = input.ProductOrder
             };
         }
 
-        public static List<OutputOrder> ToListOutputOrder(this List<Order> order)
+        public static List<OutputOrder> ToListOutputOrder(this List<Order> orders)
         {
-            return order.Select(x => new OutputOrder(
-                x.Id,
-                x.ClientId,
-                x.ProductOrders
-                )).ToList();
+            return orders.Select(order => new OutputOrder(
+                order.Id,
+                order.ClientId,
+                order.ProductOrders.Select(po => new ProductOrderDto
+                {
+                    OrderId = po.OrderId,
+                    ProductId = po.ProductId,
+                    Quantity = po.Quantity,
+                }).ToList()
+            )).ToList();
         }
     }
 }

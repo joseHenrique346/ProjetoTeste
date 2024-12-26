@@ -1,17 +1,18 @@
 ﻿using ProjetoTeste.Arguments.Arguments.ProductOrder;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
+using ProjetoTeste.Arguments.Arguments.DTOs;
 
 namespace ProjetoTeste.Arguments.Arguments.Order
 {
     public class OutputOrder
     {
         [JsonConstructor]
-        public OutputOrder(long id, long clientId, List<InputCreateProductOrder> productList)
+        public OutputOrder(long id, long clientId, List<ProductOrderDto> productList)
         {
             Id = id;
             ClientId = clientId;
-            ProductList = productList ?? new List<InputCreateProductOrder>(); 
+            ProductList = productList ?? new List<ProductOrderDto>(); 
         }
 
         public long Id { get; set; }
@@ -19,6 +20,6 @@ namespace ProjetoTeste.Arguments.Arguments.Order
 
         [JsonIgnore]
         public DateTime CreatedDate { get; } = DateTime.Now.Date;
-        public List<InputCreateProductOrder> ProductList { get; }
+        public List<ProductOrderDto> ProductList { get; }
     }
 }

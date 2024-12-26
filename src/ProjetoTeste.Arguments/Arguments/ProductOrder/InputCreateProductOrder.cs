@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ProjetoTeste.Arguments.Arguments.ProductOrder
+﻿namespace ProjetoTeste.Arguments.Arguments.ProductOrder
 {
     public class InputCreateProductOrder(long orderId, long productId, int quantity, decimal unitPrice)
     {

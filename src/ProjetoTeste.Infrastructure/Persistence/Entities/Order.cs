@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using ProjetoTeste.Arguments.Arguments.DTOs;
+using System.Text.Json.Serialization;
 
 namespace ProjetoTeste.Infrastructure.Persistence.Entities
 {
@@ -6,10 +7,9 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
     {
         public long ClientId { get; set; }
         public DateTime CreatedDate { get; set; }
+        public virtual List<ProductOrderDto> ProductOrders { get; set; }
 
         [JsonIgnore]
         public virtual Client Client { get; set; }
-        [JsonIgnore]
-        public virtual List<ProductOrder> ProductOrders { get; set; }
     }
 }
