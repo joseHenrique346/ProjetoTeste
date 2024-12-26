@@ -38,12 +38,11 @@ namespace ProjetoTeste.Infrastructure.Conversor
         public static List<OutputBrand> ToListOutputBrand(this List<Brand> brand)
         {
             return brand.Select(x => new OutputBrand(
-
                 x.Id,
                 x.Name,
                 x.Code,
                 x.Description
-                )).ToList();
+            )).ToList();
         }
     }
 }

@@ -7,13 +7,15 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
 {
     public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : BaseEntity, new()
     {
+        //protected readonly IProductRepository _productRepository;
         protected readonly AppDbContext _context;
         protected readonly DbSet<TEntity> _dbSet;
 
-        public Repository(AppDbContext context)
+        public Repository(AppDbContext context/*,IProductRepository productRepository*/)
         {
             _context = context;
             _dbSet = context.Set<TEntity>();
+            //_productRepository = productRepository;
         }
 
         public TEntity? Get(long id)
@@ -25,6 +27,11 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
         {
             return _dbSet.ToList();
         }
+
+        //public async Task<ProductRepository> GetWithIncludesAsync()
+        //{
+        //    await _productRepository.Get
+        //}
 
         public async Task<List<TEntity>> GetAllAsync()
         {

@@ -43,7 +43,11 @@ namespace ProjetoTeste.Infrastructure.Service
             }
 
             var product = await _productRepository.GetWithIncludesAsync(id, p => p.Brand);
-            return product;
+            return new Response<Product?>
+            {
+                Success = true,
+                Request = product
+            };
         }
 
         public async Task<string?> ValidateCreateProductAsync(InputCreateProduct input)

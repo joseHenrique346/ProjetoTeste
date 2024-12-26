@@ -14,7 +14,7 @@
             services.AddScoped<ClientService>();
             services.AddScoped<ProductService>();
             services.AddScoped<IOrderRepository, OrderRepository>();
-            //services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
             //services.AddScoped<IBrandRepository, BrandRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
