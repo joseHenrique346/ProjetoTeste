@@ -12,10 +12,8 @@ namespace ProjetoTeste.Infrastructure.Service
     {
         private readonly IProductRepository _productRepository;
         private readonly IBrandRepository _brandRepository;
-        private readonly IUnitOfWork _uof;
-        public ProductService(IUnitOfWork uof, IProductRepository productRepository, IBrandRepository brandRepository)
+        public ProductService(IProductRepository productRepository, IBrandRepository brandRepository)
         {
-            _uof = uof;
             _productRepository = productRepository;
             _brandRepository = brandRepository;
         }
@@ -31,7 +29,7 @@ namespace ProjetoTeste.Infrastructure.Service
             return null;
         }
 
-        public async Task<Response<Product?>> GetProductAsync(long id)
+        public async Task<Response<Product?>> Get(long id)
         {
             var validationMessage = await ValidateGetProductAsync(id);
             if (validationMessage != null)
@@ -51,7 +49,7 @@ namespace ProjetoTeste.Infrastructure.Service
             };
         }
 
-        public async Task<List<Product?>> GetAllProductAsync()
+        public async Task<List<Product?>> GetAll()
         {
             var allProducts = await _productRepository.GetAllAsync();
             return allProducts;
@@ -65,8 +63,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
         public async Task<string?> ValidateCreateProductAsync(InputCreateProduct input)
         {
-            var existingProduct = (await _productRepository.GetAllAsync())
-                                  .FirstOrDefault(x => x.Code.Equals(input.Code));
+            var existingProduct = await _productRepository.GetByCode(input.Code);
 
             if (existingProduct != null)
             {
@@ -98,23 +95,7 @@ namespace ProjetoTeste.Infrastructure.Service
                 return "Informe um valor válido para o Id da marca.";
             }
 
-            if (input.BrandId.HasValue)
-            {
-                var brandExists = await _brandRepository.GetAsync(input.BrandId.Value);
-
-                if (brandExists == null)
-                {
-                    var newBrand = new Brand
-                    {
-                        Id = input.BrandId.Value,
-                        Name = "Marca Padrão"
-                    };
-
-                    await _brandRepository.CreateAsync(newBrand);
-                    await _uof.CommitAsync();
-                }
-            }
-            else
+            if (!input.BrandId.HasValue)
             {
                 return "O ID da marca não pode ser nulo.";
             }
@@ -122,9 +103,7 @@ namespace ProjetoTeste.Infrastructure.Service
             return null;
         }
 
-
-
-        public async Task<Response<Product>> CreateProductAsync(InputCreateProduct input)
+        public async Task<Response<Product>> Create(InputCreateProduct input)
         {
             var validationMessage = await ValidateCreateProductAsync(input);
             if (validationMessage != null)
@@ -137,7 +116,6 @@ namespace ProjetoTeste.Infrastructure.Service
             }
 
             var product = await _productRepository.CreateAsync(input.ToProduct());
-            await _uof.CommitAsync();
             return new Response<Product>
             {
                 Success = true,
@@ -145,21 +123,16 @@ namespace ProjetoTeste.Infrastructure.Service
             };
         }
 
-        public string? ValidateUpdateProduct(long id, InputUpdateProduct input)
+        public async Task<string?> ValidateUpdateProduct(long id, InputUpdateProduct input)
         {
-            var allProducts = _productRepository.GetAll();
-
-            var currentProduct = _productRepository.Get(id);
+            var currentProduct = await _productRepository.GetAsync(id);
 
             if (currentProduct == null)
             {
                 return "Produto não encontrado.";
             }
 
-            var existingCodeProduct = allProducts
-                .FirstOrDefault(x =>
-                    x.Code.Equals(input.Code) &&
-                    x.Id != currentProduct.Id);
+            var existingCodeProduct = await _productRepository.GetByCode(input.Code);
 
             if (existingCodeProduct != null)
             {
@@ -174,9 +147,9 @@ namespace ProjetoTeste.Infrastructure.Service
             return null;
         }
 
-        public Response<Product> UpdateProduct(long id, InputUpdateProduct input)
+        public async Task<Response<Product>> Update(long id, InputUpdateProduct input)
         {
-            var validationMessage = ValidateUpdateProduct(id, input);
+            var validationMessage = await ValidateUpdateProduct(id, input);
             if (validationMessage != null)
             {
                 return new Response<Product>
@@ -186,7 +159,7 @@ namespace ProjetoTeste.Infrastructure.Service
                 };
             }
 
-            var existingProduct = _productRepository.Get(id);
+            var existingProduct = await _productRepository.GetAsync(id);
 
             if (existingProduct == null)
             {
@@ -204,8 +177,7 @@ namespace ProjetoTeste.Infrastructure.Service
             existingProduct.Stock = input.Stock;
             existingProduct.BrandId = input.BrandId;
 
-            _productRepository.Update(existingProduct);
-            _uof.Commit();
+            await _productRepository.Update(existingProduct);
 
             return new Response<Product>
             {
@@ -234,7 +206,7 @@ namespace ProjetoTeste.Infrastructure.Service
             };
         }
 
-        public async Task<Response<bool>> DeleteProductAsync(long id)
+        public async Task<Response<bool>> Delete(long id)
         {
             var validationMessage = await ValidateDeleteProductAsync(id);
             if (!validationMessage.Success)
@@ -247,7 +219,6 @@ namespace ProjetoTeste.Infrastructure.Service
             }
 
             await _productRepository.DeleteAsync(id);
-            await _uof.CommitAsync();
             return new Response<bool>
             {
                 Success = true

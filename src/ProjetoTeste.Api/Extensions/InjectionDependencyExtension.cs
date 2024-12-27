@@ -11,12 +11,12 @@
         public static IServiceCollection ConfigureInjectionDependency(this IServiceCollection services)
         {
             services.AddScoped<BrandService>();
-            services.AddScoped<ClientService>();
+            services.AddScoped<CustomerService>();
             services.AddScoped<ProductService>();
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IBrandRepository, BrandRepository>();
-            services.AddScoped<IClientRepository, ClientRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             return services;

@@ -12,9 +12,9 @@ namespace ProjetoTeste.Infrastructure.Persistence.Mapping
 
             builder.HasKey(x => x.Id);
 
-            builder.HasOne(x => x.Client)
+            builder.HasOne(x => x.Customer)
                 .WithMany(y => y.Order)
-                .HasForeignKey(x => x.ClientId)
+                .HasForeignKey(x => x.CustomerId)
                 .OnDelete(DeleteBehavior.Cascade);
 
 

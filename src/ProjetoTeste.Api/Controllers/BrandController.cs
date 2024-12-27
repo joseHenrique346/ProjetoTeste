@@ -1,39 +1,31 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ProjetoTeste.Arguments.Arguments.Brand;
+using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Service;
-using ProjetoTeste.Infrastructure.Conversor;
 
 namespace ProjetoTeste.Api.Controllers
 {
-    [Route("brand")]
-    [ApiController]
-    [Authorize(Roles = "Admin")]
-    public class BrandController : ControllerBase
+    public class BrandController : BaseController
     {
         private readonly BrandService _brandService;
-        private readonly IUnitOfWork _uof;
 
-        public BrandController(IUnitOfWork uof, BrandService brandService)
+        public BrandController(IUnitOfWork unitOfWork, BrandService brandService) : base(unitOfWork)
         {
             _brandService = brandService;
-            _uof = uof;
         }
 
-        [Authorize]
-        [HttpGet("GetBrands")]
+        [HttpGet]
         public async Task<ActionResult<List<OutputBrand>>> GetAll()
         {
-            var brands = await _brandService.GetAllBrandAsync();
+            var brands = await _brandService.GetAll();
             return Ok(brands.ToListOutputBrand());
         }
 
-        [Authorize]
-        [HttpGet("GetBrandById")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<OutputBrand>> Get(int id)
         {
-            var result = await _brandService.GetBrandAsync(id);
+            var result = await _brandService.Get(id);
             if (!result.Success)
             {
                 return BadRequest(result.Message);
@@ -48,11 +40,10 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(brand.ToOutputBrand());
         }
 
-
-        [HttpPost("BrandCreation")]
+        [HttpPost]
         public async Task<ActionResult<OutputBrand>> CreateAsync(InputCreateBrand input)
         {
-            var brand = await _brandService.CreateBrandAsync(input);
+            var brand = await _brandService.Create(input);
 
             if (brand is null)
             {
@@ -65,13 +56,13 @@ namespace ProjetoTeste.Api.Controllers
             }
 
             var newBrand = brand.Request;
-            return CreatedAtAction(nameof(Get), newBrand.ToOutputBrand());
+            return Ok(newBrand);
         }
 
-        [HttpPut("BrandUpdate")]
-        public ActionResult<OutputBrand> Update(int id, InputUpdateBrand input)
+        [HttpPut]
+        public async Task<ActionResult<OutputBrand>> Update(int id, InputUpdateBrand input)
         {
-            var result = _brandService.UpdateBrand(id, input);
+            var result = await _brandService.Update(id, input);
 
             if (!result.Success)
             {
@@ -86,10 +77,10 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(updatedBrand.ToOutputBrand());
         }
 
-        [HttpDelete("BrandDeletion")]
+        [HttpDelete]
         public async Task<ActionResult<bool>> Delete(int id)
         {
-            var result = await _brandService.DeleteBrandAsync(id);
+            var result = await _brandService.Delete(id);
             return Ok(result);
         }
     }

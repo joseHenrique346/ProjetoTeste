@@ -2,11 +2,10 @@
 using ProjetoTeste.Infrastructure.Persistence.Context;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 
-
 namespace ProjetoTeste.Infrastructure.Persistence.Repositories
 {
-    public class ClientRepository : Repository<Client>, IClientRepository
+    public class CustomerRepository : Repository<Customer>, ICustomerRepository
     {
-        public ClientRepository(AppDbContext context) : base(context) { }
+        public CustomerRepository(AppDbContext context) : base(context) { }
     }
 }

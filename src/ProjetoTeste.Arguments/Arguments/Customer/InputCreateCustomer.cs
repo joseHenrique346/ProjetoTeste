@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ProjetoTeste.Arguments.Arguments.Client
+namespace ProjetoTeste.Arguments.Arguments.Customer
 {
     [method: JsonConstructor]
-    public class InputCreateClient(string name, string email, string cpf, int phone)
+    public class InputCreateCustomer(string name, string email, string cpf, int phone)
     {
         public string Name { get; } = name;
         public string Email { get; } = email;

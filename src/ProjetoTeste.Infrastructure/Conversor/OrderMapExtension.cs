@@ -1,5 +1,4 @@
-﻿using ProjetoTeste.Arguments.Arguments.DTOs;
-using ProjetoTeste.Arguments.Arguments.Order;
+﻿using ProjetoTeste.Arguments.Arguments.Order;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Conversor
@@ -8,17 +7,18 @@ namespace ProjetoTeste.Infrastructure.Conversor
     {
         public static OutputOrder ToOutputOrder(this Order order)
         {
-            var productOrderDto = order.ProductOrders.Select(po => new ProductOrderDto
-            {
-                OrderId = po.OrderId,
-                ProductId = po.ProductId,
-                Quantity = po.Quantity,
-            }).ToList();
+            //var productOrderDto = order.ProductOrders.Select(po => new ProductList
+            //{
+            //    OrderId = po.OrderId,
+            //    ProductId = po.ProductId,
+            //    Quantity = po.Quantity,
+            //}).ToList();
 
             return new OutputOrder(
                 order.Id,
-                order.ClientId,
-                productOrderDto
+                order.CustomerId,
+                default
+                //productOrderDto
             );
         }
 
@@ -32,7 +32,7 @@ namespace ProjetoTeste.Infrastructure.Conversor
 
             return new Order
             {
-                ClientId = input.ClientId,
+                CustomerId = input.CustomerId,
                 ProductOrders = productOrders
             };
         }
@@ -41,13 +41,14 @@ namespace ProjetoTeste.Infrastructure.Conversor
         {
             return orders.Select(order => new OutputOrder(
                 order.Id,
-                order.ClientId,
-                order.ProductOrders.Select(po => new ProductOrderDto
-                {
-                    OrderId = po.OrderId,
-                    ProductId = po.ProductId,
-                    Quantity = po.Quantity,
-                }).ToList()
+                order.CustomerId,
+                default
+                //order.ProductOrders.Select(po => new ProductList
+                //{
+                //    OrderId = po.OrderId,
+                //    ProductId = po.ProductId,
+                //    Quantity = po.Quantity,
+                //}).ToList()
             )).ToList();
         }
     }

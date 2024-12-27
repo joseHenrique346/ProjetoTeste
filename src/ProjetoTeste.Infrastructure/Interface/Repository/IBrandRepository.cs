@@ -2,5 +2,8 @@
 
 namespace ProjetoTeste.Infrastructure.Interface.Repository
 {
-    public interface IBrandRepository : IRepository<Brand> { }
+    public interface IBrandRepository : IRepository<Brand>
+    {
+        Task<Brand> GetByCode(string code);
+    }
 }

@@ -8,32 +8,27 @@ using ProjetoTeste.Infrastructure.Conversor;
 
 namespace ProjetoTeste.Api.Controllers
 {
-    [Route("product")]
-    [ApiController]
-    [Authorize(Roles = "Admin")]
-    public class ProductController : ControllerBase
+    public class ProductController : BaseController
     {
         private readonly ProductService _productService;
-        private readonly IUnitOfWork _uof;
-        public ProductController(IUnitOfWork uof, ProductService productService)
+        public ProductController(IUnitOfWork unitOfWork, ProductService productService) : base(unitOfWork)
         {
             _productService = productService;
-            _uof = uof;
         }
 
         [Authorize]
-        [HttpGet("GetProducts")]
+        [HttpGet]
         public async Task<ActionResult<List<OutputProduct>>> GetAll()
         {
-            var result = await _productService.GetAllProductAsync();
+            var result = await _productService.GetAll();
             return Ok(result.ToListOutputProduct());
         }
 
         [Authorize]
-        [HttpGet("GetProductById")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetId(long id)
         {
-            var result = await _productService.GetProductAsync(id);
+            var result = await _productService.Get(id);
 
             if (!result.Success)
             {
@@ -49,16 +44,16 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(getProduct.ToOutputProduct());
         }
 
-        [HttpGet]
-        public async Task<Product?> GetProductWithBrandAsync(long id)
-        {
-            return await _productService.GetWithIncludesAsync(id, p => p.Brand);
-        }
+        //[HttpGet]
+        //public async Task<Product?> GetProductWithBrandAsync(long id)
+        //{
+        //    return await _productService.GetWithIncludesAsync(id, p => p.Brand);
+        //}
 
-        [HttpPost("ProductCreation")]
+        [HttpPost]
         public async Task<ActionResult<OutputProduct>> Create(InputCreateProduct input)
         {
-            var result = await _productService.CreateProductAsync(input);
+            var result = await _productService.Create(input);
 
             if (!result.Success)
             {
@@ -74,10 +69,10 @@ namespace ProjetoTeste.Api.Controllers
             return CreatedAtAction(nameof(Create), createdProduct.ToOutputProduct());
         }
 
-        [HttpPut("ProductUpdate")]
-        public ActionResult<OutputProduct> Update(int id, InputUpdateProduct input)
+        [HttpPut]
+        public async Task<ActionResult<OutputProduct>> Update(int id, InputUpdateProduct input)
         {
-            var result = _productService.UpdateProduct(id, input);
+            var result = await _productService.Update(id, input);
 
             if (!result.Success)
             {
@@ -93,10 +88,10 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(updatedProduct.ToOutputProduct());
         }
 
-        [HttpDelete("ProductDeletion")]
+        [HttpDelete]
         public async Task<ActionResult<bool>> Delete(int id)
         {
-            var result = await _productService.DeleteProductAsync(id);
+            var result = await _productService.Delete(id);
             return Ok(result);
         }
     }

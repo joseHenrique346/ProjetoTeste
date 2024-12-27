@@ -1,37 +1,34 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
+﻿using Microsoft.AspNetCore.Mvc;
+using ProjetoTeste.Arguments.Arguments.Order;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Service;
 
-
 namespace ProjetoTeste.Api.Controllers
 {
-    [Route("order")]
-    [ApiController]
-    [Authorize(Roles = "Admin")]
-    public class OrderController : Controller
+    public class OrderController : BaseController
     {
-        private readonly IUnitOfWork _uof;
         private readonly OrderService _orderService;
 
-        public OrderController(IUnitOfWork uof, OrderService orderService)
+        public OrderController(IUnitOfWork unitOfWork, OrderService orderService) : base(unitOfWork)
         {
-            _uof = uof;
             _orderService = orderService;
         }
 
-        [HttpGet("GetOrders")]
-        public async Task<ActionResult> GetAllAsync()
-        {
-            var AllOrder = await _orderService.GetAllOrderAsync();
-            return Ok(AllOrder);
-        }
+        //[HttpGet]
+        //public async Task<ActionResult> GetAllAsync()
+        //{
+        //    var AllOrder = await _orderService.GetAllOrderAsync();
+        //    return Ok(AllOrder);
+        //}
 
-        public override async void OnActionExecuted(ActionExecutedContext context)
-        {
-            await _uof.CommitAsync();
-            base.OnActionExecuted(context);
-        }
+        //[HttpPost]
+        //public async Task<ActionResult<OutputPo>>> Create(InputCreateOrder input)
+        //{
+        //    var createdOrder = await _orderService.Create(input);
+        //    if (createdOrder is null)
+        //    {
+        //        return new Response<>
+        //    }
+        //}
     }
 }

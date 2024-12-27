@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ProjetoTeste.Infrastructure.Persistence.Mapping
 {
-    public class ClientMapping : IEntityTypeConfiguration<Client>
+    public class CustomerMapping : IEntityTypeConfiguration<Customer>
     {
-        public void Configure(EntityTypeBuilder<Client> builder)
+        public void Configure(EntityTypeBuilder<Customer> builder)
         {
             builder.ToTable("cliente");
 

@@ -8,12 +8,12 @@ namespace ProjetoTeste.Infrastructure.Persistence.Context
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<Client> Clients { get; set; }
+        public DbSet<Customer> Customers { get; set; }
         public DbSet<Brand> Brands { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ClientMapping).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(CustomerMapping).Assembly);
 
             base.OnModelCreating(modelBuilder);
         }

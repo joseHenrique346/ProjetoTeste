@@ -2,5 +2,5 @@
 
 namespace ProjetoTeste.Infrastructure.Interface.Repository
 {
-    public interface IOrderRepository : IRepository<Order> { }
+    public interface ICustomerRepository : IRepository<Customer> { }
 }
