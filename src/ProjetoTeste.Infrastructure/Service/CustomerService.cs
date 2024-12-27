@@ -1,4 +1,5 @@
-﻿using ProjetoTeste.Arguments.Arguments.Response;
+﻿using ProjetoTeste.Arguments.Arguments.Customer;
+using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 
@@ -95,6 +96,18 @@ namespace ProjetoTeste.Infrastructure.Service
             {
                 Success = true,
             };
+        }
+
+        public async Task<Response<Customer>> Create(InputCreateCustomer input)
+        {
+            var result = await ValidateCreateCustomerAsync(input);
+            if (!result.Success)
+            {
+                return new Response<Customer> { Success = false, Message = result.Message };
+            }
+
+            var customer = new Customer { CPF = input.CPF, Email = input.Email, Name = input.Name, Phone = input.Phone };
+            return new Response<Customer> { Success = true, Request = customer };
         }
     }
 }

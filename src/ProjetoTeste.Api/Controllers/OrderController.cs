@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjetoTeste.Arguments.Arguments.Order;
+using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
+using ProjetoTeste.Infrastructure.Persistence.Entities;
 using ProjetoTeste.Infrastructure.Service;
 
 namespace ProjetoTeste.Api.Controllers
@@ -14,21 +16,22 @@ namespace ProjetoTeste.Api.Controllers
             _orderService = orderService;
         }
 
-        //[HttpGet]
-        //public async Task<ActionResult> GetAllAsync()
-        //{
-        //    var AllOrder = await _orderService.GetAllOrderAsync();
-        //    return Ok(AllOrder);
-        //}
+        [HttpGet]
+        public async Task<ActionResult> GetAllAsync()
+        {
+            return Ok(await _orderService.GetAll());
+        }
 
-        //[HttpPost]
-        //public async Task<ActionResult<OutputPo>>> Create(InputCreateOrder input)
-        //{
-        //    var createdOrder = await _orderService.Create(input);
-        //    if (createdOrder is null)
-        //    {
-        //        return new Response<>
-        //    }
-        //}
+        [HttpPost]
+        public async Task<ActionResult<Response<Order>>> Create(InputCreateOrder input)
+        {
+            var result = await _orderService.Create(input);
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+
+            return Ok(result.Request);
+        }
     }
 }
