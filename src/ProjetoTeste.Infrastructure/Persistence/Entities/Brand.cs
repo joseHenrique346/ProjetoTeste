@@ -8,6 +8,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
         public string Code { get; set; }
         public string Description { get; set; }
 
+        [JsonIgnore]
         public virtual List<Product>? ListProduct { get; set; }
     }
 }

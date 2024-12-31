@@ -16,7 +16,6 @@ namespace ProjetoTeste.Api.Controllers
             _productService = productService;
         }
 
-        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<OutputProduct>>> GetAll()
         {
@@ -24,7 +23,6 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(result.ToListOutputProduct());
         }
 
-        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetId(long id)
         {

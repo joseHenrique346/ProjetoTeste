@@ -7,33 +7,18 @@ namespace ProjetoTeste.Infrastructure.Conversor
     {
         public static OutputOrder ToOutputOrder(this Order order)
         {
-            //var productOrderDto = order.ProductOrders.Select(po => new ProductList
-            //{
-            //    OrderId = po.OrderId,
-            //    ProductId = po.ProductId,
-            //    Quantity = po.Quantity,
-            //}).ToList();
-
             return new OutputOrder(
                 order.Id,
-                order.CustomerId,
-                default
-                //productOrderDto
+                order.CustomerId
             );
         }
 
         public static Order ToOrder(this InputCreateOrder input)
         {
-            var productOrders = input.ProductOrder.Select(dto => new ProductOrder
-            {
-                ProductId = dto.ProductId,
-                Quantity = dto.Quantity,
-            }).ToList();
-
             return new Order
             {
                 CustomerId = input.CustomerId,
-                ProductOrders = productOrders
+                //ProductOrders = productOrders
             };
         }
 
@@ -41,14 +26,14 @@ namespace ProjetoTeste.Infrastructure.Conversor
         {
             return orders.Select(order => new OutputOrder(
                 order.Id,
-                order.CustomerId,
-                default
-                //order.ProductOrders.Select(po => new ProductList
-                //{
-                //    OrderId = po.OrderId,
-                //    ProductId = po.ProductId,
-                //    Quantity = po.Quantity,
-                //}).ToList()
+                order.CustomerId
+            //default
+            //order.ProductOrders.Select(po => new ProductList
+            //{
+            //    OrderId = po.OrderId,
+            //    ProductId = po.ProductId,
+            //    Quantity = po.Quantity,
+            //}).ToList()
             )).ToList();
         }
     }

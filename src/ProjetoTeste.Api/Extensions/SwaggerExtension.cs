@@ -1,6 +1,4 @@
-﻿using Microsoft.OpenApi.Models;
-
-namespace ProjetoTeste.Api.Extensions
+﻿namespace ProjetoTeste.Api.Extensions
 {
     public static class SwaggerExtension
     {
@@ -8,6 +6,7 @@ namespace ProjetoTeste.Api.Extensions
         {
             services.AddSwaggerGen(c =>
             {
+                /*
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
@@ -30,6 +29,7 @@ namespace ProjetoTeste.Api.Extensions
                         new string[] {}
                     }
                 });
+                */
             });
             return services;
         }

@@ -12,14 +12,17 @@ namespace ProjetoTeste.Infrastructure.Service
     {
         private readonly IProductRepository _productRepository;
         private readonly IBrandRepository _brandRepository;
-        public ProductService(IProductRepository productRepository, IBrandRepository brandRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        public ProductService(IProductRepository productRepository, IBrandRepository brandRepository, IUnitOfWork unitOfWork)
         {
             _productRepository = productRepository;
             _brandRepository = brandRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<string?> ValidateGetProductAsync(long id)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var existingProduct = await _productRepository.GetWithIncludesAsync(id, p => p.Brand);
             if (existingProduct is null)
             {
@@ -31,6 +34,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
         public async Task<Response<Product?>> Get(long id)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var validationMessage = await ValidateGetProductAsync(id);
             if (validationMessage != null)
             {
@@ -51,18 +55,21 @@ namespace ProjetoTeste.Infrastructure.Service
 
         public async Task<List<Product?>> GetAll()
         {
+            await _unitOfWork.BeginTransactionAsync();
             var allProducts = await _productRepository.GetAllAsync();
             return allProducts;
         }
 
         public async Task<Product?> GetWithIncludesAsync(long id, params Expression<Func<Product, object>>[] includes)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var productsWithIncludes = await _productRepository.GetWithIncludesAsync(id, includes);
             return productsWithIncludes;
         }
 
         public async Task<string?> ValidateCreateProductAsync(InputCreateProduct input)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var existingProduct = await _productRepository.GetByCode(input.Code);
 
             if (existingProduct != null)
@@ -125,6 +132,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
         public async Task<string?> ValidateUpdateProduct(long id, InputUpdateProduct input)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var currentProduct = await _productRepository.GetAsync(id);
 
             if (currentProduct == null)
@@ -188,6 +196,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
         public async Task<Response<string?>> ValidateDeleteProductAsync(long id)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var products = await _productRepository.GetAllAsync();
             var existingProduct = products.FirstOrDefault(x => x.Id == id);
 

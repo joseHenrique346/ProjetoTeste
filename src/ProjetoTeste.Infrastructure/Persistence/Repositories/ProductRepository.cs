@@ -20,7 +20,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
 
             return await query.FirstOrDefaultAsync(p => p.Id == id);
         }
-        public async Task<Product> GetByCode(string code)
+        public async Task<Product?> GetByCode(string code)
         {
             return await _dbSet.Where(x => x.Code == code).FirstOrDefaultAsync();
         }

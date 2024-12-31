@@ -1,21 +1,29 @@
 ﻿using ProjetoTeste.Arguments.Arguments.Customer;
 using ProjetoTeste.Arguments.Arguments.Response;
+using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
+using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
+using ProjetoTeste.Infrastructure.Persistence.Context;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
     public class CustomerService
     {
-        protected readonly ICustomerRepository _customerRepository;
+        private readonly ICustomerRepository _customerRepository;
+        private readonly AppDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CustomerService(ICustomerRepository customerRepository)
+        public CustomerService(ICustomerRepository customerRepository, AppDbContext context, IUnitOfWork unitOfWork)
         {
             _customerRepository = customerRepository;
+            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Response<string?>> ValidateGetCustomerAsync(long id)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var existingId = await _customerRepository.GetAsync(id);
             if (existingId is null)
             {
@@ -32,13 +40,13 @@ namespace ProjetoTeste.Infrastructure.Service
             };
         }
 
-        public async Task<Response<Customer?>> Get(long id)
+        public async Task<Response<OutputCustomer>> Get(long id)
         {
             var validationResponse = await ValidateGetCustomerAsync(id);
 
             if (!validationResponse.Success)
             {
-                return new Response<Customer?>
+                return new Response<OutputCustomer>
                 {
                     Success = false,
                     Message = validationResponse.Message
@@ -47,10 +55,10 @@ namespace ProjetoTeste.Infrastructure.Service
 
             var customer = await _customerRepository.GetAsync(id);
 
-            return new Response<Customer?>
+            return new Response<OutputCustomer>
             {
                 Success = true,
-                Request = customer
+                Request = customer.ToOutputCustomer()
             };
         }
 
@@ -65,7 +73,7 @@ namespace ProjetoTeste.Infrastructure.Service
                 };
             }
 
-            if (input.Phone < 11 || input.Phone > 11)
+            if (input.Phone.Length != 11)
             {
                 return new Response<string?>
                 {
@@ -98,16 +106,31 @@ namespace ProjetoTeste.Infrastructure.Service
             };
         }
 
-        public async Task<Response<Customer>> Create(InputCreateCustomer input)
+        public async Task<Response<OutputCustomer>> Create(InputCreateCustomer input)
         {
             var result = await ValidateCreateCustomerAsync(input);
+            await _unitOfWork.BeginTransactionAsync();
             if (!result.Success)
             {
-                return new Response<Customer> { Success = false, Message = result.Message };
+                return new Response<OutputCustomer> { Success = false, Message = result.Message };
             }
 
-            var customer = new Customer { CPF = input.CPF, Email = input.Email, Name = input.Name, Phone = input.Phone };
-            return new Response<Customer> { Success = true, Request = customer };
+            var customer = new Customer
+            {
+                CPF = input.CPF,
+                Email = input.Email,
+                Name = input.Name,
+                Phone = input.Phone
+            };
+
+            _context.Customers.Add(customer);
+            await _context.SaveChangesAsync();
+
+            return new Response<OutputCustomer>
+            {
+                Success = true,
+                Request = customer.ToOutputCustomer()
+            };
         }
     }
 }

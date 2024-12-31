@@ -4,6 +4,7 @@ using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
+using ProjetoTeste.Infrastructure.Persistence.Repositories;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
@@ -11,30 +12,35 @@ namespace ProjetoTeste.Infrastructure.Service
     {
         private readonly IProductRepository _productRepository;
         private readonly IBrandRepository _brandRepository;
-        public BrandService(IBrandRepository brandRepository, IProductRepository productRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        public BrandService(IBrandRepository brandRepository, IProductRepository productRepository, IUnitOfWork unitOfWork)
         {
             _brandRepository = brandRepository;
             _productRepository = productRepository;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<Response<Brand?>> Get(long id)
+        public async Task<Response<Brand>> Get(long id)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var brand = await _brandRepository.GetAsync(id); 
 
-            return new Response<Brand?>
+            return new Response<Brand>
             {
                 Success = true,
                 Request = brand 
             };
         }
 
-        public async Task<List<Brand?>> GetAll()
+        public async Task<List<Brand>> GetAll()
         {
+            await _unitOfWork.BeginTransactionAsync();
             return await _brandRepository.GetAllAsync();
         }
 
         public async Task<string?> ValidateCreateBrandAsync(InputCreateBrand input)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var existingCode = await _brandRepository.GetByCode(input.Code);
 
             if (existingCode != null)
@@ -77,6 +83,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
         public async Task<string?> ValidateUpdateBrand(long id, InputUpdateBrand input)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var currentBrand = await _brandRepository.GetAsync(id);
 
             if (currentBrand == null)
@@ -128,6 +135,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
         public async Task<Response<string?>> ValidateDeleteBrandAsync(long id)
         {
+            await _unitOfWork.BeginTransactionAsync();
             var existingBrand = (await _brandRepository.GetAllAsync())
                                 .FirstOrDefault(x => x.Id == id);
 

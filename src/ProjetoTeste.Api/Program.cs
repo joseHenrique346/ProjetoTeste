@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Identity;
 using ProjetoTeste.Api.Extensions;
 using ProjetoTeste.Infrastructure.Persistence.Context;
-using System.Text.Json.Serialization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +22,7 @@ builder.Services.ConfigureSwagger();
 
 //builder.Services.AddJWTAuthentication(builder.Configuration);
 
-builder.Services.AddAuthorization();
+//builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -36,8 +34,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
+//app.UseAuthentication();
+//app.UseAuthorization();
 
 app.MapControllers();
 

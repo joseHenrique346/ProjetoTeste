@@ -17,7 +17,6 @@ namespace ProjetoTeste.Infrastructure.Persistence.Mapping
             builder.HasOne(x => x.Product)
                    .WithMany()
                    .HasForeignKey(x => x.ProductId);
-
         }
     }
 }

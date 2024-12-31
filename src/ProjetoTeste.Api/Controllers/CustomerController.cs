@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjetoTeste.Arguments.Arguments.Customer;
-using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
-using ProjetoTeste.Infrastructure.Persistence.Entities;
 using ProjetoTeste.Infrastructure.Service;
 
 namespace ProjetoTeste.Api.Controllers
@@ -17,13 +15,14 @@ namespace ProjetoTeste.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<Response<Customer?>> Get(long id)
+        public async Task<ActionResult<OutputCustomer>> Get(long id)
         {
-            return await _customerService.Get(id);
+            var getCustomer = await _customerService.Get(id);
+            return Ok(getCustomer.Request);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Response<Customer>>> Create(InputCreateCustomer input)
+        public async Task<ActionResult<OutputCustomer>> Create(InputCreateCustomer input)
         {
             var result = await _customerService.Create(input);
             if (!result.Success)

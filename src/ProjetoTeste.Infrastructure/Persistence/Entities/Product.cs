@@ -13,6 +13,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
         public decimal Price { get; set; }
         public long Stock { get; set; }
 
+        [JsonIgnore]
         public virtual Brand? Brand { get; set; }
     }
 }
