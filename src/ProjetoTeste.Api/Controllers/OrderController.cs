@@ -19,9 +19,15 @@ namespace ProjetoTeste.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetAllAsync()
+        public async Task<ActionResult> GetWithIncludesAsync()
         {
             return Ok(await _orderService.GetAll());
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetWithIncludesAsync(long id)
+        {
+            return Ok(await _orderService.Get(id));
         }
 
         [HttpPost]

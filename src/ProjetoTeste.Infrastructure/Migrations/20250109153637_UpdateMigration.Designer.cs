@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjetoTeste.Infrastructure.Persistence.Context;
 
@@ -10,9 +11,11 @@ using ProjetoTeste.Infrastructure.Persistence.Context;
 namespace ProjetoTeste.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250109153637_UpdateMigration")]
+    partial class UpdateMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,7 +170,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(65,30)")
-                        .HasColumnName("preco_total");
+                        .HasColumnName("subtotal");
 
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(65,30)")
@@ -208,7 +211,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
             modelBuilder.Entity("ProjetoTeste.Infrastructure.Persistence.Entities.ProductOrder", b =>
                 {
                     b.HasOne("ProjetoTeste.Infrastructure.Persistence.Entities.Order", "Order")
-                        .WithMany("ListProductOrder")
+                        .WithMany("ProductOrders")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -236,7 +239,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
 
             modelBuilder.Entity("ProjetoTeste.Infrastructure.Persistence.Entities.Order", b =>
                 {
-                    b.Navigation("ListProductOrder");
+                    b.Navigation("ProductOrders");
                 });
 #pragma warning restore 612, 618
         }

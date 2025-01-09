@@ -23,13 +23,13 @@ namespace ProjetoTeste.Infrastructure.Service
         }
         public async Task<List<Order>> GetAll()
         {
-            return await _orderRepository.GetAllAsync();
+            return await _orderRepository.GetWithIncludesAsync();
         }
 
-        public async Task<Response<Order?>> Get(long id)
+        public async Task<Response<List<Order>?>> Get(long id)
         {
-            var orderId = await _orderRepository.GetAsync(id);
-            return new Response<Order?> { Success = true, Request = orderId };
+            var orderId = await _orderRepository.GetWithIncludesAsync(id);
+            return new Response<List<Order?>> { Success = true, Request = orderId };
         }
 
         public async Task<Response<Order>> Create(InputCreateOrder input)
@@ -60,7 +60,8 @@ namespace ProjetoTeste.Infrastructure.Service
                 OrderId = input.OrderId,
                 ProductId = input.ProductId,
                 Quantity = input.Quantity,
-                UnitPrice = currentProduct.Price
+                UnitPrice = currentProduct.Price,
+                TotalPrice = input.Quantity * currentProduct.Stock
             };
 
             //var createProductOrder = new ProductOrder() { OrderId = input.OrderId, ProductId = input.ProductId, Quantity = input.Quantity, UnitPrice = currentProduct.Price };

@@ -11,9 +11,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
         public long CustomerId { get; set; }
         public DateOnly CreatedDate { get; set; }
 
-        [JsonIgnore]
-        public virtual List<ProductOrder> ProductOrders { get; set; }
-        [JsonIgnore]
-        public virtual Customer Customer { get; set; }
+        public List<ProductOrder> ListProductOrder { get; set; }
+        public Customer? Customer { get; set; }
     }
 }

@@ -12,7 +12,8 @@ namespace ProjetoTeste.Infrastructure.Conversor
                 productOrder.OrderId,
                 productOrder.ProductId,
                 productOrder.Quantity,
-                productOrder.UnitPrice
+                productOrder.UnitPrice,
+                productOrder.TotalPrice
             );
         }
 
@@ -31,7 +32,8 @@ namespace ProjetoTeste.Infrastructure.Conversor
                 x.OrderId,
                 x.ProductId,
                 x.Quantity,
-                x.UnitPrice
+                x.UnitPrice,
+                x.TotalPrice
             )).ToList();
         }
     }

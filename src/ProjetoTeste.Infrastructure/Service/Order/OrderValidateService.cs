@@ -45,19 +45,6 @@ public class OrderValidateService : IOrderValidateService
             return new Response<InputCreateProductOrder?> { Success = false, Message = "Id de Produto inválido." };
         }
 
-        try
-        {
-            var existingProductOrder = await _productOrderRepository.GetAsync(input.OrderId, input.ProductId);
-        }
-        catch (Exception ex)
-        {
-            throw;
-        }
-        if (existingProduct != null)
-        {
-            return new Response<InputCreateProductOrder?> { Success = false, Message = "Já existe um pedido com este Produto." };
-        }
-
         var validStock = await _productRepository.GetAsync(input.ProductId);
         if (validStock.Stock < input.Quantity)
         {

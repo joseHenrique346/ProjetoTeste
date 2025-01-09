@@ -23,7 +23,6 @@ namespace ProjetoTeste.Infrastructure.Persistence.Mapping
             builder.Property(x => x.CPF).HasColumnName("cpf");
             builder.Property(x => x.CPF).IsRequired();
             builder.Property(x => x.CPF).HasMaxLength(11);
-            builder.HasIndex(x => x.CPF).IsUnique();
 
             builder.Property(x => x.Phone).HasColumnName("telefone");
             builder.Property(x => x.Phone).IsRequired();
