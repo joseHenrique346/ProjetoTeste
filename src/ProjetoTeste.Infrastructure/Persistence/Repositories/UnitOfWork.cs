@@ -2,30 +2,21 @@
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Persistence.Context;
 
-namespace ProjetoTeste.Infrastructure.Persistence.Repositories
+namespace ProjetoTeste.Infrastructure.Persistence;
+
+public class UnitOfWork(AppDbContext context) : IUnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    private IDbContextTransaction dbContextTransaction;
+    private readonly AppDbContext _context = context;
+    public void BeginTransaction()
     {
-        private readonly AppDbContext _context;
-        private IDbContextTransaction _dbContextTransaction;
+        dbContextTransaction = _context.Database.BeginTransaction();
+    }
 
-        public UnitOfWork(AppDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task BeginTransactionAsync()
-        {
-            if (_dbContextTransaction == null)
-            {
-                _dbContextTransaction = await _context.Database.BeginTransactionAsync();
-            }
-        }
-
-        public async Task CommitAsync()
-        {
-            await _context.SaveChangesAsync();
-            await _dbContextTransaction.CommitAsync();
-        }
+    public void Commit()
+    {
+        _context.SaveChanges();
+        dbContextTransaction.Commit();
+        dbContextTransaction.Dispose();
     }
 }

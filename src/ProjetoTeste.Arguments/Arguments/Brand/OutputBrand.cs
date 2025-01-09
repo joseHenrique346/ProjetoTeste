@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace ProjetoTeste.Arguments.Arguments.Brand
+﻿namespace ProjetoTeste.Arguments.Arguments.Brand
 {
     [method: JsonConstructor]
     public class OutputBrand

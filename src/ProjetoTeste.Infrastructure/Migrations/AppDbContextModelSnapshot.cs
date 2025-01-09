@@ -113,7 +113,9 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<long?>("BrandId")
-                        .HasColumnType("bigint");
+                        .IsRequired()
+                        .HasColumnType("bigint")
+                        .HasColumnName("marca_id");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -150,26 +152,37 @@ namespace ProjetoTeste.Infrastructure.Migrations
 
             modelBuilder.Entity("ProjetoTeste.Infrastructure.Persistence.Entities.ProductOrder", b =>
                 {
-                    b.Property<long>("OrderId")
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
+
+                    b.Property<long>("OrderId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("pedido_id");
 
                     b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("produto_id");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("quantidade");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(65,30)")
+                        .HasColumnName("subtotal");
 
                     b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(65,30)")
+                        .HasColumnName("preco_unitario");
 
-                    b.HasKey("OrderId", "ProductId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductOrder");
+                    b.ToTable("pedido_de_produto", (string)null);
                 });
 
             modelBuilder.Entity("ProjetoTeste.Infrastructure.Persistence.Entities.Order", b =>
@@ -188,7 +201,9 @@ namespace ProjetoTeste.Infrastructure.Migrations
                     b.HasOne("ProjetoTeste.Infrastructure.Persistence.Entities.Brand", "Brand")
                         .WithMany("ListProduct")
                         .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fkey_id_marca");
 
                     b.Navigation("Brand");
                 });

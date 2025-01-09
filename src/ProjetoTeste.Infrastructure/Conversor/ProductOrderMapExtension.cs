@@ -1,5 +1,4 @@
-﻿using ProjetoTeste.Arguments.Arguments.Product;
-using ProjetoTeste.Arguments.Arguments.ProductOrder;
+﻿using ProjetoTeste.Arguments.Arguments.ProductOrder;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Conversor

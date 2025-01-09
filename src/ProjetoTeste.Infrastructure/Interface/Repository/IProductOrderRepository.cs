@@ -2,7 +2,7 @@
 
 namespace ProjetoTeste.Infrastructure.Interface.Repository
 {
-    public interface IProductOrderRepository : IRepository<ProductOrder> 
+    public interface IProductOrderRepository : IRepository<ProductOrder>
     {
         Task<ProductOrder?> GetAsync(long id, long id2);
     }

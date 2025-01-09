@@ -8,7 +8,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
         public long ProductId { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
-        public decimal TotalPrice => UnitPrice * Quantity;
+        public decimal TotalPrice { get; set; }
 
         [JsonIgnore]
         public virtual Order Order { get; set; }

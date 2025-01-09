@@ -1,5 +1,4 @@
 ﻿using ProjetoTeste.Arguments.Arguments.Customer;
-using ProjetoTeste.Arguments.Arguments.Product;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Conversor

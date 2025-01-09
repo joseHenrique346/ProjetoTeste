@@ -88,7 +88,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     descricao = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
-                    BrandId = table.Column<long>(type: "bigint", nullable: true),
+                    marca_id = table.Column<long>(type: "bigint", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     estoque = table.Column<long>(type: "bigint", maxLength: 6, nullable: false)
                 },
@@ -96,36 +96,38 @@ namespace ProjetoTeste.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_produto", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_produto_marca_BrandId",
-                        column: x => x.BrandId,
+                        name: "fkey_id_marca",
+                        column: x => x.marca_id,
                         principalTable: "marca",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "ProductOrder",
+                name: "pedido_de_produto",
                 columns: table => new
                 {
-                    OrderId = table.Column<long>(type: "bigint", nullable: false),
-                    ProductId = table.Column<long>(type: "bigint", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    pedido_id = table.Column<long>(type: "bigint", nullable: false),
+                    produto_id = table.Column<long>(type: "bigint", nullable: false),
+                    quantidade = table.Column<int>(type: "int", nullable: false),
+                    preco_unitario = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    subtotal = table.Column<decimal>(type: "decimal(65,30)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductOrder", x => new { x.OrderId, x.ProductId });
+                    table.PrimaryKey("PK_pedido_de_produto", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ProductOrder_pedido_OrderId",
-                        column: x => x.OrderId,
+                        name: "FK_pedido_de_produto_pedido_pedido_id",
+                        column: x => x.pedido_id,
                         principalTable: "pedido",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductOrder_produto_ProductId",
-                        column: x => x.ProductId,
+                        name: "FK_pedido_de_produto_produto_produto_id",
+                        column: x => x.produto_id,
                         principalTable: "produto",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -144,21 +146,26 @@ namespace ProjetoTeste.Infrastructure.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductOrder_ProductId",
-                table: "ProductOrder",
-                column: "ProductId");
+                name: "IX_pedido_de_produto_pedido_id",
+                table: "pedido_de_produto",
+                column: "pedido_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_produto_BrandId",
+                name: "IX_pedido_de_produto_produto_id",
+                table: "pedido_de_produto",
+                column: "produto_id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_produto_marca_id",
                 table: "produto",
-                column: "BrandId");
+                column: "marca_id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ProductOrder");
+                name: "pedido_de_produto");
 
             migrationBuilder.DropTable(
                 name: "pedido");

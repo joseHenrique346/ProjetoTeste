@@ -8,15 +8,10 @@ namespace ProjetoTeste.Infrastructure.Persistence.Mapping
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {
-            builder.ToTable("produto");
-
             builder.HasKey(x => x.Id);
+            builder.HasOne(x => x.Brand).WithMany(z => z.ListProduct).HasForeignKey(p => p.BrandId).HasConstraintName("fkey_id_marca");
 
-            builder.HasOne(x => x.Brand)
-                .WithMany(z => z.ListProduct)
-                .HasForeignKey(p => p.BrandId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
+            builder.ToTable("produto");
 
             builder.Property(x => x.Name).HasColumnName("nome");
             builder.Property(x => x.Name).HasMaxLength(40);
@@ -33,6 +28,9 @@ namespace ProjetoTeste.Infrastructure.Persistence.Mapping
             builder.Property(x => x.Stock).HasColumnName("estoque");
             builder.Property(x => x.Stock).HasMaxLength(6);
             builder.Property(x => x.Stock).IsRequired();
+
+            builder.Property(x => x.BrandId).HasColumnName("marca_id");
+            builder.Property(x => x.BrandId).IsRequired();
         }
     }
 }

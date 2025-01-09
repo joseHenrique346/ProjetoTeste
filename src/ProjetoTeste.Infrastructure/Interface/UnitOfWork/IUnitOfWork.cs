@@ -1,8 +1,7 @@
-﻿namespace ProjetoTeste.Infrastructure.Interface.UnitOfWork
+﻿namespace ProjetoTeste.Infrastructure.Interface.UnitOfWork;
+
+public interface IUnitOfWork
 {
-    public interface IUnitOfWork
-    {
-        Task BeginTransactionAsync();
-        Task CommitAsync();
-    }
+    void BeginTransaction();
+    void Commit();
 }
