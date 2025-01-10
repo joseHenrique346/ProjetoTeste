@@ -26,6 +26,37 @@ namespace ProjetoTeste.Infrastructure.Service
             return await _orderRepository.GetWithIncludesAsync();
         }
 
+        public async Task<List<OutputMaxSaleValueProduct>> GetMostOrderedProduct()
+        {
+            var higherOrders = await _orderRepository.GetMostOrderedProduct();
+            return higherOrders;
+        } 
+
+        //public async Task<Order> GetOrderAveragePrice()
+        //{
+
+        //}
+
+        //public async Task<Order> LowerOrderProduct()
+        //{
+
+        //}
+
+        //public async Task<Order> GetHigherOrderBrand()
+        //{
+
+        //}
+
+        //public async Task<Order> GetHigherOrderClient()
+        //{
+
+        //}
+
+        //public async Task<Order> GetLowerOrderClient()
+        //{
+
+        //}
+
         public async Task<Response<List<Order>?>> Get(long id)
         {
             var orderId = await _orderRepository.GetWithIncludesAsync(id);

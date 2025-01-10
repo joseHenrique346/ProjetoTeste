@@ -30,6 +30,12 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(await _orderService.Get(id));
         }
 
+        [HttpGet("HigherProductOrder")]
+        public async Task<ActionResult> GetProductMostOrdered()
+        {
+            return Ok(await _orderService.GetMostOrderedProduct());
+        }
+
         [HttpPost]
         public async Task<ActionResult<Response<Order>>> Create(InputCreateOrder input)
         {
