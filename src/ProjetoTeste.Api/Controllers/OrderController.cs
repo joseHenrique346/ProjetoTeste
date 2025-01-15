@@ -72,10 +72,10 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(await _orderService.LeastOrderedProduct());
         }
 
-        [HttpGet("MostOrderedBrand")]
-        public async Task<ActionResult> GetBrandMostOrdered()
-        {
-            return Ok(await _orderService.GetMostOrderedBrand());
-        }
+        //[HttpGet("MostOrderedBrand")]
+        //public async Task<ActionResult> GetBrandMostOrdered()
+        //{
+        //    return Ok(await _orderService.GetMostOrderedBrand());
+        //}
     }
 }

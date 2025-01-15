@@ -12,7 +12,7 @@ namespace ProjetoTeste.Infrastructure.Interface.Repository
         Task<List<OutputMinSaleValueProduct>> GetLeastOrderedProduct();
 
         Task<OutputAverageSaleValueOrder> GetOrderAveragePrice();
-        Task<OutputMaxSaleValueBrand?> GetMostOrderedBrand();
+        //Task<OutputMaxSaleValueBrand?> GetMostOrderedBrand();
         //Task<List<Order?>> GetMostOrderedClient();
         //Task<List<Order?>> GetLeastOrderedClient();
     }

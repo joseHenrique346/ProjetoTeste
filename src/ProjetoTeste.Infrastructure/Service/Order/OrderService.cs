@@ -46,13 +46,13 @@ namespace ProjetoTeste.Infrastructure.Service
             return leastOrders;
         }
 
-        public async Task<OutputMaxSaleValueBrand> GetMostOrderedBrand()
-        {
-            var mostOrderedBrand = await _orderRepository.GetMostOrderedBrand();
+        //public async Task<OutputMaxSaleValueBrand> GetMostOrderedBrand()
+        //{
+        //    var mostOrderedBrand = await _orderRepository.GetMostOrderedBrand();
             
-            mostOrderedBrand.BrandName = $"A Marca mais vendida é: {}";
-            return mostOrderedBrand;
-        }
+        //    mostOrderedBrand.BrandName = $"A Marca mais vendida é: {}";
+        //    return mostOrderedBrand;
+        //}
 
         //public async Task<Order> GetHigherOrderClient()
         //{
