@@ -5,9 +5,9 @@ namespace ProjetoTeste.Infrastructure.Conversor
 {
     public static class ProductMapExtension
     {
-        public static OutputProduct ToOutputProduct(this Product product)
+        public static OutputProduct? ToOutputProduct(this Product product)
         {
-            return new OutputProduct(
+            return product == null ? null : new OutputProduct(
                 product.Id,
                 product.Name,
                 product.Description,
@@ -18,9 +18,9 @@ namespace ProjetoTeste.Infrastructure.Conversor
             );
         }
 
-        public static Product ToProduct(this InputCreateProduct input)
+        public static Product? ToProduct(this InputCreateProduct input)
         {
-            return new Product
+            return input == null ? null : new Product
             {
                 Name = input.Name,
                 Code = input.Code,
@@ -31,9 +31,9 @@ namespace ProjetoTeste.Infrastructure.Conversor
             };
         }
 
-        public static List<OutputProduct> ToListOutputProduct(this List<Product> products)
+        public static List<OutputProduct>? ToListOutputProduct(this List<Product> products)
         {
-            return products.Select(x => new OutputProduct(
+            return products == null ? null : products.Select(x => new OutputProduct(
                 x.Id,
                 x.Name,
                 x.Description,

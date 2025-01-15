@@ -7,6 +7,8 @@ namespace ProjetoTeste.Api.Controllers
 {
     public class CustomerController : BaseController
     {
+        #region Dependency Injection
+
         private readonly CustomerService _customerService;
 
         public CustomerController(IUnitOfWork unitOfWork, CustomerService customerService) : base(unitOfWork)
@@ -14,17 +16,31 @@ namespace ProjetoTeste.Api.Controllers
             _customerService = customerService;
         }
 
-        [HttpGet]
+        #endregion
+
+        #region Get
+
+        [HttpGet("id")]
         public async Task<ActionResult<OutputCustomer>> Get(long id)
         {
             var getCustomer = await _customerService.Get(id);
-            return Ok(getCustomer.Request);
+            return Ok(getCustomer);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<OutputCustomer>> Create(InputCreateCustomer input)
+        [HttpGet]
+        public async Task<ActionResult<OutputCustomer>> GetAll()
         {
-            var result = await _customerService.Create(input);
+            var getAllCustomers = await _customerService.GetAll();
+            return Ok(getAllCustomers);
+        }
+        #endregion
+
+        #region Post
+
+        [HttpPost]
+        public async Task<ActionResult<OutputCustomer>> Create(InputCreateCustomer inputCreate)
+        {
+            var result = await _customerService.Create(inputCreate);
             if (!result.Success)
             {
                 return BadRequest(result.Message);
@@ -32,5 +48,37 @@ namespace ProjetoTeste.Api.Controllers
 
             return Ok(result.Request);
         }
+
+        #endregion
+
+        #region Put
+        [HttpPut]
+        public async Task<ActionResult<OutputCustomer>> Update(InputUpdateCustomer inputUpdate)
+        {
+            var result = await _customerService.Update(inputUpdate);
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+
+            return Ok(result.Request);
+        }
+
+        #endregion
+
+        #region Delete
+
+        [HttpDelete]
+        public async Task<ActionResult<string>> Delete(long id)
+        {
+            var result = await _customerService.Delete(id);
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+            return Ok(result.Message);
+        }
+
+        #endregion
     }
 }

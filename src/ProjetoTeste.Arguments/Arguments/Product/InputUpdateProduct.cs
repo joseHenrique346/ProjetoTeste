@@ -3,8 +3,9 @@
 namespace ProjetoTeste.Arguments.Arguments.Product
 {
     [method: JsonConstructor]
-    public class InputUpdateProduct(string name, string description, string code, decimal price, long? brandId, long stock)
+    public class InputUpdateProduct(long id, string name, string description, string code, decimal price, long? brandId, long stock)
     {
+        public long Id { get; } = id;
         public string Name { get; } = name;
         public string Description { get; } = description;
         public string Code { get; } = code;

@@ -7,7 +7,7 @@ namespace ProjetoTeste.Infrastructure.Interface.Service
     public interface ICustomerService
     {
         Task<List<Customer>> GetAll();
-        Task<Response<Customer>> Get(long id);
-        Task<Response<Customer>> Create(InputCreateCustomer product);
+        Task<BaseResponse<Customer>> Get(long id);
+        Task<BaseResponse<Customer>> Create(InputCreateCustomer product);
     }
 }

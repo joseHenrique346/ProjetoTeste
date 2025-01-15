@@ -26,7 +26,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Mapping
             builder.Property(x => x.Description).IsRequired();
 
             builder.Property(x => x.Stock).HasColumnName("estoque");
-            builder.Property(x => x.Stock).HasMaxLength(6);
+            builder.Property(x => x.Stock).HasMaxLength(10);
             builder.Property(x => x.Stock).IsRequired();
 
             builder.Property(x => x.BrandId).HasColumnName("marca_id");

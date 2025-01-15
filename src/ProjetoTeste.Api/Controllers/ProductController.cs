@@ -9,11 +9,17 @@ namespace ProjetoTeste.Api.Controllers
 {
     public class ProductController : BaseController
     {
+        #region Dependency Injection
+
         private readonly ProductService _productService;
         public ProductController(IUnitOfWork unitOfWork, ProductService productService) : base(unitOfWork)
         {
             _productService = productService;
         }
+
+        #endregion
+
+        #region Get
 
         [HttpGet]
         public async Task<ActionResult<List<OutputProduct>>> GetAll()
@@ -26,26 +32,12 @@ namespace ProjetoTeste.Api.Controllers
         public async Task<ActionResult<Product>> GetId(long id)
         {
             var result = await _productService.Get(id);
-
-            if (!result.Success)
-            {
-                return BadRequest(result.Message);
-            }
-
-            if (result == null)
-            {
-                return NotFound(result.Message);
-            }
-
-            var getProduct = result.Request;
-            return Ok(getProduct.ToOutputProduct());
+            return Ok(result.ToOutputProduct());
         }
 
-        //[HttpGet]
-        //public async Task<Product?> GetProductWithBrandAsync(long id)
-        //{
-        //    return await _productService.GetWithIncludesAsync(id, p => p.Brand);
-        //}
+        #endregion
+
+        #region Post
 
         [HttpPost]
         public async Task<ActionResult<OutputProduct>> Create(InputCreateProduct input)
@@ -63,13 +55,17 @@ namespace ProjetoTeste.Api.Controllers
             }
 
             var createdProduct = result.Request;
-            return CreatedAtAction(nameof(Create), createdProduct.ToOutputProduct());
+            return Ok(createdProduct);
         }
 
+        #endregion
+
+        #region Put
+
         [HttpPut]
-        public async Task<ActionResult<OutputProduct>> Update(int id, InputUpdateProduct input)
+        public async Task<ActionResult<OutputProduct>> Update(InputUpdateProduct input)
         {
-            var result = await _productService.Update(id, input);
+            var result = await _productService.Update(input);
 
             if (!result.Success)
             {
@@ -85,11 +81,23 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(updatedProduct.ToOutputProduct());
         }
 
+        #endregion
+
+        #region Delete
+
         [HttpDelete]
         public async Task<ActionResult<bool>> Delete(int id)
         {
             var result = await _productService.Delete(id);
-            return Ok(result);
+
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+
+            return Ok(result.Message);
         }
+
+        #endregion
     }
 }

@@ -8,12 +8,18 @@ namespace ProjetoTeste.Api.Controllers
 {
     public class BrandController : BaseController
     {
+        #region Dependency Injection
+
         private readonly BrandService _brandService;
 
         public BrandController(IUnitOfWork unitOfWork, BrandService brandService) : base(unitOfWork)
         {
             _brandService = brandService;
         }
+
+        #endregion
+
+        #region Get
 
         [HttpGet]
         public async Task<ActionResult<List<OutputBrand>>> GetAll()
@@ -40,6 +46,10 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(brand.ToOutputBrand());
         }
 
+        #endregion
+
+        #region Post
+
         [HttpPost]
         public async Task<ActionResult<OutputBrand>> CreateAsync(InputCreateBrand input)
         {
@@ -56,13 +66,17 @@ namespace ProjetoTeste.Api.Controllers
             }
 
             var newBrand = brand.Request;
-            return Ok(newBrand);
+            return Ok(newBrand.ToOutputBrand());
         }
 
+        #endregion
+
+        #region Put
+
         [HttpPut]
-        public async Task<ActionResult<OutputBrand>> Update(int id, InputUpdateBrand input)
+        public async Task<ActionResult<OutputBrand>> Update(InputUpdateBrand input)
         {
-            var result = await _brandService.Update(id, input);
+            var result = await _brandService.Update(input);
 
             if (!result.Success)
             {
@@ -74,14 +88,26 @@ namespace ProjetoTeste.Api.Controllers
             }
 
             var updatedBrand = result.Request;
-            return Ok(updatedBrand.ToOutputBrand());
+            return Ok(updatedBrand);
         }
+
+        #endregion
+
+        #region Delete
 
         [HttpDelete]
         public async Task<ActionResult<bool>> Delete(int id)
         {
             var result = await _brandService.Delete(id);
-            return Ok(result);
+
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+            
+            return Ok(result.Message);
         }
+
+        #endregion
     }
 }
