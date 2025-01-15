@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjetoTeste.Arguments.Arguments.Brand;
+using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Service;
@@ -37,7 +38,7 @@ namespace ProjetoTeste.Api.Controllers
                 return BadRequest(result.Message);
             }
 
-            var brand = result.Request;
+            var brand = result.Content;
             if (brand is null)
             {
                 return NotFound(result.Message);
@@ -51,22 +52,22 @@ namespace ProjetoTeste.Api.Controllers
         #region Post
 
         [HttpPost]
-        public async Task<ActionResult<OutputBrand>> CreateAsync(InputCreateBrand input)
+        public async Task<ActionResult<BaseResponse<OutputBrand>>> CreateAsync(InputCreateBrand input)
         {
             var brand = await _brandService.Create(input);
 
             if (brand is null)
             {
-                return NotFound(brand.Message);
+                return NotFound(brand);
             }
 
             if (!brand.Success)
             {
-                return BadRequest(brand.Message);
+                return BadRequest(brand);
             }
 
-            var newBrand = brand.Request;
-            return Ok(newBrand.ToOutputBrand());
+            var newBrand = brand.Content;
+            return Ok(newBrand);
         }
 
         #endregion
@@ -87,7 +88,7 @@ namespace ProjetoTeste.Api.Controllers
                 return NotFound(result.Message);
             }
 
-            var updatedBrand = result.Request;
+            var updatedBrand = result.Content;
             return Ok(updatedBrand);
         }
 

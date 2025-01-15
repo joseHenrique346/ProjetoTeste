@@ -54,7 +54,7 @@ namespace ProjetoTeste.Api.Controllers
                 return NotFound(result.Message);
             }
 
-            var createdProduct = result.Request;
+            var createdProduct = result.Content;
             return Ok(createdProduct);
         }
 
@@ -77,7 +77,7 @@ namespace ProjetoTeste.Api.Controllers
                 return NotFound(result.Message);
             }
 
-            var updatedProduct = result.Request;
+            var updatedProduct = result.Content;
             return Ok(updatedProduct.ToOutputProduct());
         }
 

@@ -95,7 +95,7 @@ namespace ProjetoTeste.Infrastructure.Service
             var order = new Order(input.CustomerId, DateTime.Now);
 
             await _orderRepository.CreateAsync(order);
-            return new BaseResponse<OutputOrder> { Success = true, Request = order.ToOutputOrder() };
+            return new BaseResponse<OutputOrder> { Success = true, Content = order.ToOutputOrder() };
         }
 
         public async Task<BaseResponse<OutputProductOrder>> CreateProductOrder(InputCreateProductOrder input)
@@ -123,7 +123,7 @@ namespace ProjetoTeste.Infrastructure.Service
             currentProduct.Stock -= input.Quantity;
             await _productRepository.Update(currentProduct);
 
-            return new BaseResponse<OutputProductOrder> { Success = true, Request = createProductOrder.ToOuputProductOrder() };
+            return new BaseResponse<OutputProductOrder> { Success = true, Content = createProductOrder.ToOuputProductOrder() };
         }
 
         #endregion

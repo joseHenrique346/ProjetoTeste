@@ -49,7 +49,7 @@ namespace ProjetoTeste.Api.Controllers
                 return BadRequest(result.Message);
             }
 
-            return Ok(result.Request);
+            return Ok(result.Content);
         }
 
         #endregion
@@ -65,7 +65,7 @@ namespace ProjetoTeste.Api.Controllers
                 return BadRequest(result.Message);
             }
 
-            return Ok(result.Request);
+            return Ok(result.Content);
         }
 
         #endregion

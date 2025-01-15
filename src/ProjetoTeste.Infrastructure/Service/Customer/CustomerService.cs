@@ -62,7 +62,7 @@ namespace ProjetoTeste.Infrastructure.Service
             return new BaseResponse<OutputCustomer>
             {
                 Success = true,
-                Request = customer.ToOutputCustomer()
+                Content = customer.ToOutputCustomer()
             };
         }
         #endregion
@@ -88,7 +88,7 @@ namespace ProjetoTeste.Infrastructure.Service
             return new BaseResponse<OutputCustomer>
             {
                 Success = true,
-                Request = currentBrand.ToOutputCustomer()
+                Content = currentBrand.ToOutputCustomer()
             };
         }
         #endregion

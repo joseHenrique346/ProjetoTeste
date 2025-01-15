@@ -62,7 +62,7 @@ namespace ProjetoTeste.Infrastructure.Service
             return new BaseResponse<OutputProduct>
             {
                 Success = true,
-                Request = product.ToOutputProduct()
+                Content = product.ToOutputProduct()
             };
         }
 
@@ -72,6 +72,8 @@ namespace ProjetoTeste.Infrastructure.Service
 
         public async Task<BaseResponse<Product>> Update(InputUpdateProduct input)
         {
+            var response = new BaseResponse<Product>()
+;
             var result = await _productValidateService.ValidateUpdateProduct(input);
             if (!result.Success)
             {
@@ -83,15 +85,6 @@ namespace ProjetoTeste.Infrastructure.Service
             }
 
             var existingProduct = await _productRepository.GetAsync(input.Id);
-
-            if (existingProduct == null)
-            {
-                return new BaseResponse<Product>
-                {
-                    Success = false,
-                    Message = "Produto não encontrado."
-                };
-            }
 
             existingProduct.Name = input.Name;
             existingProduct.Code = input.Code;
@@ -105,7 +98,7 @@ namespace ProjetoTeste.Infrastructure.Service
             return new BaseResponse<Product>
             {
                 Success = true,
-                Request = existingProduct
+                Content = existingProduct
             };
         }
 

@@ -35,7 +35,7 @@ public class BrandService
         return new BaseResponse<Brand>
         {
             Success = true,
-            Request = brand
+            Content = brand
         };
     }
 
@@ -48,24 +48,14 @@ public class BrandService
 
     #region Create
 
-    public async Task<BaseResponse<Brand>> Create(InputCreateBrand input)
+    public async Task<BaseResponse<OutputBrand>> Create(InputCreateBrand input)
     {
         var result = await _brandValidateService.ValidateCreateBrand(input);
         if (!result.Success)
-        {
-            return new BaseResponse<Brand>()
-            {
-                Success = false,
-                Message = result.Message
-            };
-        }
+            return new BaseResponse<OutputBrand>() { Success = false, Message = result.Message };
 
         var brand = await _brandRepository.CreateAsync(input.ToBrand());
-        return new BaseResponse<Brand>()
-        {
-            Success = true,
-            Request = brand
-        };
+        return new BaseResponse<OutputBrand>() { Success = true, Content = brand.ToOutputBrand() };
     }
 
     #endregion
@@ -92,7 +82,7 @@ public class BrandService
 
         await _brandRepository.Update(currentBrand);
 
-        return new BaseResponse<OutputBrand> { Success = true, Request = currentBrand.ToOutputBrand() };
+        return new BaseResponse<OutputBrand> { Success = true, Content = currentBrand.ToOutputBrand() };
     }
 
     #endregion
