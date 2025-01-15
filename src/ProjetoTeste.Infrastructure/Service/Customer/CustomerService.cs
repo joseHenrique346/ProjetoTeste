@@ -10,6 +10,8 @@ namespace ProjetoTeste.Infrastructure.Service
 {
     public class CustomerService
     {
+        #region Dependency Injection
+
         private readonly ICustomerRepository _customerRepository;
         private readonly ICustomerValidateService _customerValidateService;
         private readonly AppDbContext _context;
@@ -21,41 +23,91 @@ namespace ProjetoTeste.Infrastructure.Service
             _customerValidateService = customerValidateService;
         }
 
-        public async Task<Response<OutputCustomer>> Get(long id)
+        #endregion
+
+        #region Get
+        public async Task<OutputCustomer> Get(long id)
         {
             var customer = await _customerRepository.GetAsync(id);
-
-            return new Response<OutputCustomer>
-            {
-                Success = true,
-                Request = customer.ToOutputCustomer()
-            };
+            return customer.ToOutputCustomer();
         }
 
-        public async Task<Response<OutputCustomer>> Create(InputCreateCustomer input)
+        public async Task<List<OutputCustomer?>> GetAll()
         {
-            var result = await _customerValidateService.ValidateCreateCustomer(input);
+            var allCustomers = await _customerRepository.GetAllAsync();
+            return allCustomers.ToList().ToListOutputProduct();
+        }
+
+        #endregion
+
+        #region Create
+        public async Task<BaseResponse<OutputCustomer>> Create(InputCreateCustomer inputCreate)
+        {
+            var result = await _customerValidateService.ValidateCreateCustomer(inputCreate);
             if (!result.Success)
             {
-                return new Response<OutputCustomer> { Success = false, Message = result.Message };
+                return new BaseResponse<OutputCustomer> { Success = false, Message = result.Message };
             }
 
             var customer = new Customer
             {
-                CPF = input.CPF,
-                Email = input.Email,
-                Name = input.Name,
-                Phone = input.Phone
+                CPF = inputCreate.CPF,
+                Email = inputCreate.Email,
+                Name = inputCreate.Name,
+                Phone = inputCreate.Phone
             };
 
-            _context.Customer.Add(customer);
-            await _context.SaveChangesAsync();
+            await _customerRepository.CreateAsync(customer);
 
-            return new Response<OutputCustomer>
+            return new BaseResponse<OutputCustomer>
             {
                 Success = true,
-                Request = customer.ToOutputCustomer()
+                Content = customer.ToOutputCustomer()
             };
         }
+        #endregion
+
+        #region Update
+        public async Task<BaseResponse<OutputCustomer>> Update(InputUpdateCustomer inputUpdate)
+        {
+            var result = await _customerValidateService.ValidateUpdateCustomer(inputUpdate);
+            var currentBrand = await _customerRepository.GetAsync(inputUpdate.Id);
+
+            if (!result.Success)
+            {
+                return new BaseResponse<OutputCustomer> { Success = false, Message = result.Message };
+            }
+
+            currentBrand.Name = inputUpdate.Name;
+            currentBrand.Phone = inputUpdate.Phone;
+            currentBrand.Email = inputUpdate.Email;
+            currentBrand.CPF = inputUpdate.CPF;
+
+            _context.Customer.Update(currentBrand);
+
+            return new BaseResponse<OutputCustomer>
+            {
+                Success = true,
+                Content = currentBrand.ToOutputCustomer()
+            };
+        }
+        #endregion
+
+        #region Delete
+
+        public async Task<BaseResponse<string>> Delete(long id)
+        {
+            var result =  await _customerValidateService.ValidateDeleteCustomer(id);
+            if (!result.Success)
+            {
+                return new BaseResponse<string> { Success = false, Message = result.Message };
+            }
+
+            await _customerRepository.DeleteAsync(id);
+
+            return new BaseResponse<string> { Success = true, Message = result.Message };
+        }
+
+        #endregion
     }
 }

@@ -13,6 +13,5 @@ namespace ProjetoTeste.Arguments.Arguments.Product
         public decimal Price { get; } = price;
         public long? BrandId { get; set; } = brandId;
         public long Stock { get; } = stock;
-        public OutputBrand? Brand { get; }
     }
 }

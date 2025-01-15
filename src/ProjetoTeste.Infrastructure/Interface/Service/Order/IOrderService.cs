@@ -8,6 +8,6 @@ namespace ProjetoTeste.Infrastructure.Interface.Service
     {
         Task<List<OutputOrder>> GetAll();
         Task<OutputOrder> Get(long id);
-        Task<Response<OutputOrder>> Create(InputCreateOrder input);
+        Task<BaseResponse<OutputOrder>> Create(InputCreateOrder input);
     }
 }

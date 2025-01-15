@@ -7,7 +7,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
 
         public Order() { }
 
-        public Order(long customerId, DateTime createdDate, List<ProductOrder> listProductOrder, Customer? customer)
+        public Order(long customerId, DateTime createdDate)
         {
             CustomerId = customerId;
             CreatedDate = createdDate;

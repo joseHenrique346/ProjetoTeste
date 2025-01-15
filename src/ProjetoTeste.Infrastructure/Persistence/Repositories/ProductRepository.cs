@@ -9,6 +9,11 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
     public class ProductRepository : Repository<Product>, IProductRepository
     {
         public ProductRepository(AppDbContext context) : base(context) { }
+        public async Task<bool> GetExistingProductInBrand(long brandId)
+        {
+            return await _dbSet.AnyAsync(i => i.BrandId == brandId);
+        }
+
         public async Task<Product?> GetWithIncludesAsync(long id, params Expression<Func<Product, object>>[] includes)
         {
             var query = _dbSet.AsQueryable();

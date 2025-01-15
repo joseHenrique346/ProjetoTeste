@@ -5,9 +5,9 @@ namespace ProjetoTeste.Infrastructure.Conversor
 {
     public static class CustomerMapExtension
     {
-        public static OutputCustomer ToOutputCustomer(this Customer customer)
+        public static OutputCustomer? ToOutputCustomer(this Customer? customer)
         {
-            return new OutputCustomer(
+            return customer == null ? null : new OutputCustomer(
                 customer.Id,
                 customer.Name,
                 customer.Email,
@@ -16,9 +16,9 @@ namespace ProjetoTeste.Infrastructure.Conversor
             );
         }
 
-        public static Customer ToProduct(this InputCreateCustomer input)
+        public static Customer? ToProduct(this InputCreateCustomer input)
         {
-            return new Customer
+            return input == null ? null : new Customer
             {
                 Name = input.Name,
                 Email = input.Email,
@@ -27,9 +27,9 @@ namespace ProjetoTeste.Infrastructure.Conversor
             };
         }
 
-        public static List<OutputCustomer> ToListOutputProduct(this List<Customer> customers)
+        public static List<OutputCustomer>? ToListOutputProduct(this List<Customer> customers)
         {
-            return customers.Select(x => new OutputCustomer(
+            return customers == null ? null : customers.Select(x => new OutputCustomer(
                 x.Id,
                 x.Name,
                 x.Email,

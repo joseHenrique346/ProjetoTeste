@@ -6,6 +6,6 @@ namespace ProjetoTeste.Infrastructure.Interface.Service
 {
     public interface IProductOrderService
     {
-        Task<Response<ProductOrder>> Create(InputCreateProductOrder input);
+        Task<BaseResponse<ProductOrder>> Create(InputCreateProductOrder input);
     }
 }

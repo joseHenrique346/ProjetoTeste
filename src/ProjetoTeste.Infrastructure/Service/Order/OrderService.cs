@@ -11,6 +11,8 @@ namespace ProjetoTeste.Infrastructure.Service
 {
     public class OrderService
     {
+        #region Dependency Injection
+
         private readonly IOrderRepository _orderRepository;
         private readonly IProductOrderRepository _productOrderRepository;
         private readonly IProductRepository _productRepository;
@@ -22,11 +24,25 @@ namespace ProjetoTeste.Infrastructure.Service
             _productOrderRepository = productOrderRepository;
             _orderValidateService = orderValidateService;
         }
+
+        #endregion
+
+        #region Get
+
         public async Task<List<OutputOrder>> GetAll()
         {
             var get = await _orderRepository.GetWithIncludesAsync();
             return get.Select(i => i.ToOutputOrder()).ToList();
         }
+        public async Task<List<OutputOrder>?> Get(long id)
+        {
+            var orderId = await _orderRepository.GetWithIncludesAsync(id);
+            return orderId.Select(i => i.ToOutputOrder()).ToList();
+        }
+
+        #endregion
+
+        #region GetLINQ
 
         public async Task<List<OutputMaxSaleValueProduct>> GetMostOrderedProduct()
         {
@@ -49,7 +65,7 @@ namespace ProjetoTeste.Infrastructure.Service
         //public async Task<OutputMaxSaleValueBrand> GetMostOrderedBrand()
         //{
         //    var mostOrderedBrand = await _orderRepository.GetMostOrderedBrand();
-            
+
         //    mostOrderedBrand.BrandName = $"A Marca mais vendida é: {}";
         //    return mostOrderedBrand;
         //}
@@ -64,31 +80,30 @@ namespace ProjetoTeste.Infrastructure.Service
 
         //}
 
-        public async Task<List<OutputOrder>?> Get(long id)
-        {
-            var orderId = await _orderRepository.GetWithIncludesAsync(id);
-            return orderId.Select(i => i.ToOutputOrder()).ToList();
-        }
+        #endregion
 
-        public async Task<Response<OutputOrder>> Create(InputCreateOrder input)
+        #region Create
+
+        public async Task<BaseResponse<OutputOrder>> Create(InputCreateOrder input)
         {
             var result = await _orderValidateService.ValidateCreateOrder(input);
 
             if (!result.Success)
             {
-                return new Response<OutputOrder> { Success = false, Message = result.Message };
+                return new BaseResponse<OutputOrder> { Success = false, Message = result.Message };
             }
-            var order = new Order { CustomerId = input.CustomerId };
+            var order = new Order(input.CustomerId, DateTime.Now);
 
             await _orderRepository.CreateAsync(order);
-            return new Response<OutputOrder> { Success = true, Request = order.ToOutputOrder() };
+            return new BaseResponse<OutputOrder> { Success = true, Content = order.ToOutputOrder() };
         }
-        public async Task<Response<OutputProductOrder>> CreateProductOrder(InputCreateProductOrder input)
+
+        public async Task<BaseResponse<OutputProductOrder>> CreateProductOrder(InputCreateProductOrder input)
         {
             var result = await _orderValidateService.ValidateCreateProductOrder(input);
             if (!result.Success)
             {
-                return new Response<OutputProductOrder> { Success = false, Message = result.Message };
+                return new BaseResponse<OutputProductOrder> { Success = false, Message = result.Message };
             }
 
             var currentProduct = await _productRepository.GetAsync(input.ProductId);
@@ -108,7 +123,10 @@ namespace ProjetoTeste.Infrastructure.Service
             currentProduct.Stock -= input.Quantity;
             await _productRepository.Update(currentProduct);
 
-            return new Response<OutputProductOrder> { Success = true, Request = createProductOrder.ToOuputProductOrder() };
+            return new BaseResponse<OutputProductOrder> { Success = true, Content = createProductOrder.ToOuputProductOrder() };
         }
+
+        #endregion
+
     }
 }

@@ -10,6 +10,8 @@ namespace ProjetoTeste.Infrastructure.Service;
 
 public class BrandService
 {
+    #region Dependency Injection
+
     private readonly IProductRepository _productRepository;
     private readonly IBrandRepository _brandRepository;
     private readonly IBrandValidateService _brandValidateService;
@@ -22,14 +24,18 @@ public class BrandService
         _brandValidateService = brandValidateService;
     }
 
-    public async Task<Response<Brand>> Get(long id)
+    #endregion
+
+    #region Get
+
+    public async Task<BaseResponse<Brand>> Get(long id)
     {
         var brand = await _brandRepository.GetAsync(id);
 
-        return new Response<Brand>
+        return new BaseResponse<Brand>
         {
             Success = true,
-            Request = brand
+            Content = brand
         };
     }
 
@@ -38,81 +44,63 @@ public class BrandService
         return await _brandRepository.GetAllAsync();
     }
 
-    public async Task<Response<Brand>> Create(InputCreateBrand input)
+    #endregion
+
+    #region Create
+
+    public async Task<BaseResponse<OutputBrand>> Create(InputCreateBrand input)
     {
         var result = await _brandValidateService.ValidateCreateBrand(input);
         if (!result.Success)
-        {
-            return new Response<Brand>()
-            {
-                Success = false,
-                Message = result.Message
-            };
-        }
+            return new BaseResponse<OutputBrand>() { Success = false, Message = result.Message };
 
         var brand = await _brandRepository.CreateAsync(input.ToBrand());
-        return new Response<Brand>()
-        {
-            Success = true,
-            Request = brand
-        };
+        return new BaseResponse<OutputBrand>() { Success = true, Content = brand.ToOutputBrand() };
     }
 
-    public async Task<Response<Brand>> Update(int id, InputUpdateBrand input)
+    #endregion
+
+    #region Update
+
+    public async Task<BaseResponse<OutputBrand>> Update(InputUpdateBrand inputUpdate)
     {
-        var result = await _brandValidateService.ValidateUpdateBrand(id, input);
-        var currentBrand = await _brandRepository.GetAsync(id);
+        var result = await _brandValidateService.ValidateUpdateBrand(inputUpdate);
+        var currentBrand = await _brandRepository.GetAsync(inputUpdate.Id);
 
         if (!result.Success)
         {
-            return new Response<Brand>
+            return new BaseResponse<OutputBrand>
             {
                 Success = false,
                 Message = result.Message
             };
         }
 
-        currentBrand.Name = input.Name;
-        currentBrand.Code = input.Code;
-        currentBrand.Description = input.Description;
+        currentBrand.Name = inputUpdate.Name;
+        currentBrand.Code = inputUpdate.Code;
+        currentBrand.Description = inputUpdate.Description;
 
         await _brandRepository.Update(currentBrand);
 
-        return new Response<Brand>
-        {
-            Success = true,
-            Request = currentBrand
-        };
+        return new BaseResponse<OutputBrand> { Success = true, Content = currentBrand.ToOutputBrand() };
     }
 
-    public async Task<Response<bool>> Delete(long id)
+    #endregion
+
+    #region Delete
+
+    public async Task<BaseResponse<string>> Delete(long id)
     {
         var result = await _brandValidateService.ValidateDeleteBrand(id);
         if (!result.Success)
         {
-            return new Response<bool>
-            {
-                Success = false,
-                Message = result.Message
-            };
-        }
-
-        var brand = await _brandRepository.GetAsync(id);
-        if (brand == null)
-        {
-            return new Response<bool>
-            {
-                Success = false,
-                Message = "Marca não encontrada."
-            };
+            return new BaseResponse<string> { Success = false, Message = result.Message };
         }
 
         await _brandRepository.DeleteAsync(id);
 
-        return new Response<bool>
-        {
-            Success = true,
-            Request = true
-        };
+        return new BaseResponse<string> { Success = true, Message = result.Message };
     }
+
+    #endregion
 }

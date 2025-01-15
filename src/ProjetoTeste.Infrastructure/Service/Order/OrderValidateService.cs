@@ -8,6 +8,8 @@ namespace ProjetoTeste.Infrastructure.Service;
 
 public class OrderValidateService : IOrderValidateService
 {
+    #region Dependency Injection
+
     private readonly ICustomerRepository _customerRepository;
     private readonly IOrderRepository _orderRepository;
     private readonly IProductRepository _productRepository;
@@ -19,38 +21,50 @@ public class OrderValidateService : IOrderValidateService
         _productRepository = productRepository;
         _productOrderRepository = productOrderRepository;
     }
-    public async Task<Response<InputCreateOrder?>> ValidateCreateOrder(InputCreateOrder input)
+
+    #endregion
+
+    #region Validate Create Order
+
+    public async Task<BaseResponse<InputCreateOrder?>> ValidateCreateOrder(InputCreateOrder input)
     {
+        var response = new BaseResponse<InputCreateOrder?>();
+
         var existingCustomer = await _customerRepository.GetAsync(input.CustomerId);
 
         if (existingCustomer is null)
-        {
-            return new Response<InputCreateOrder?> { Success = false, Message = "Não foi encontrado um cliente com este ID." };
-        }
+            response.AddErrorMessage("Não foi encontrado um cliente com este ID.");
 
-        return new Response<InputCreateOrder?> { Success = true, Request = input };
+        if (response.Message.Count > 0)
+            response.Success = false;
+
+        return response;
     }
 
-    public async Task<Response<InputCreateProductOrder?>> ValidateCreateProductOrder(InputCreateProductOrder input)
+    #endregion
+
+    #region Validate Create ProductOrder
+    public async Task<BaseResponse<InputCreateProductOrder?>> ValidateCreateProductOrder(InputCreateProductOrder input)
     {
+        var response = new BaseResponse<InputCreateProductOrder>();
+
         var existingOrder = await _orderRepository.GetAsync(input.OrderId);
         if (existingOrder is null)
-        {
-            return new Response<InputCreateProductOrder?> { Success = false, Message = "Id de Order inválido." };
-        }
+            response.AddErrorMessage("Id de Order inválido.");
 
         var existingProduct = await _productRepository.GetAsync(input.ProductId);
         if (existingProduct is null)
-        {
-            return new Response<InputCreateProductOrder?> { Success = false, Message = "Id de Produto inválido." };
-        }
+            response.AddErrorMessage("Id de Produto inválido.");
 
         var validStock = await _productRepository.GetAsync(input.ProductId);
         if (validStock.Stock < input.Quantity)
-        {
-            return new Response<InputCreateProductOrder?> { Success = false, Message = "*ERRO* O Estoque não é suficiente para o pedido" };
-        }
+            response.AddErrorMessage("*ERRO* O Estoque não é suficiente para o pedido");
 
-        return new Response<InputCreateProductOrder?> { Success = true };
+        if (response.Message.Count > 0)
+            response.Success = false;
+
+        return response;
     }
+
+    #endregion
 }

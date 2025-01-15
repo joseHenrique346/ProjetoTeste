@@ -11,11 +11,23 @@ namespace ProjetoTeste.Api.Controllers
 {
     public class OrderController : BaseController
     {
+        #region Dependency Injection
+
         private readonly OrderService _orderService;
 
         public OrderController(IUnitOfWork unitOfWork, OrderService orderService) : base(unitOfWork)
         {
             _orderService = orderService;
+        }
+
+        #endregion
+
+        #region Get
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetWithIncludesAsync(long id)
+        {
+            return Ok(await _orderService.Get(id));
         }
 
         [HttpGet]
@@ -24,14 +36,12 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(await _orderService.GetAll());
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult> GetWithIncludesAsync(long id)
-        {
-            return Ok(await _orderService.Get(id));
-        }
+        #endregion
+
+        #region Post
 
         [HttpPost]
-        public async Task<ActionResult<Response<OutputOrder>>> Create(InputCreateOrder input)
+        public async Task<ActionResult<BaseResponse<OutputOrder>>> Create(InputCreateOrder input)
         {
             var result = await _orderService.Create(input);
             if (!result.Success)
@@ -39,11 +49,15 @@ namespace ProjetoTeste.Api.Controllers
                 return BadRequest(result.Message);
             }
 
-            return Ok(result);
+            return Ok(result.Content);
         }
 
+        #endregion
+
+        #region Post Product
+
         [HttpPost("Product")]
-        public async Task<ActionResult<Response<ProductOrder>>> Create(InputCreateProductOrder input)
+        public async Task<ActionResult<BaseResponse<ProductOrder>>> Create(InputCreateProductOrder input)
         {
             var result = await _orderService.CreateProductOrder(input);
             if (!result.Success)
@@ -51,8 +65,12 @@ namespace ProjetoTeste.Api.Controllers
                 return BadRequest(result.Message);
             }
 
-            return Ok(result.Request);
+            return Ok(result.Content);
         }
+
+        #endregion
+
+        #region GetLINQ
 
         [HttpGet("AveragePriceOrder")]
         public async Task<ActionResult> GetOrderAveragePrice()
@@ -77,5 +95,7 @@ namespace ProjetoTeste.Api.Controllers
         //{
         //    return Ok(await _orderService.GetMostOrderedBrand());
         //}
+
+        #endregion
     }
 }

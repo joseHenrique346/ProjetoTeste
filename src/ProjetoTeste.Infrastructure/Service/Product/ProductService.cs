@@ -10,6 +10,9 @@ namespace ProjetoTeste.Infrastructure.Service
 {
     public class ProductService
     {
+
+        #region Dependency Injection
+
         private readonly IProductRepository _productRepository;
         private readonly IBrandRepository _brandRepository;
         private readonly IProductValidateService _productValidateService;
@@ -20,14 +23,13 @@ namespace ProjetoTeste.Infrastructure.Service
             _productValidateService = productValidateService;
         }
 
-        public async Task<Response<Product?>> Get(long id)
+        #endregion
+
+        #region Get
+
+        public async Task<Product?> Get(long id)
         {
-            var product = await _productRepository.GetWithIncludesAsync(id, p => p.Brand);
-            return new Response<Product?>
-            {
-                Success = true,
-                Request = product
-            };
+            return await _productRepository.GetWithIncludesAsync(id, p => p.Brand);
         }
 
         public async Task<List<Product>> GetAll()
@@ -40,13 +42,16 @@ namespace ProjetoTeste.Infrastructure.Service
             return await _productRepository.GetWithIncludesAsync(id, includes);
         }
 
+        #endregion
 
-        public async Task<Response<Product>> Create(InputCreateProduct input)
+        #region Create
+
+        public async Task<BaseResponse<OutputProduct>> Create(InputCreateProduct input)
         {
             var result = await _productValidateService.ValidateCreateProduct(input);
             if (!result.Success)
             {
-                return new Response<Product>
+                return new BaseResponse<OutputProduct>
                 {
                     Success = false,
                     Message = result.Message
@@ -54,35 +59,32 @@ namespace ProjetoTeste.Infrastructure.Service
             }
 
             var product = await _productRepository.CreateAsync(input.ToProduct());
-            return new Response<Product>
+            return new BaseResponse<OutputProduct>
             {
                 Success = true,
-                Request = product
+                Content = product.ToOutputProduct()
             };
         }
 
-        public async Task<Response<Product>> Update(long id, InputUpdateProduct input)
+        #endregion
+
+        #region Update
+
+        public async Task<BaseResponse<Product>> Update(InputUpdateProduct input)
         {
-            var result = await _productValidateService.ValidateUpdateProduct(id, input);
+            var response = new BaseResponse<Product>()
+;
+            var result = await _productValidateService.ValidateUpdateProduct(input);
             if (!result.Success)
             {
-                return new Response<Product>
+                return new BaseResponse<Product>
                 {
                     Success = false,
                     Message = result.Message
                 };
             }
 
-            var existingProduct = await _productRepository.GetAsync(id);
-
-            if (existingProduct == null)
-            {
-                return new Response<Product>
-                {
-                    Success = false,
-                    Message = "Produto não encontrado."
-                };
-            }
+            var existingProduct = await _productRepository.GetAsync(input.Id);
 
             existingProduct.Name = input.Name;
             existingProduct.Code = input.Code;
@@ -93,19 +95,23 @@ namespace ProjetoTeste.Infrastructure.Service
 
             await _productRepository.Update(existingProduct);
 
-            return new Response<Product>
+            return new BaseResponse<Product>
             {
                 Success = true,
-                Request = existingProduct
+                Content = existingProduct
             };
         }
 
-        public async Task<Response<bool>> Delete(long id)
+        #endregion
+
+        #region Delete
+
+        public async Task<BaseResponse<string>> Delete(long id)
         {
             var result = await _productValidateService.ValidateDeleteProduct(id);
             if (!result.Success)
             {
-                return new Response<bool>
+                return new BaseResponse<string>
                 {
                     Success = false,
                     Message = result.Message
@@ -113,10 +119,13 @@ namespace ProjetoTeste.Infrastructure.Service
             }
 
             await _productRepository.DeleteAsync(id);
-            return new Response<bool>
+            return new BaseResponse<string>
             {
-                Success = true
+                Success = true,
+                Message = result.Message
             };
         }
+
+        #endregion
     }
 }

@@ -7,6 +7,9 @@ namespace ProjetoTeste.Infrastructure.Service;
 
 public class BrandValidateService : IBrandValidateService
 {
+    
+    #region Dependency Injection
+
     private readonly IProductRepository _productRepository;
     private readonly IBrandRepository _brandRepository;
     public BrandValidateService(IBrandRepository brandRepository, IProductRepository productRepository)
@@ -15,65 +18,101 @@ public class BrandValidateService : IBrandValidateService
         _productRepository = productRepository;
     }
 
-    public async Task<Response<InputCreateBrand?>> ValidateCreateBrand(InputCreateBrand input)
+    #endregion
+
+    #region Validate Create
+
+    public async Task<BaseResponse<InputCreateBrand?>> ValidateCreateBrand(InputCreateBrand inputCreate)
     {
-        var existingCode = await _brandRepository.GetByCode(input.Code);
+        var response = new BaseResponse<InputCreateBrand?>(); 
+        var existingCode = await _brandRepository.GetByCode(inputCreate.Code);
 
         if (existingCode != null)
-        {
-            return new Response<InputCreateBrand?>() { Success = false, Message = "Este código já está em uso!" };
-        }
+            response.AddErrorMessage("Este código já está em uso!");
 
-        if (string.IsNullOrEmpty(input.Code))
-        {
-            return new Response<InputCreateBrand?>() { Success = false, Message = "O código tem que ser preenchido!" };
-        }
+        if (string.IsNullOrEmpty(inputCreate.Code))
+            response.AddErrorMessage("O código tem que ser preenchido!");
 
-        if (string.IsNullOrEmpty(input.Description))
-        {
-            return new Response<InputCreateBrand?>() { Success = false, Message = "A descrição tem que ser preenchida!" };
-        }
+        if (string.IsNullOrEmpty(inputCreate.Description))
+            response.AddErrorMessage("A descrição tem que ser preenchida!");
 
-        return new Response<InputCreateBrand?> { Success = true, Request = input };
+        if (inputCreate.Name.Length > 40)
+            response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres");
+
+        if (inputCreate.Code.Length > 6)
+            response.AddErrorMessage("O código não pode ultrapassar 6 caracteres");
+
+        if (inputCreate.Description.Length > 100)
+            response.AddErrorMessage("A descrição não pode ultrapassar 100 caracteres");
+
+        if (response.Message.Count > 0)
+            response.Success = false;
+
+        return response;
     }
 
-    public async Task<Response<InputUpdateBrand?>> ValidateUpdateBrand(long id, InputUpdateBrand input)
+    #endregion
+
+    #region Validate Update
+
+    public async Task<BaseResponse<InputUpdateBrand?>> ValidateUpdateBrand(InputUpdateBrand inputUpdate)
     {
-        var currentBrand = await _brandRepository.GetAsync(id);
+        var response = new BaseResponse<InputUpdateBrand?>();
+
+        var currentBrand = await _brandRepository.GetAsync(inputUpdate.Id);
 
         if (currentBrand == null)
-        {
-            return new Response<InputUpdateBrand?>() { Success = false, Message = "A marca especificada não foi encontrada." };
-        }
+            response.AddErrorMessage("A marca especificada não foi encontrada.");
 
-        var existingCodeBrand = await _brandRepository.GetByCode(input.Code);
+        var existingCodeBrand = await _brandRepository.GetByCode(inputUpdate.Code);
 
-        if (existingCodeBrand != null)
-        {
-            return new Response<InputUpdateBrand?>() { Success = false, Message = "Já existe uma marca com este código." };
-        }
 
-        if (string.IsNullOrEmpty(input.Description))
-        {
-            return new Response<InputUpdateBrand?>() { Success = false, Message = "A descrição não pode ser vazia." };
-        }
+        if (existingCodeBrand != null && existingCodeBrand.Id != inputUpdate.Id)
+            response.AddErrorMessage("Já existe uma marca com este código.");
 
-        return null;
+        if (string.IsNullOrEmpty(inputUpdate.Description))
+            response.AddErrorMessage("A descrição não pode ser vazia.");
+
+        if (inputUpdate.Name.Length > 40)
+            response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres");
+
+        if (inputUpdate.Code.Length > 6)
+            response.AddErrorMessage("O código não pode ultrapassar 6 caracteres");
+
+        if (inputUpdate.Description.Length > 100)
+            response.AddErrorMessage("A descrição não pode ultrapassar 100 caracteres");
+
+        if (response.Message.Count > 0)
+            response.Success = false;
+
+        return response;
     }
 
-    public async Task<Response<string?>> ValidateDeleteBrand(long id)
+    #endregion
+
+    #region Validate Delete
+
+    public async Task<BaseResponse<string?>> ValidateDeleteBrand(long id)
     {
+        var response = new BaseResponse<string?>();
+
         var existingBrand = (await _brandRepository.GetAllAsync())
                             .FirstOrDefault(x => x.Id == id);
 
         if (existingBrand is null)
-        {
-            return new Response<string?> { Success = false, Message = "Não foi encontrado o ID inserido, foi informado corretamente?" };
-        }
+            response.AddErrorMessage("Não foi encontrado o ID inserido, foi informado corretamente?");
 
-        return new Response<string?>
-        {
-            Success = true
-        };
+        var existingProductInBrand = await _productRepository.GetExistingProductInBrand(id);
+        if (existingProductInBrand)
+            response.AddErrorMessage($"Existe Produtos inseridos na marca {existingBrand.Name}, não pode ser deletada");
+
+        if (response.Message.Count > 0)
+            response.Success = false;
+        else
+            response.AddSuccessMessage($"A marca {existingBrand.Name} foi deletada com sucesso");
+
+        return response;
     }
+
+    #endregion
 }
