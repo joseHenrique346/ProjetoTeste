@@ -48,7 +48,7 @@ namespace ProjetoTeste.Infrastructure.Service
                 Phone = input.Phone
             };
 
-            _context.Customers.Add(customer);
+            _context.Customer.Add(customer);
             await _context.SaveChangesAsync();
 
             return new Response<OutputCustomer>

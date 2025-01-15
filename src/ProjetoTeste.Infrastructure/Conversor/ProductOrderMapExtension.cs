@@ -5,36 +5,14 @@ namespace ProjetoTeste.Infrastructure.Conversor
 {
     public static class ProductOrderMapExtension
     {
-        public static OutputProductOrder ToOutputProductOrder(this ProductOrder productOrder)
+        public static ProductOrder? ToProductOrder(this InputCreateProductOrder? input)
         {
-            return new OutputProductOrder(
-                productOrder.Id,
-                productOrder.OrderId,
-                productOrder.ProductId,
-                productOrder.Quantity,
-                productOrder.UnitPrice,
-                productOrder.TotalPrice
-            );
+            return input == null ? default : new ProductOrder(input.OrderId, input.ProductId, input.Quantity);
         }
 
-        public static ProductOrder ToProductOrder(this InputCreateProductOrder input)
+        public static OutputProductOrder? ToOuputProductOrder(this ProductOrder? productOrders)
         {
-            return new ProductOrder
-            {
-
-            };
-        }
-
-        public static List<OutputProductOrder> ToListOutputProductOrder(this List<ProductOrder> productOrder)
-        {
-            return productOrder.Select(x => new OutputProductOrder(
-                x.Id,
-                x.OrderId,
-                x.ProductId,
-                x.Quantity,
-                x.UnitPrice,
-                x.TotalPrice
-            )).ToList();
+            return productOrders == null ? default : new OutputProductOrder(productOrders.Id, productOrders.OrderId, productOrders.ProductId, productOrders.Quantity, productOrders.UnitPrice, productOrders.SubTotal);
         }
     }
 }

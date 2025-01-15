@@ -1,9 +1,9 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ProjetoTeste.Arguments.Arguments.Order;
+namespace ProjetoTeste.Arguments.Arguments.Order.GetLINQ;
 
 [method: JsonConstructor]
-public class OutputMaxSaleValueProduct(long id, string name, string code, string description, decimal totalValue, long? brandId, long quantitySold)
+public class OutputMaxSaleValueProduct(long id, string name, string code, string description, decimal totalValue, long? brandId, long quantity)
 {
     public long Id { get; private set; } = id;
     public string Name { get; private set; } = name;
@@ -11,5 +11,5 @@ public class OutputMaxSaleValueProduct(long id, string name, string code, string
     public string Description { get; private set; } = description;
     public decimal TotalValue { get; private set; } = totalValue;
     public long? BrandId { get; private set; } = brandId;
-    public long QuantitySold { get; private set; } = quantitySold;
+    public long Quantity { get; private set; } = quantity;
 }

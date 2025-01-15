@@ -4,12 +4,18 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
 {
     public class Order : BaseEntity
     {
-        public Order()
+
+        public Order() { }
+
+        public Order(long customerId, DateTime createdDate, List<ProductOrder> listProductOrder, Customer? customer)
         {
-            CreatedDate = DateOnly.FromDateTime(DateTime.Now);
+            CustomerId = customerId;
+            CreatedDate = createdDate;
         }
+
         public long CustomerId { get; set; }
-        public DateOnly CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public decimal Total { get; set; }
 
         public List<ProductOrder> ListProductOrder { get; set; }
         public Customer? Customer { get; set; }

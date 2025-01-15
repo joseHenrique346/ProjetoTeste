@@ -12,6 +12,6 @@ namespace ProjetoTeste.Arguments.Arguments.Order
 
         public long CustomerId { get; }
 
-        public DateOnly CreatedDate { get; } = DateOnly.FromDateTime(DateTime.Now);
+        public DateTime CreatedDate { get; } = DateTime.Now;
     }
 }

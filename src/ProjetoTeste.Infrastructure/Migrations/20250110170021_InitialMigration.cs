@@ -114,7 +114,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
                     produto_id = table.Column<long>(type: "bigint", nullable: false),
                     quantidade = table.Column<int>(type: "int", nullable: false),
                     preco_unitario = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    subtotal = table.Column<decimal>(type: "decimal(65,30)", nullable: false)
+                    preco_total = table.Column<decimal>(type: "decimal(65,30)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -133,12 +133,6 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_cliente_cpf",
-                table: "cliente",
-                column: "cpf",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_pedido_CustomerId",

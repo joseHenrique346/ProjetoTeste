@@ -11,8 +11,8 @@ using ProjetoTeste.Infrastructure.Persistence.Context;
 namespace ProjetoTeste.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250109153637_UpdateMigration")]
-    partial class UpdateMigration
+    [Migration("20250113115233_UpdatedMigration")]
+    partial class UpdatedMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -168,9 +168,9 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("quantidade");
 
-                    b.Property<decimal>("TotalPrice")
+                    b.Property<decimal>("SubTotal")
                         .HasColumnType("decimal(65,30)")
-                        .HasColumnName("subtotal");
+                        .HasColumnName("preco_total");
 
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(65,30)")
@@ -211,13 +211,13 @@ namespace ProjetoTeste.Infrastructure.Migrations
             modelBuilder.Entity("ProjetoTeste.Infrastructure.Persistence.Entities.ProductOrder", b =>
                 {
                     b.HasOne("ProjetoTeste.Infrastructure.Persistence.Entities.Order", "Order")
-                        .WithMany("ProductOrders")
+                        .WithMany("ListProductOrder")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ProjetoTeste.Infrastructure.Persistence.Entities.Product", "Product")
-                        .WithMany()
+                        .WithMany("ListProductOrder")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -239,7 +239,12 @@ namespace ProjetoTeste.Infrastructure.Migrations
 
             modelBuilder.Entity("ProjetoTeste.Infrastructure.Persistence.Entities.Order", b =>
                 {
-                    b.Navigation("ProductOrders");
+                    b.Navigation("ListProductOrder");
+                });
+
+            modelBuilder.Entity("ProjetoTeste.Infrastructure.Persistence.Entities.Product", b =>
+                {
+                    b.Navigation("ListProductOrder");
                 });
 #pragma warning restore 612, 618
         }

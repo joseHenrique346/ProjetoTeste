@@ -30,14 +30,8 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(await _orderService.Get(id));
         }
 
-        [HttpGet("HigherProductOrder")]
-        public async Task<ActionResult> GetProductMostOrdered()
-        {
-            return Ok(await _orderService.GetMostOrderedProduct());
-        }
-
         [HttpPost]
-        public async Task<ActionResult<Response<Order>>> Create(InputCreateOrder input)
+        public async Task<ActionResult<Response<OutputOrder>>> Create(InputCreateOrder input)
         {
             var result = await _orderService.Create(input);
             if (!result.Success)
@@ -45,7 +39,7 @@ namespace ProjetoTeste.Api.Controllers
                 return BadRequest(result.Message);
             }
 
-            return Ok(result.Request.ToOutputOrder());
+            return Ok(result);
         }
 
         [HttpPost("Product")]
@@ -58,6 +52,30 @@ namespace ProjetoTeste.Api.Controllers
             }
 
             return Ok(result.Request);
+        }
+
+        [HttpGet("AveragePriceOrder")]
+        public async Task<ActionResult> GetOrderAveragePrice()
+        {
+            return Ok(await _orderService.GetOrderAveragePrice());
+        }
+
+        [HttpGet("MostOrderedProduct")]
+        public async Task<ActionResult> GetProductMostOrdered()
+        {
+            return Ok(await _orderService.GetMostOrderedProduct());
+        }
+
+        [HttpGet("LeastOrderedProduct")]
+        public async Task<ActionResult> GetProductLeastOrdered()
+        {
+            return Ok(await _orderService.LeastOrderedProduct());
+        }
+
+        [HttpGet("MostOrderedBrand")]
+        public async Task<ActionResult> GetBrandMostOrdered()
+        {
+            return Ok(await _orderService.GetMostOrderedBrand());
         }
     }
 }

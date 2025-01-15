@@ -8,9 +8,8 @@ namespace ProjetoTeste.Infrastructure.Persistence.Mapping
     {
         public void Configure(EntityTypeBuilder<ProductOrder> builder)
         {
-            builder.HasKey(x => new { x.OrderId, x.ProductId });
-            builder.HasOne(x => x.Order).WithMany(y => y.ListProductOrder).HasForeignKey(x => x.OrderId);
-            builder.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId);
+            builder.HasOne(x => x.Order).WithMany(y => y.ListProductOrder).HasForeignKey(x => x.OrderId).OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.Product).WithMany(o => o.ListProductOrder).HasForeignKey(x => x.ProductId);
 
             builder.ToTable("pedido_de_produto");
 
@@ -28,8 +27,8 @@ namespace ProjetoTeste.Infrastructure.Persistence.Mapping
             builder.Property(p => p.UnitPrice).HasColumnName("preco_unitario");
             builder.Property(p => p.UnitPrice).IsRequired();
 
-            builder.Property(p => p.TotalPrice).HasColumnName("preco_total");
-            builder.Property(p => p.TotalPrice).IsRequired();
+            builder.Property(p => p.SubTotal).HasColumnName("preco_total");
+            builder.Property(p => p.SubTotal).IsRequired();
         }
     }
 }

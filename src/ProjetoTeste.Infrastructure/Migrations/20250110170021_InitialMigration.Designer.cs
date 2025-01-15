@@ -11,7 +11,7 @@ using ProjetoTeste.Infrastructure.Persistence.Context;
 namespace ProjetoTeste.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250109152435_InitialMigration")]
+    [Migration("20250110170021_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -82,9 +82,6 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .HasColumnName("telefone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CPF")
-                        .IsUnique();
 
                     b.ToTable("cliente", (string)null);
                 });
@@ -173,7 +170,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(65,30)")
-                        .HasColumnName("subtotal");
+                        .HasColumnName("preco_total");
 
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(65,30)")
@@ -214,7 +211,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
             modelBuilder.Entity("ProjetoTeste.Infrastructure.Persistence.Entities.ProductOrder", b =>
                 {
                     b.HasOne("ProjetoTeste.Infrastructure.Persistence.Entities.Order", "Order")
-                        .WithMany("ProductOrders")
+                        .WithMany("ListProductOrder")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -242,7 +239,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
 
             modelBuilder.Entity("ProjetoTeste.Infrastructure.Persistence.Entities.Order", b =>
                 {
-                    b.Navigation("ProductOrders");
+                    b.Navigation("ListProductOrder");
                 });
 #pragma warning restore 612, 618
         }

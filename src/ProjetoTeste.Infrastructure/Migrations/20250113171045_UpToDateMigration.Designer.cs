@@ -11,7 +11,7 @@ using ProjetoTeste.Infrastructure.Persistence.Context;
 namespace ProjetoTeste.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250109164806_UpToDateMigration")]
+    [Migration("20250113171045_UpToDateMigration")]
     partial class UpToDateMigration
     {
         /// <inheritdoc />
@@ -92,12 +92,15 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    b.Property<DateOnly>("CreatedDate")
-                        .HasColumnType("date")
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)")
                         .HasColumnName("data_de_criacao");
 
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(65,30)");
 
                     b.HasKey("Id");
 
@@ -168,7 +171,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("quantidade");
 
-                    b.Property<decimal>("TotalPrice")
+                    b.Property<decimal>("SubTotal")
                         .HasColumnType("decimal(65,30)")
                         .HasColumnName("preco_total");
 
@@ -217,7 +220,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("ProjetoTeste.Infrastructure.Persistence.Entities.Product", "Product")
-                        .WithMany()
+                        .WithMany("ListProductOrder")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -238,6 +241,11 @@ namespace ProjetoTeste.Infrastructure.Migrations
                 });
 
             modelBuilder.Entity("ProjetoTeste.Infrastructure.Persistence.Entities.Order", b =>
+                {
+                    b.Navigation("ListProductOrder");
+                });
+
+            modelBuilder.Entity("ProjetoTeste.Infrastructure.Persistence.Entities.Product", b =>
                 {
                     b.Navigation("ListProductOrder");
                 });

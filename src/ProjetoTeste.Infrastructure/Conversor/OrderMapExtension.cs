@@ -3,38 +3,17 @@ using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Conversor
 {
-    public static class OrderMapExtension
+    public static class OrderConverter
     {
-        public static OutputOrder ToOutputOrder(this Order order)
+        public static OutputOrder? ToOutputOrder(this Order? order)
         {
-            return new OutputOrder(
-                order.Id,
-                order.CustomerId
-            );
+            if (order is null) return null;
+            return order == null ? null : new OutputOrder(order.Id, order.CustomerId, order.ListProductOrder == null ? default : (from i in order.ListProductOrder select i.ToOuputProductOrder()).ToList(), order.Total, order.CreatedDate);
         }
 
-        public static Order ToOrder(this InputCreateOrder input)
-        {
-            return new Order
-            {
-                CustomerId = input.CustomerId,
-                //ProductOrders = productOrders
-            };
-        }
-
-        public static List<OutputOrder> ToListOutputOrder(this List<Order> orders)
-        {
-            return orders.Select(order => new OutputOrder(
-                order.Id,
-                order.CustomerId
-            //default
-            //order.ProductOrders.Select(po => new ProductList
-            //{
-            //    OrderId = po.OrderId,
-            //    ProductId = po.ProductId,
-            //    Quantity = po.Quantity,
-            //}).ToList()
-            )).ToList();
-        }
+        //public static Order? ToOrder(this InputCreateOrder order)
+        //{
+        //    return order == null ? null : new Order(order.CustomerId, DateOnly.FromDateTime(DateTime.Now));
+        //}
     }
 }
