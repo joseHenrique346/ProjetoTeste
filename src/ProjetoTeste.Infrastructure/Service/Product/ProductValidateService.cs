@@ -135,6 +135,9 @@ namespace ProjetoTeste.Infrastructure.Service
             if (existingProduct is null)
                 response.AddErrorMessage("Não foi encontrado o ID inserido, foi informado corretamente?");
 
+            if (existingProduct.Stock > 0)
+                response.AddErrorMessage("Não foi possível deletar o produto, o mesmo ainda possue estoque");
+
             if (response.Message.Count > 0)
                 response.Success = false;
             else
