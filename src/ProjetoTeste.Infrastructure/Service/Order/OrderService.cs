@@ -1,11 +1,13 @@
-﻿using ProjetoTeste.Arguments.Arguments.Order;
-using ProjetoTeste.Arguments.Arguments.Order.GetLINQ;
+﻿using Microsoft.EntityFrameworkCore;
+using ProjetoTeste.Arguments.Arguments.Order;
+using ProjetoTeste.Arguments.Arguments.Order.Reports.Outputs;
 using ProjetoTeste.Arguments.Arguments.ProductOrder;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
+using ProjetoTeste.Infrastructure.Persistence.Repositories;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
@@ -17,12 +19,16 @@ namespace ProjetoTeste.Infrastructure.Service
         private readonly IProductOrderRepository _productOrderRepository;
         private readonly IProductRepository _productRepository;
         private readonly IOrderValidateService _orderValidateService;
-        public OrderService(IOrderRepository orderRepository, IProductRepository productRepository, IProductOrderRepository productOrderRepository, IOrderValidateService orderValidateService)
+        private readonly IBrandRepository _brandRepository;
+        private readonly ICustomerRepository _customerRepository;
+        public OrderService(IOrderRepository orderRepository, IProductRepository productRepository, IProductOrderRepository productOrderRepository, IOrderValidateService orderValidateService, IBrandRepository brandRepository, ICustomerRepository customerRepository)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
             _productOrderRepository = productOrderRepository;
             _orderValidateService = orderValidateService;
+            _brandRepository = brandRepository;
+            _customerRepository = customerRepository;
         }
 
         #endregion
@@ -39,46 +45,66 @@ namespace ProjetoTeste.Infrastructure.Service
             var orderId = await _orderRepository.GetWithIncludesAsync(id);
             return orderId.Select(i => i.ToOutputOrder()).ToList();
         }
-
         #endregion
 
-        #region GetLINQ
+        #region Relatório
 
         public async Task<List<OutputMaxSaleValueProduct>> GetMostOrderedProduct()
         {
-            var higherOrders = await _orderRepository.GetMostOrderedProduct();
-            return higherOrders;
+            return await _orderRepository.GetMostOrderedProduct();
+        }
+
+        public async Task<OutputMaxSaleValueBrand> GetMostOrderedBrand()
+        {
+            var mostOrderedBrand = await _orderRepository.GetMostOrderedBrand();
+
+            var brandName = _brandRepository.GetBrandNameById(mostOrderedBrand.BrandId);
+
+            return new OutputMaxSaleValueBrand(
+                brandName.ToString(),
+                mostOrderedBrand.TotalSaleValue,
+                mostOrderedBrand.BrandId,
+                mostOrderedBrand.TotalSaleQuantity
+            );
         }
 
         public async Task<OutputAverageSaleValueOrder> GetOrderAveragePrice()
         {
-            var averageOrder = await _orderRepository.GetOrderAveragePrice();
-            return averageOrder;
+            return await _orderRepository.GetOrderAveragePrice();
         }
 
-        public async Task<List<OutputMinSaleValueProduct>> LeastOrderedProduct()
+        public async Task<List<OutputMinSaleValueProduct>> GetLeastOrderedProduct()
         {
-            var leastOrders = await _orderRepository.GetLeastOrderedProduct();
-            return leastOrders;
+            return await _orderRepository.GetLeastOrderedProduct();
         }
 
-        //public async Task<OutputMaxSaleValueBrand> GetMostOrderedBrand()
-        //{
-        //    var mostOrderedBrand = await _orderRepository.GetMostOrderedBrand();
+        public async Task<OutputMostOrderQuantityCustomer> GetMostOrdersCustomer()
+        {
+            var mostOrdersClient = await _orderRepository.GetMostOrdersCustomer();
 
-        //    mostOrderedBrand.BrandName = $"A Marca mais vendida é: {}";
-        //    return mostOrderedBrand;
-        //}
+            var customerName = await _customerRepository.GetAsync(mostOrdersClient.CustomerId);
 
-        //public async Task<Order> GetHigherOrderClient()
-        //{
+            return new OutputMostOrderQuantityCustomer(
+                mostOrdersClient.CustomerId,
+                customerName.Name.ToString(),
+                mostOrdersClient.TotalSaleValue,
+                mostOrdersClient.TotalSaleQuantity
+            );
+        }
 
-        //}
+        public async Task<OutputMostValueOrderCustomer> GetMostValueOrderClient()
+        {
+            var mostValueOrderClient = await _orderRepository.GetMostValueOrderCustomer();
 
-        //public async Task<Order> GetLowerOrderClient()
-        //{
+            var customerName = await _customerRepository.GetAsync(mostValueOrderClient.CustomerId);
 
-        //}
+            return new OutputMostValueOrderCustomer(
+                mostValueOrderClient.CustomerId,
+                customerName.Name.ToString(),
+                mostValueOrderClient.TotalSaleValue,
+                mostValueOrderClient.TotalSaleQuantity
+            );
+        }
 
         #endregion
 

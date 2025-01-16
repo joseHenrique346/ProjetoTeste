@@ -70,7 +70,7 @@ namespace ProjetoTeste.Api.Controllers
 
         #endregion
 
-        #region GetLINQ
+        #region Relatórios
 
         [HttpGet("AveragePriceOrder")]
         public async Task<ActionResult> GetOrderAveragePrice()
@@ -87,15 +87,26 @@ namespace ProjetoTeste.Api.Controllers
         [HttpGet("LeastOrderedProduct")]
         public async Task<ActionResult> GetProductLeastOrdered()
         {
-            return Ok(await _orderService.LeastOrderedProduct());
+            return Ok(await _orderService.GetLeastOrderedProduct());
         }
 
-        //[HttpGet("MostOrderedBrand")]
-        //public async Task<ActionResult> GetBrandMostOrdered()
-        //{
-        //    return Ok(await _orderService.GetMostOrderedBrand());
-        //}
+        [HttpGet("MostOrderedBrand")]
+        public async Task<ActionResult> GetBrandMostOrdered()
+        {
+            return Ok(await _orderService.GetMostOrderedBrand());
+        }
 
+        [HttpGet("MostOrdersFromACustomer")]
+        public async Task<ActionResult> GetMostOrdersCustomer()
+        {
+            return Ok(await _orderService.GetMostOrdersCustomer());
+        }
+
+        [HttpGet("MostValueOrderFromACustomer")]
+        public async Task<ActionResult> GetMostValueOrderCustomer()
+        {
+            return Ok(await _orderService.GetMostValueOrderClient());
+        }
         #endregion
     }
 }

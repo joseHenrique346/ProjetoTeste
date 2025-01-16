@@ -9,5 +9,6 @@ namespace ProjetoTeste.Infrastructure.Interface.Service
         Task<List<OutputOrder>> GetAll();
         Task<OutputOrder> Get(long id);
         Task<BaseResponse<OutputOrder>> Create(InputCreateOrder input);
+        Task<string> GetBrandNameById(long? id);
     }
 }

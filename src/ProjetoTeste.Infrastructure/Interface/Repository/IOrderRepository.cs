@@ -1,4 +1,5 @@
-﻿using ProjetoTeste.Arguments.Arguments.Order.GetLINQ;
+﻿using ProjetoTeste.Arguments.Arguments.Order.Reports.DTO;
+using ProjetoTeste.Arguments.Arguments.Order.Reports.Outputs;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 using ProjetoTeste.Infrastructure.Persistence.Repositories;
 
@@ -12,8 +13,8 @@ namespace ProjetoTeste.Infrastructure.Interface.Repository
         Task<List<OutputMinSaleValueProduct>> GetLeastOrderedProduct();
 
         Task<OutputAverageSaleValueOrder> GetOrderAveragePrice();
-        //Task<OutputMaxSaleValueBrand?> GetMostOrderedBrand();
-        //Task<List<Order?>> GetMostOrderedClient();
-        //Task<List<Order?>> GetLeastOrderedClient();
+        Task<MostOrderedBrandDTO> GetMostOrderedBrand();
+        Task<MostOrdersClientDTO?> GetMostOrdersCustomer();
+        Task<MostValueOrderClientDTO> GetMostValueOrderCustomer();
     }
 }

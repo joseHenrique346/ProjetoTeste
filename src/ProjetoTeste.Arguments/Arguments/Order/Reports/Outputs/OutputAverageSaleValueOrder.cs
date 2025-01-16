@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ProjetoTeste.Arguments.Arguments.Order.GetLINQ
+namespace ProjetoTeste.Arguments.Arguments.Order.Reports.Outputs
 {
     [method: JsonConstructor]
     public class OutputAverageSaleValueOrder(long orderId, int quantity, decimal total, decimal average)

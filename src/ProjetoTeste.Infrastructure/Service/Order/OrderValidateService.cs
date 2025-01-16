@@ -56,9 +56,12 @@ public class OrderValidateService : IOrderValidateService
         if (existingProduct is null)
             response.AddErrorMessage("Id de Produto inválido.");
 
-        var validStock = await _productRepository.GetAsync(input.ProductId);
-        if (validStock.Stock < input.Quantity)
-            response.AddErrorMessage("*ERRO* O Estoque não é suficiente para o pedido");
+        var currentProduct = await _productRepository.GetAsync(input.ProductId);
+        if (currentProduct.Stock < input.Quantity)
+            response.AddErrorMessage("O Estoque não é suficiente para o pedido.");
+
+        if (input.Quantity <= 0)
+            response.AddErrorMessage("Quantidade inválida para pedido.");
 
         if (response.Message.Count > 0)
             response.Success = false;

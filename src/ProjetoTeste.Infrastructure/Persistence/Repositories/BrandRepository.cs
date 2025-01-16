@@ -12,5 +12,10 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
         {
             return await _dbSet.Where(x => x.Code == code).FirstOrDefaultAsync();
         }
+        public string GetBrandNameById(long? id)
+        {
+            var brandName = _dbSet.FirstOrDefault(i => i.Id == id);
+            return brandName.Name;
+        }
     }
 }
