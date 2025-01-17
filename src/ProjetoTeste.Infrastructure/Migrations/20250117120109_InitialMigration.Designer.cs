@@ -11,8 +11,8 @@ using ProjetoTeste.Infrastructure.Persistence.Context;
 namespace ProjetoTeste.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250113115233_UpdatedMigration")]
-    partial class UpdatedMigration
+    [Migration("20250117120109_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -92,12 +92,15 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    b.Property<DateOnly>("CreatedDate")
-                        .HasColumnType("date")
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)")
                         .HasColumnName("data_de_criacao");
 
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(65,30)");
 
                     b.HasKey("Id");
 
@@ -139,7 +142,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .HasColumnType("decimal(65,30)");
 
                     b.Property<long>("Stock")
-                        .HasMaxLength(6)
+                        .HasMaxLength(10)
                         .HasColumnType("bigint")
                         .HasColumnName("estoque");
 

@@ -62,7 +62,8 @@ namespace ProjetoTeste.Infrastructure.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     CustomerId = table.Column<long>(type: "bigint", nullable: false),
-                    data_de_criacao = table.Column<DateOnly>(type: "date", nullable: false)
+                    data_de_criacao = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Total = table.Column<decimal>(type: "decimal(65,30)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -90,7 +91,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     marca_id = table.Column<long>(type: "bigint", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    estoque = table.Column<long>(type: "bigint", maxLength: 6, nullable: false)
+                    estoque = table.Column<long>(type: "bigint", maxLength: 10, nullable: false)
                 },
                 constraints: table =>
                 {

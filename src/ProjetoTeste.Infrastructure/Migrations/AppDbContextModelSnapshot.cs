@@ -139,7 +139,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .HasColumnType("decimal(65,30)");
 
                     b.Property<long>("Stock")
-                        .HasMaxLength(6)
+                        .HasMaxLength(10)
                         .HasColumnType("bigint")
                         .HasColumnName("estoque");
 

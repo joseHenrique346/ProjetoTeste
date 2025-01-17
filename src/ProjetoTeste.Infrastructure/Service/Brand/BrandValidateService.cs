@@ -37,13 +37,13 @@ public class BrandValidateService : IBrandValidateService
             response.AddErrorMessage("A descrição tem que ser preenchida!");
 
         if (inputCreate.Name.Length > 40)
-            response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres");
+            response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres.");
 
         if (inputCreate.Code.Length > 6)
-            response.AddErrorMessage("O código não pode ultrapassar 6 caracteres");
+            response.AddErrorMessage("O código não pode ultrapassar 6 caracteres.");
 
         if (inputCreate.Description.Length > 100)
-            response.AddErrorMessage("A descrição não pode ultrapassar 100 caracteres");
+            response.AddErrorMessage("A descrição não pode ultrapassar 100 caracteres.");
 
         if (response.Message.Count > 0)
             response.Success = false;

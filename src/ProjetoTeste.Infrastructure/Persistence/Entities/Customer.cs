@@ -11,8 +11,5 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
 
         [JsonIgnore]
         public List<Order>? Order { get; set; }
-
-        //public string Role { get; set; }
-        //public string PasswordHash { get; set; }
     }
 }

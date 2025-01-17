@@ -97,7 +97,7 @@ namespace ProjetoTeste.Api.Controllers
         #region Delete
 
         [HttpDelete]
-        public async Task<ActionResult<bool>> Delete(int id)
+        public async Task<ActionResult<string>> Delete(long id)
         {
             var result = await _brandService.Delete(id);
 

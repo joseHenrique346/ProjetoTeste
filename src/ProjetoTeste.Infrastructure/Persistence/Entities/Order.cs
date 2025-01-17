@@ -17,7 +17,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
         public DateTime CreatedDate { get; set; }
         public decimal Total { get; set; }
 
-        public List<ProductOrder> ListProductOrder { get; set; }
+        public List<ProductOrder> ListProductOrder { get; set; } = new List<ProductOrder> { };
         public Customer? Customer { get; set; }
     }
 }

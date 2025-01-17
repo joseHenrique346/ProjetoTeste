@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ProjetoTeste.Arguments.Arguments.Order;
+﻿using ProjetoTeste.Arguments.Arguments.Order;
 using ProjetoTeste.Arguments.Arguments.Order.Reports.Outputs;
 using ProjetoTeste.Arguments.Arguments.ProductOrder;
 using ProjetoTeste.Arguments.Arguments.Response;
@@ -7,7 +6,6 @@ using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
-using ProjetoTeste.Infrastructure.Persistence.Repositories;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
@@ -51,7 +49,18 @@ namespace ProjetoTeste.Infrastructure.Service
 
         public async Task<List<OutputMaxSaleValueProduct>> GetMostOrderedProduct()
         {
-            return await _orderRepository.GetMostOrderedProduct();
+            var mostOrderedProduct = await _orderRepository.GetMostOrderedProduct();
+
+            return mostOrderedProduct.Select(product => new OutputMaxSaleValueProduct
+                (
+                    product.ProductId,
+                    product.ProductName,
+                    product.ProductCode,
+                    product.ProductDescription,
+                    product.TotalSaleValue,
+                    product.ProductBrandId,
+                    product.TotalSaleQuantity
+                )).ToList();
         }
 
         public async Task<OutputMaxSaleValueBrand> GetMostOrderedBrand()
@@ -70,13 +79,32 @@ namespace ProjetoTeste.Infrastructure.Service
 
         public async Task<OutputAverageSaleValueOrder> GetOrderAveragePrice()
         {
-            return await _orderRepository.GetOrderAveragePrice();
+            var orderAveragePrice = await _orderRepository.GetOrderAveragePrice();
+
+            return new OutputAverageSaleValueOrder
+                (
+                    orderAveragePrice.OrderId,
+                    orderAveragePrice.TotalSaleQuantity,
+                    orderAveragePrice.Total,
+                    orderAveragePrice.AverageTotalSaleValue
+                );
         }
 
         public async Task<List<OutputMinSaleValueProduct>> GetLeastOrderedProduct()
         {
-            return await _orderRepository.GetLeastOrderedProduct();
+            var leastOrderedProducts = await _orderRepository.GetLeastOrderedProduct();
+
+            return leastOrderedProducts.Select(product => new OutputMinSaleValueProduct(
+                product.ProductId,
+                product.ProductName,
+                product.ProductCode,
+                product.ProductDescription,
+                product.TotalSaleValue,
+                product.ProductBrandId,
+                product.TotalSaleQuantity
+            )).ToList();
         }
+
 
         public async Task<OutputMostOrderQuantityCustomer> GetMostOrdersCustomer()
         {
@@ -149,10 +177,13 @@ namespace ProjetoTeste.Infrastructure.Service
             currentProduct.Stock -= input.Quantity;
             await _productRepository.Update(currentProduct);
 
+            var order = await _orderRepository.GetAsync(input.OrderId);
+            order.Total += createProductOrder.SubTotal;
+            await _orderRepository.Update(order);
+
             return new BaseResponse<OutputProductOrder> { Success = true, Content = createProductOrder.ToOuputProductOrder() };
         }
 
         #endregion
-
     }
 }

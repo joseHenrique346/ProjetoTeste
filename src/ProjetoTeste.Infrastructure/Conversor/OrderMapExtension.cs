@@ -8,7 +8,13 @@ namespace ProjetoTeste.Infrastructure.Conversor
         public static OutputOrder? ToOutputOrder(this Order? order)
         {
             if (order is null) return null;
-            return order == null ? null : new OutputOrder(order.Id, order.CustomerId, order.ListProductOrder == null ? default : (from i in order.ListProductOrder select i.ToOuputProductOrder()).ToList(), order.Total, order.CreatedDate);
+            return order == null ? null : new OutputOrder
+                (order.Id, 
+                order.CustomerId, 
+                order.ListProductOrder == null ? default : 
+                (from i in order.ListProductOrder select i.ToOuputProductOrder()).ToList(), 
+                order.Total, 
+                order.CreatedDate);
         }
     }
 }

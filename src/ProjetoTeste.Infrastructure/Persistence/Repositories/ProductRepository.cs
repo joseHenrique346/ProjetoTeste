@@ -9,6 +9,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
     public class ProductRepository : Repository<Product>, IProductRepository
     {
         public ProductRepository(AppDbContext context) : base(context) { }
+
         public async Task<bool> GetExistingProductInBrand(long brandId)
         {
             return await _dbSet.AnyAsync(i => i.BrandId == brandId);
@@ -25,6 +26,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
 
             return await query.FirstOrDefaultAsync(p => p.Id == id);
         }
+
         public async Task<Product?> GetByCode(string code)
         {
             return await _dbSet.Where(x => x.Code == code).FirstOrDefaultAsync();

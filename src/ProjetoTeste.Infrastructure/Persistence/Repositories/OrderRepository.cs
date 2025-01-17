@@ -12,6 +12,8 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
     {
         public OrderRepository(AppDbContext context) : base(context) { }
 
+        #region GetWithInclude
+
         public async Task<List<Order?>> GetWithIncludesAsync(long id)
         {
             return await _context.Set<Order>().Include(x => x.ListProductOrder).Where(x => x.Id == id).ToListAsync();
@@ -22,38 +24,45 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
             return await _context.Set<Order>().Include(x => x.ListProductOrder).ToListAsync();
         }
 
+        #endregion
+
         #region Produto mais pedido
 
-        public async Task<List<OutputMaxSaleValueProduct>> GetMostOrderedProduct()
+        public async Task<List<MaxSaleValueProductDTO>> GetMostOrderedProduct()
         {
-            var listMostOrderedProduct = (from i in _dbSet
-                                          from j in i.ListProductOrder
-                                          group j by j.Product into g
-                                          select new
-                                          {
-                                              Product = g.Key,
-                                              TotalSaleQuantity = g.Sum(i => i.Quantity),
-                                              TotalSaleValue = g.Sum(i => i.SubTotal)
-                                          }).Select(k => new OutputMaxSaleValueProduct(k.Product.Id, k.Product.Name, k.Product.Code, k.Product.Description, k.TotalSaleValue, k.Product.BrandId, k.TotalSaleQuantity));
-            return listMostOrderedProduct.OrderByDescending(i => i.Quantity).ToList();
+            var listMostOrderedProduct = from i in _dbSet
+                                         from j in i.ListProductOrder
+                                         group j by j.Product into g
+                                         select new MaxSaleValueProductDTO
+                                         {
+                                             ProductId = g.Key.Id,
+                                             ProductName = g.Key.Name,
+                                             ProductCode = g.Key.Code,
+                                             ProductDescription = g.Key.Description,
+                                             TotalSaleValue = g.Sum(i => i.SubTotal),
+                                             ProductBrandId = g.Key.BrandId,
+                                             TotalSaleQuantity = g.Sum(i => i.Quantity)
+                                         };
+
+            return listMostOrderedProduct.OrderByDescending(i => i.TotalSaleQuantity).ToList();
         }
 
         #endregion
 
         #region Pedido com maior média de preço
 
-        public async Task<OutputAverageSaleValueOrder> GetOrderAveragePrice()
+        public async Task<AverageSaleValueOrderDTO> GetOrderAveragePrice()
         {
             var TotalSaleValue = (from i in _dbSet
                                   from j in i.ListProductOrder
                                   group j by j.OrderId into g
-                                  select new
+                                  select new AverageSaleValueOrderDTO
                                   {
                                       OrderId = g.Key,
-                                      Quantity = g.Sum(i => i.Quantity),
+                                      TotalSaleQuantity = g.Sum(i => i.Quantity),
                                       Total = g.Sum(i => i.SubTotal),
                                       AverageTotalSaleValue = g.Average(i => i.SubTotal)
-                                  }).Select(i => new OutputAverageSaleValueOrder(i.OrderId, i.Quantity, i.Total, i.AverageTotalSaleValue)).OrderByDescending(i => i.AveragePrice).ToList().FirstOrDefault();
+                                  }).ToList().FirstOrDefault();
             return TotalSaleValue;
         }
 
@@ -62,18 +71,24 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
 
         #region Produto menos pedido
 
-        public async Task<List<OutputMinSaleValueProduct>> GetLeastOrderedProduct()
+        public async Task<List<MinSaleValueProductDTO>> GetLeastOrderedProduct()
         {
             var listLeastOrderedProduct = (from i in _dbSet
                                            from j in i.ListProductOrder
                                            group j by j.Product into g
-                                           select new
+                                           select new MinSaleValueProductDTO
                                            {
-                                               Product = g.Key,
-                                               TotalSaleQuantity = g.Sum(i => i.Quantity),
-                                               TotalSaleValue = g.Sum(i => i.SubTotal)
-                                           }).Select(k => new OutputMinSaleValueProduct(k.Product.Id, k.Product.Name, k.Product.Code, k.Product.Description, k.TotalSaleValue, k.Product.BrandId, k.TotalSaleQuantity));
-            return listLeastOrderedProduct.OrderBy(i => i.Quantity).ToList();
+                                               ProductId = g.Key.Id,
+                                               ProductName = g.Key.Name,
+                                               ProductCode = g.Key.Code,
+                                               ProductDescription = g.Key.Description,
+                                               TotalSaleValue = g.Sum(i => i.SubTotal),
+                                               ProductBrandId = g.Key.BrandId,
+                                               TotalSaleQuantity = g.Sum(i => i.Quantity)
+                                           })
+                                           .OrderBy(i => i.TotalSaleQuantity)
+                                           .ToList();
+            return listLeastOrderedProduct;
         }
 
         #endregion
@@ -98,6 +113,8 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
 
         #endregion
 
+        #region Cliente com mais pedidos
+
         public async Task<MostOrdersClientDTO> GetMostOrdersCustomer()
         {
             var mostOrdersClient = (from i in _dbSet
@@ -112,18 +129,24 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
             return mostOrdersClient;
         }
 
+        #endregion
+
+        #region Cliente que mais gastou
+
         public async Task<MostValueOrderClientDTO> GetMostValueOrderCustomer()
         {
             var mostValueOrderClient = (from i in _dbSet
-                                    from j in i.ListProductOrder
-                                    group j by i.CustomerId into g
-                                    select new MostValueOrderClientDTO
-                                    {
-                                        CustomerId = g.Key,
-                                        TotalSaleQuantity = g.Sum(i => i.Quantity),
-                                        TotalSaleValue = g.Sum(i => i.SubTotal)
-                                    }).OrderByDescending(i => i.TotalSaleValue).FirstOrDefault();
+                                        from j in i.ListProductOrder
+                                        group j by i.CustomerId into g
+                                        select new MostValueOrderClientDTO
+                                        {
+                                            CustomerId = g.Key,
+                                            TotalSaleQuantity = g.Sum(i => i.Quantity),
+                                            TotalSaleValue = g.Sum(i => i.SubTotal)
+                                        }).OrderByDescending(i => i.TotalSaleValue).FirstOrDefault();
             return mostValueOrderClient;
         }
+
+        #endregion
     }
 }
