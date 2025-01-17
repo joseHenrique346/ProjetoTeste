@@ -25,9 +25,9 @@ namespace ProjetoTeste.Infrastructure.Service
         {
             var response = new BaseResponse<InputCreateProduct?>();
 
-            var existingProduct = await _productRepository.GetByCode(input.Code);
+            var existingCodeProduct = await _productRepository.GetByCode(input.Code);
 
-            if (existingProduct != null)
+            if (existingCodeProduct != null)
                 response.AddErrorMessage("Já existe produto com este Código.");
 
             if (input.Name.Length > 40)

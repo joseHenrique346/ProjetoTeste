@@ -5,9 +5,9 @@ namespace ProjetoTeste.Infrastructure.Conversor
 {
     public static class BrandMapExtension
     {
-        public static OutputBrand ToOutputBrand(this Brand brand)
+        public static OutputBrand? ToOutputBrand(this Brand brand)
         {
-            return new OutputBrand(
+            return brand == null ? null : new OutputBrand(
                 brand.Id,
                 brand.Name,
                 brand.Code,

@@ -39,10 +39,6 @@ namespace ProjetoTeste.Api.Controllers
             }
 
             var brand = result.Content;
-            if (brand is null)
-            {
-                return NotFound(result.Message);
-            }
 
             return Ok(brand.ToOutputBrand());
         }
