@@ -97,7 +97,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
         public async Task<BaseResponse<string>> Delete(long id)
         {
-            var result =  await _customerValidateService.ValidateDeleteCustomer(id);
+            var result = await _customerValidateService.ValidateDeleteCustomer(id);
             if (!result.Success)
             {
                 return new BaseResponse<string> { Success = false, Message = result.Message };

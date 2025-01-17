@@ -7,7 +7,7 @@ namespace ProjetoTeste.Infrastructure.Service;
 
 public class BrandValidateService : IBrandValidateService
 {
-    
+
     #region Dependency Injection
 
     private readonly IProductRepository _productRepository;
@@ -24,7 +24,7 @@ public class BrandValidateService : IBrandValidateService
 
     public async Task<BaseResponse<InputCreateBrand?>> ValidateCreateBrand(InputCreateBrand inputCreate)
     {
-        var response = new BaseResponse<InputCreateBrand?>(); 
+        var response = new BaseResponse<InputCreateBrand?>();
         var existingCode = await _brandRepository.GetByCode(inputCreate.Code);
 
         if (existingCode != null)

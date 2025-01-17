@@ -101,7 +101,7 @@ namespace ProjetoTeste.Api.Controllers
             {
                 return BadRequest(result.Message);
             }
-            
+
             return Ok(result.Message);
         }
 

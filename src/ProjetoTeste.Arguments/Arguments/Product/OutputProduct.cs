@@ -1,5 +1,4 @@
-﻿using ProjetoTeste.Arguments.Arguments.Brand;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace ProjetoTeste.Arguments.Arguments.Product
 {

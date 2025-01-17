@@ -33,7 +33,7 @@ public class CustomerValidateService : ICustomerValidateService
 
         if (inputCreate.Name.Length > 40)
             response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres, informe corretamente.");
-        
+
         if (response.Message.Count > 0)
             response.Success = false;
 

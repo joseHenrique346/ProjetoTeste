@@ -2,7 +2,6 @@
 using ProjetoTeste.Arguments.Arguments.Order;
 using ProjetoTeste.Arguments.Arguments.ProductOrder;
 using ProjetoTeste.Arguments.Arguments.Response;
-using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 using ProjetoTeste.Infrastructure.Service;

@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProjetoTeste.Arguments.Arguments.Order.Reports.DTO;
-using ProjetoTeste.Arguments.Arguments.Order.Reports.Outputs;
 using ProjetoTeste.Infrastructure.Interface.Repository;
-using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Persistence.Context;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 

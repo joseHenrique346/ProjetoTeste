@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace ProjetoTeste.Infrastructure.Persistence.Entities
+﻿namespace ProjetoTeste.Infrastructure.Persistence.Entities
 {
     public class Order : BaseEntity
     {

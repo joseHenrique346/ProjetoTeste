@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ProjetoTeste.Infrastructure.Persistence.Entities;
+﻿using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Interface.Repository
 {

@@ -1,6 +1,5 @@
 ﻿using ProjetoTeste.Arguments.Arguments.Order;
 using ProjetoTeste.Arguments.Arguments.Response;
-using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Interface.Service
 {
