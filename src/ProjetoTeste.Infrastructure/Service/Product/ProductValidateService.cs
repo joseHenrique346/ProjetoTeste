@@ -74,7 +74,7 @@ namespace ProjetoTeste.Infrastructure.Service
         {
             var response = new BaseResponse<InputUpdateProduct?>();
 
-            var currentProduct = await _productRepository.GetAsync(input.Id);
+            var currentProduct = await _productRepository.GetListByListId(input.Id);
 
             if (currentProduct == null)
                 response.AddErrorMessage("Produto não encontrado.");

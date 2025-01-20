@@ -84,7 +84,7 @@ namespace ProjetoTeste.Infrastructure.Service
                 };
             }
 
-            var existingProduct = await _productRepository.GetAsync(input.Id);
+            var existingProduct = await _productRepository.GetListByListId(input.Id);
 
             existingProduct.Name = input.Name;
             existingProduct.Code = input.Code;

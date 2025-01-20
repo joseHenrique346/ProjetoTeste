@@ -2,8 +2,8 @@
 using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Conversor;
+using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
-using ProjetoTeste.Infrastructure.Service;
 
 namespace ProjetoTeste.Api.Controllers
 {
@@ -11,9 +11,9 @@ namespace ProjetoTeste.Api.Controllers
     {
         #region Dependency Injection
 
-        private readonly BrandService _brandService;
+        private readonly IBrandService _brandService;
 
-        public BrandController(IUnitOfWork unitOfWork, BrandService brandService) : base(unitOfWork)
+        public BrandController(IUnitOfWork unitOfWork, IBrandService brandService) : base(unitOfWork)
         {
             _brandService = brandService;
         }
@@ -101,7 +101,7 @@ namespace ProjetoTeste.Api.Controllers
             {
                 return BadRequest(result.Message);
             }
-            
+
             return Ok(result.Message);
         }
 

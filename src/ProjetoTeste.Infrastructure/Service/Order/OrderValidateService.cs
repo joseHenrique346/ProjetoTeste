@@ -30,7 +30,7 @@ public class OrderValidateService : IOrderValidateService
     {
         var response = new BaseResponse<InputCreateOrder?>();
 
-        var existingCustomer = await _customerRepository.GetAsync(input.CustomerId);
+        var existingCustomer = await _customerRepository.GetListByListId(input.CustomerId);
 
         if (existingCustomer is null)
             response.AddErrorMessage("Não foi encontrado um cliente com este ID.");
@@ -48,15 +48,15 @@ public class OrderValidateService : IOrderValidateService
     {
         var response = new BaseResponse<InputCreateProductOrder>();
 
-        var existingOrder = await _orderRepository.GetAsync(input.OrderId);
+        var existingOrder = await _orderRepository.GetListByListId(input.OrderId);
         if (existingOrder is null)
             response.AddErrorMessage("Id de Order inválido.");
 
-        var existingProduct = await _productRepository.GetAsync(input.ProductId);
+        var existingProduct = await _productRepository.GetListByListId(input.ProductId);
         if (existingProduct is null)
             response.AddErrorMessage("Id de Produto inválido.");
 
-        var currentProduct = await _productRepository.GetAsync(input.ProductId);
+        var currentProduct = await _productRepository.GetListByListId(input.ProductId);
         if (currentProduct.Stock < input.Quantity)
             response.AddErrorMessage("O Estoque não é suficiente para o pedido.");
 

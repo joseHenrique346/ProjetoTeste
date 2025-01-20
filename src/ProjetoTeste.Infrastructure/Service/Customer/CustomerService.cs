@@ -28,7 +28,7 @@ namespace ProjetoTeste.Infrastructure.Service
         #region Get
         public async Task<OutputCustomer> Get(long id)
         {
-            var customer = await _customerRepository.GetAsync(id);
+            var customer = await _customerRepository.GetListByListId(id);
             return customer.ToOutputCustomer();
         }
 
@@ -41,7 +41,7 @@ namespace ProjetoTeste.Infrastructure.Service
         #endregion
 
         #region Create
-        public async Task<BaseResponse<OutputCustomer>> Create(InputCreateCustomer inputCreate)
+        public async Task<BaseResponse<List<OutputCustomer>>> Create(List<InputCreateCustomer> inputCreate)
         {
             var result = await _customerValidateService.ValidateCreateCustomer(inputCreate);
             if (!result.Success)
@@ -57,7 +57,10 @@ namespace ProjetoTeste.Infrastructure.Service
                 Phone = inputCreate.Phone
             };
 
-            await _customerRepository.CreateAsync(customer);
+            foreach (var i in customer)
+            {
+                await _customerRepository.CreateAsync(i);
+            }
 
             return new BaseResponse<OutputCustomer>
             {
@@ -68,27 +71,33 @@ namespace ProjetoTeste.Infrastructure.Service
         #endregion
 
         #region Update
-        public async Task<BaseResponse<OutputCustomer>> Update(InputUpdateCustomer inputUpdate)
+        public async Task<BaseResponse<List<OutputCustomer>>> Update(List<InputUpdateCustomer> inputUpdate)
         {
             var result = await _customerValidateService.ValidateUpdateCustomer(inputUpdate);
-            var currentBrand = await _customerRepository.GetAsync(inputUpdate.Id);
+            var currentCustomer = await _customerRepository.GetListByListId(inputUpdate.Select(i => i.Id).ToList());
 
             if (!result.Success)
             {
-                return new BaseResponse<OutputCustomer> { Success = false, Message = result.Message };
+                return new BaseResponse<List<OutputCustomer>> { Success = false, Message = result.Message };
             }
 
-            currentBrand.Name = inputUpdate.Name;
-            currentBrand.Phone = inputUpdate.Phone;
-            currentBrand.Email = inputUpdate.Email;
-            currentBrand.CPF = inputUpdate.CPF;
+            foreach (var i in currentCustomer)
+            {
+                i.Name = inputUpdate.Select(i => i.Name).ToString();
+                i.Email = inputUpdate.Select(i => i.Email).ToString();
+                i.CPF = inputUpdate.Select(i => i.CPF).ToString();
+                i.Phone = inputUpdate.Select(i => i.Phone).ToString();
+            }
 
-            _context.Customer.Update(currentBrand);
+            foreach (var i in currentCustomer)
+            {
+                _context.Customer.Update(i);
+            }
 
-            return new BaseResponse<OutputCustomer>
+            return new BaseResponse<List<OutputCustomer>>
             {
                 Success = true,
-                Content = currentBrand.ToOutputCustomer()
+                Content = currentCustomer.ToListOutputProduct()
             };
         }
         #endregion
@@ -97,7 +106,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
         public async Task<BaseResponse<string>> Delete(long id)
         {
-            var result =  await _customerValidateService.ValidateDeleteCustomer(id);
+            var result = await _customerValidateService.ValidateDeleteCustomer(id);
             if (!result.Success)
             {
                 return new BaseResponse<string> { Success = false, Message = result.Message };

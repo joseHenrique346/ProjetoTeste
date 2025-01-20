@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjetoTeste.Arguments.Arguments.Customer;
+using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
-using ProjetoTeste.Infrastructure.Service;
 
 namespace ProjetoTeste.Api.Controllers
 {
@@ -9,9 +9,9 @@ namespace ProjetoTeste.Api.Controllers
     {
         #region Dependency Injection
 
-        private readonly CustomerService _customerService;
+        private readonly ICustomerService _customerService;
 
-        public CustomerController(IUnitOfWork unitOfWork, CustomerService customerService) : base(unitOfWork)
+        public CustomerController(IUnitOfWork unitOfWork, ICustomerService customerService) : base(unitOfWork)
         {
             _customerService = customerService;
         }

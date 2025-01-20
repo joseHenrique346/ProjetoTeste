@@ -18,22 +18,22 @@ public class CustomerValidateService : ICustomerValidateService
 
     #region Validate Create
 
-    public async Task<BaseResponse<InputCreateCustomer?>> ValidateCreateCustomer(InputCreateCustomer inputCreate)
+    public async Task<BaseResponse<List<OutputCustomer?>>> ValidateCreateCustomer(List<InputCreateCustomer> ListInputCreateCustomer)
     {
-        var response = new BaseResponse<InputCreateCustomer?>();
+        var response = new BaseResponse<List<OutputCustomer?>>();
 
-        if (inputCreate.CPF.Length != 11)
+        if (ListInputCreateCustomer.Select(i => i.CPF).ToString().Length != 11)
             response.AddErrorMessage("Tamanho de CPF inválido, informe o CPF corretamente.");
 
-        if (inputCreate.Phone.Length != 11)
+        if (ListInputCreateCustomer.Select(i => i.Phone).ToString().Length != 11)
             response.AddErrorMessage("Tamanho de telefone inválido, informe o telefone corretamente.");
 
-        if (inputCreate.Email.Length > 60)
+        if (ListInputCreateCustomer.Select(i => i.Email).ToString().Length > 60)
             response.AddErrorMessage("Email não pode ultrapassar 60 caracteres, informe corretamente.");
 
-        if (inputCreate.Name.Length > 40)
+        if (ListInputCreateCustomer.Select(i => i.Name).ToString().Length > 40)
             response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres, informe corretamente.");
-        
+
         if (response.Message.Count > 0)
             response.Success = false;
 
@@ -43,20 +43,20 @@ public class CustomerValidateService : ICustomerValidateService
     #endregion
 
     #region Validate Update
-    public async Task<BaseResponse<InputUpdateCustomer?>> ValidateUpdateCustomer(InputUpdateCustomer inputUpdate)
+    public async Task<BaseResponse<List<OutputCustomer?>>> ValidateUpdateCustomer(List<InputUpdateCustomer> inputUpdate)
     {
-        var response = new BaseResponse<InputUpdateCustomer?>();
+        var response = new BaseResponse<List<OutputCustomer?>>();
 
-        if (inputUpdate.CPF.Length != 11)
+        if (inputUpdate.Select(i => i.CPF).ToString().Length != 11)
             response.AddErrorMessage("Tamanho de CPF inválido, informe o CPF corretamente.");
 
-        if (inputUpdate.Phone.Length != 11)
+        if (inputUpdate.Select(i => i.Phone).ToString().Length != 11)
             response.AddErrorMessage("Tamanho de telefone inválido, informe o telefone corretamente.");
 
-        if (inputUpdate.Email.Length > 60)
+        if (inputUpdate.Select(i => i.Email).ToString().Length > 60)
             response.AddErrorMessage("Email não pode ultrapassar 60 caracteres, informe corretamente.");
 
-        if (inputUpdate.Name.Length > 40)
+        if (inputUpdate.Select(i => i.Name).ToString().Length > 40)
             response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres, informe corretamente.");
 
         if (response.Message.Count > 0)
@@ -67,18 +67,18 @@ public class CustomerValidateService : ICustomerValidateService
     #endregion
 
     #region Validate Delete
-    public async Task<BaseResponse<bool>> ValidateDeleteCustomer(long id)
+    public async Task<BaseResponse<List<bool>>> ValidateDeleteCustomer(List<long> id)
     {
-        var response = new BaseResponse<bool>();
+        var response = new BaseResponse<List<bool>>();
 
-        var existingCustomer = await _customerRepository.GetAsync(id);
+        var existingCustomer = await _customerRepository.GetListByListId(id);
         if (existingCustomer == null)
             response.AddErrorMessage("Este Usuário não existe");
 
         if (response.Message.Count > 0)
             response.Success = false;
         else
-            response.AddSuccessMessage($"O usuário {existingCustomer.Name} foi apagado com sucesso");
+            response.AddSuccessMessage($"O usuário {existingCustomer.Select(i => i.Name)} foi apagado com sucesso");
 
         return response;
     }

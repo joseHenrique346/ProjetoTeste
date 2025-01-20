@@ -110,7 +110,7 @@ namespace ProjetoTeste.Infrastructure.Service
         {
             var mostOrdersClient = await _orderRepository.GetMostOrdersCustomer();
 
-            var customerName = await _customerRepository.GetAsync(mostOrdersClient.CustomerId);
+            var customerName = await _customerRepository.GetListByListId(mostOrdersClient.CustomerId);
 
             return new OutputMostOrderQuantityCustomer(
                 mostOrdersClient.CustomerId,
@@ -124,7 +124,7 @@ namespace ProjetoTeste.Infrastructure.Service
         {
             var mostValueOrderClient = await _orderRepository.GetMostValueOrderCustomer();
 
-            var customerName = await _customerRepository.GetAsync(mostValueOrderClient.CustomerId);
+            var customerName = await _customerRepository.GetListByListId(mostValueOrderClient.CustomerId);
 
             return new OutputMostValueOrderCustomer(
                 mostValueOrderClient.CustomerId,
@@ -160,7 +160,7 @@ namespace ProjetoTeste.Infrastructure.Service
                 return new BaseResponse<OutputProductOrder> { Success = false, Message = result.Message };
             }
 
-            var currentProduct = await _productRepository.GetAsync(input.ProductId);
+            var currentProduct = await _productRepository.GetListByListId(input.ProductId);
 
             var createProductOrder = new ProductOrder()
             {
@@ -177,7 +177,7 @@ namespace ProjetoTeste.Infrastructure.Service
             currentProduct.Stock -= input.Quantity;
             await _productRepository.Update(currentProduct);
 
-            var order = await _orderRepository.GetAsync(input.OrderId);
+            var order = await _orderRepository.GetListByListId(input.OrderId);
             order.Total += createProductOrder.SubTotal;
             await _orderRepository.Update(order);
 

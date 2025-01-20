@@ -3,9 +3,9 @@
     public interface IRepository<T> where T : class
     {
         Task<List<T>> GetAllAsync();
-        Task<T?> GetAsync(long id);
-        Task<T> CreateAsync(T entity);
-        Task<bool> Update(T entity);
-        Task<bool> DeleteAsync(long id);
+        Task<List<T?>> GetListByListId(List<long> id);
+        Task<List<T>> CreateAsync(List<T> entities);
+        Task<List<T>> Update(List<T> entities);
+        Task<bool> DeleteAsync(List<T> entities);
     }
 }

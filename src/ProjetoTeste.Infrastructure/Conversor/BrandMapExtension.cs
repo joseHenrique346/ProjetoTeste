@@ -17,22 +17,43 @@ namespace ProjetoTeste.Infrastructure.Conversor
 
         public static Brand ToBrand(this InputCreateBrand input)
         {
-            return new Brand
-            {
-                Name = input.Name,
-                Code = input.Code,
-                Description = input.Description
-            };
+            return new Brand(
+                input.Name,
+                input.Code,
+                input.Description
+            );
         }
 
         public static Brand ToBrand(this InputUpdateBrand input)
         {
-            return new Brand
+            return new Brand(
+                input.Name,
+                input.Code,
+                input.Description
+            );
+        }
+
+
+        public static List<Brand> ToListBrand(this List<InputUpdateBrand> input, List<Brand> brand)
+        {
+            return brand.Select(b =>
             {
-                Name = input.Name,
-                Code = input.Code,
-                Description = input.Description
-            };
+                var updatedInput = input.FirstOrDefault(i => i.Id == b.Id);
+                b.Name = updatedInput.Name;
+                b.Code = updatedInput.Code;
+                b.Description = updatedInput.Description;
+                return b;
+            }).ToList();
+        }
+
+
+        public static List<Brand> ToListBrand(this List<InputCreateBrand> input)
+        {
+            return input.Select(i => new Brand(
+                i.Name,
+                i.Code,
+                i.Description
+            )).ToList();
         }
 
         public static List<OutputBrand> ToListOutputBrand(this List<Brand> brand)

@@ -2,10 +2,9 @@
 using ProjetoTeste.Arguments.Arguments.Order;
 using ProjetoTeste.Arguments.Arguments.ProductOrder;
 using ProjetoTeste.Arguments.Arguments.Response;
-using ProjetoTeste.Infrastructure.Conversor;
+using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
-using ProjetoTeste.Infrastructure.Service;
 
 namespace ProjetoTeste.Api.Controllers
 {
@@ -13,9 +12,9 @@ namespace ProjetoTeste.Api.Controllers
     {
         #region Dependency Injection
 
-        private readonly OrderService _orderService;
+        private readonly IOrderService _orderService;
 
-        public OrderController(IUnitOfWork unitOfWork, OrderService orderService) : base(unitOfWork)
+        public OrderController(IUnitOfWork unitOfWork, IOrderService orderService) : base(unitOfWork)
         {
             _orderService = orderService;
         }

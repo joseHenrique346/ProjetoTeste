@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjetoTeste.Arguments.Arguments.Product;
 using ProjetoTeste.Infrastructure.Conversor;
+using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
-using ProjetoTeste.Infrastructure.Service;
 
 namespace ProjetoTeste.Api.Controllers
 {
@@ -11,8 +11,8 @@ namespace ProjetoTeste.Api.Controllers
     {
         #region Dependency Injection
 
-        private readonly ProductService _productService;
-        public ProductController(IUnitOfWork unitOfWork, ProductService productService) : base(unitOfWork)
+        private readonly IProductService _productService;
+        public ProductController(IUnitOfWork unitOfWork, IProductService productService) : base(unitOfWork)
         {
             _productService = productService;
         }

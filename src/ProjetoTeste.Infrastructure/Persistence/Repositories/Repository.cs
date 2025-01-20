@@ -21,31 +21,30 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<TEntity?> GetAsync(long id)
+        public async Task<List<TEntity?>> GetListByListId(List<long> id)
         {
-            return await _dbSet.FindAsync(id);
+            var findByListId = (from i in id
+                                select _dbSet.Find(i)).ToList();
+            return findByListId;
         }
 
-        public async Task<TEntity> CreateAsync(TEntity entity)
+        public async Task<List<TEntity>> CreateAsync(List<TEntity> entities)
         {
-            await _dbSet.AddAsync(entity);
+            await _dbSet.AddRangeAsync(entities);
+            await _context.SaveChangesAsync();
+            return entities;
+        }
+
+        public async Task<List<TEntity>> Update(List<TEntity> entity)
+        {
+            _dbSet.UpdateRange(entity);
             await _context.SaveChangesAsync();
             return entity;
         }
 
-        public async Task<bool> Update(TEntity entity)
+        public async Task<bool> DeleteAsync(List<TEntity> entity)
         {
-            _dbSet.Update(entity);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public async Task<bool> DeleteAsync(long id)
-        {
-            var entity = await _dbSet.FindAsync(id);
-            if (entity == null) return false;
-
-            _dbSet.Remove(entity);
+            _dbSet.RemoveRange(entity);
             await _context.SaveChangesAsync();
             return true;
         }
