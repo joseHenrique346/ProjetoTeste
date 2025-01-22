@@ -5,8 +5,8 @@ namespace ProjetoTeste.Infrastructure.Interface.Service
 {
     public interface IBrandValidateService
     {
-        Task<BaseResponse<List<BrandValidate?>>> ValidateCreateBrand(List<BrandValidate> input);
-        Task<BaseResponse<List<BrandValidate?>>> ValidateUpdateBrand(List<BrandValidate> input);
+        Task<BaseResponse<List<OutputBrand?>>> ValidateCreateBrand(List<InputCreateBrand> input);
+        Task<BaseResponse<List<InputIdentityUpdateBrand?>>> ValidateUpdateBrand(List<InputIdentityUpdateBrand> input);
         Task<BaseResponse<List<string?>>> ValidateDeleteBrand(List<InputIdentityDeleteBrand> input);
     }
 }

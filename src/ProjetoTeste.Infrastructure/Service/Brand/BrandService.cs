@@ -48,22 +48,13 @@ public class BrandService : IBrandService
 
     #region Create
 
-    public async Task<BaseResponse<List<OutputBrand>>> Create(List<InputCreateBrand> listInputCreateBrand)
+    public async Task<BaseResponse<List<OutputBrand>>> Create(List<InputCreateBrand> input)
     {
-        var response = new BaseResponse<List<OutputBrand>>();
-        List<BrandValidate> listBrandValidate = listInputCreateBrand.Select(i => new BrandValidate().CreateValidate(i)).ToList();
+        var result = await _brandValidateService.ValidateCreateBrand(input);
+        if (!result.Success)
+            return new BaseResponse<List<OutputBrand>>() { Success = false, Message = result.Message };
 
-        var result = await _brandValidateService.ValidateCreateBrand(listBrandValidate);
-        response.Success = result.Success;
-        response.Message = result.Message;
-
-        if (!response.Success)
-            return response;
-
-        var listNewBrand = (from i in result.Content
-                            select new Brand(i.InputCreateBrand.Name, i.InputCreateBrand.Code, i.InputCreateBrand.Description)).ToList();
-
-        var brand = await _brandRepository.CreateAsync(listNewBrand);
+        var brand = await _brandRepository.CreateAsync(input.ToListBrand());
         return new BaseResponse<List<OutputBrand>>() { Success = true, Content = brand.ToListOutputBrand() };
     }
 
@@ -71,33 +62,33 @@ public class BrandService : IBrandService
 
     #region Update
 
-    //public async Task<BaseResponse<List<OutputBrand>>> Update(List<InputIdentityUpdateBrand> listInputIdentityUpdateBrand)
-    //{
-    //    var response = new BaseResponse<List<OutputBrand>>();
-    //    var result = await _brandValidateService.ValidateUpdateBrand(listInputIdentityUpdateBrand);
-    //    response.Success = result.Success;
-    //    response.Message = result.Message;
-    //    if (!response.Success)
-    //    {
-    //        return response;
-    //    }
+    public async Task<BaseResponse<List<OutputBrand>>> Update(List<InputIdentityUpdateBrand> listInputIdentityUpdateBrand)
+    {
+        var response = new BaseResponse<List<OutputBrand>>();
+        var result = await _brandValidateService.ValidateUpdateBrand(listInputIdentityUpdateBrand);
+        response.Success = result.Success;
+        response.Message = result.Message;
+        if (!response.Success)
+        {
+            return response;
+        }
 
-    //    // termina isso aqui
+        // termina isso aqui
 
-    //    var currentBrand = await _brandRepository.GetListByListIdWhere(listInputIdentityUpdateBrand.Select(i => i.Id).ToList());
+        var currentBrand = await _brandRepository.GetListByListIdWhere(listInputIdentityUpdateBrand.Select(i => i.Id).ToList());
 
-    //    foreach (var i in currentBrand)
-    //    {
-    //        i.Name = result.Content.Select(i => i.InputUpdateBrand.Name).ToString();
-    //        i.Code = result.Content.Select(i => i.InputUpdateBrand.Code).ToString();
-    //        i.Description = result.Content.Select(i => i.InputUpdateBrand.Description).ToString();
-    //        response.AddSuccessMessage($"A marca com o nome: {i.Name} foi atualizada com sucesso!");
-    //    } 
+        foreach (var i in currentBrand)
+        {
+            i.Name = result.Content.Select(i => i.InputUpdateBrand.Name).ToString();
+            i.Code = result.Content.Select(i => i.InputUpdateBrand.Code).ToString();
+            i.Description = result.Content.Select(i => i.InputUpdateBrand.Description).ToString();
+            response.AddSuccessMessage($"A marca com o nome: {i.Name} foi atualizada com sucesso!");
+        } 
 
-    //    await _brandRepository.Update(currentBrand);
-    //    response.Content = currentBrand.ToListOutputBrand();
-    //    return response;
-    //}
+        await _brandRepository.Update(currentBrand);
+        response.Content = currentBrand.ToListOutputBrand();
+        return response;
+    }
 
     #endregion
 
@@ -116,11 +107,6 @@ public class BrandService : IBrandService
         await _brandRepository.DeleteAsync(getBrands);
 
         return new BaseResponse<string> { Success = true, Message = result.Message };
-    }
-
-    public Task<BaseResponse<List<OutputBrand>>> Update(List<InputIdentityUpdateBrand> input)
-    {
-        throw new NotImplementedException();
     }
 
     #endregion
