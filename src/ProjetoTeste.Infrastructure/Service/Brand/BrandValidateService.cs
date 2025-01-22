@@ -8,7 +8,7 @@ namespace ProjetoTeste.Infrastructure.Service;
 
 public class BrandValidateService : IBrandValidateService
 {
-    
+
     #region Dependency Injection
 
     private readonly IProductRepository _productRepository;
@@ -23,31 +23,37 @@ public class BrandValidateService : IBrandValidateService
 
     #region Validate Create
 
-    public async Task<BaseResponse<List<OutputBrand?>>> ValidateCreateBrand(List<InputCreateBrand> inputCreate)
+    public async Task<BaseResponse<List<OutputBrand?>>> ValidateCreateBrand(List<InputCreateBrand> inputCreateBrand)
     {
-        var response = new BaseResponse<List<OutputBrand?>>(); 
-        var existingCode = await _brandRepository.GetByCode(inputCreate.Select(i => i.Code).ToString());
+        var response = new BaseResponse<List<OutputBrand?>>();
+        var existingCode = await _brandRepository.GetByCode(inputCreateBrand.Select(i => i.Code).ToString());
 
         if (existingCode != null)
             response.AddErrorMessage("Este código já está em uso!");
 
-        if (string.IsNullOrEmpty(inputCreate.Select(i => i.Code).ToString()))
-            response.AddErrorMessage("O código tem que ser preenchido!");
+        for (var i = 0; i < inputCreateBrand.Count; i++)
+        {
+            if (string.IsNullOrEmpty(inputCreateBrand[i].Code))
+                response.AddErrorMessage("O código tem que ser preenchido!");
 
-        if (string.IsNullOrEmpty(inputCreate.Select(i => i.Description).ToString()))
-            response.AddErrorMessage("A descrição tem que ser preenchida!");
+            if (string.IsNullOrEmpty(inputCreateBrand[i].Description))
+                response.AddErrorMessage("A descrição tem que ser preenchida!");
 
-        if (inputCreate.Select(i => i.Name).ToString().Length > 40)
-            response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres.");
+            if (inputCreateBrand[i].Name.Length > 40)
+                response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres.");
 
-        if (inputCreate.Select(i => i.Code).ToString().Length > 6)
-            response.AddErrorMessage("O código não pode ultrapassar 6 caracteres.");
+            if (inputCreateBrand[i].Code.Length > 6)
+                response.AddErrorMessage("O código não pode ultrapassar 6 caracteres.");
 
-        if (inputCreate.Select(i => i.Description).ToString().Length > 100)
-            response.AddErrorMessage("A descrição não pode ultrapassar 100 caracteres.");
+            if (inputCreateBrand[i].Description.Length > 100)
+                response.AddErrorMessage("A descrição não pode ultrapassar 100 caracteres.");
 
-        if (response.Message.Count > 0)
-            response.Success = false;
+            if (response.Message.Count > 0)
+            {
+                response.Success = false;
+                inputCreateBrand.Remove(inputCreateBrand[i]);
+            }
+        }
 
         return response;
     }
@@ -56,35 +62,54 @@ public class BrandValidateService : IBrandValidateService
 
     #region Validate Update
 
-    public async Task<BaseResponse<List<OutputBrand?>>> ValidateUpdateBrand(List<InputUpdateBrand> listInputUpdateBrand)
+    public async Task<BaseResponse<List<InputIdentityUpdateBrand?>>> ValidateUpdateBrand(List<InputIdentityUpdateBrand> listInputIdentityUpdateBrand)
     {
-        var response = new BaseResponse<List<OutputBrand?>>();
+        var response = new BaseResponse<List<InputIdentityUpdateBrand?>>();
 
-        var currentBrand = await _brandRepository.GetListByListId(listInputUpdateBrand.Select(i => i.Id).ToList());
+        var currentBrand = await _brandRepository.GetListByListIdFind(listInputIdentityUpdateBrand.Select(i => i.Id).ToList());
+        if (currentBrand is null)
+            response.AddErrorMessage("As marcas especificas não foram encontradas.");
 
-        if (currentBrand == null)
-            response.AddErrorMessage("A marca especificada não foi encontrada.");
+        for (var i = 0; i < listInputIdentityUpdateBrand.Count; i++)
+        {
+            var existingCodeBrand = await _brandRepository.GetByCode(listInputIdentityUpdateBrand[i].InputUpdateBrand.Code);
+            if (currentBrand[i] is null)
+                response.AddErrorMessage($"A marca com o ID: {listInputIdentityUpdateBrand[i].Id} não foi encontrada.");
 
-        var existingCodeBrand = await _brandRepository.GetByCode(listInputUpdateBrand.Select(i => i.Code).ToString());
+            if (existingCodeBrand != null && existingCodeBrand.Id != listInputIdentityUpdateBrand.Select(i => i.Id).FirstOrDefault(i => i == existingCodeBrand.Id))
+                response.AddErrorMessage("Já existe uma marca com este código.");
 
-        if (existingCodeBrand != null && existingCodeBrand.Id != listInputUpdateBrand.Select(i => i.Id).FirstOrDefault(i => i == existingCodeBrand.Id))
-            response.AddErrorMessage("Já existe uma marca com este código.");
+            if (string.IsNullOrEmpty(listInputIdentityUpdateBrand[i].InputUpdateBrand.Description))
+                response.AddErrorMessage("A descrição não pode ser vazia.");
 
-        if (string.IsNullOrEmpty(listInputUpdateBrand.Select(i => i.Description).ToString()))
-            response.AddErrorMessage("A descrição não pode ser vazia.");
+            if (listInputIdentityUpdateBrand[i].InputUpdateBrand.Name.Length > 40)
+                response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres");
 
-        if (listInputUpdateBrand.Select(i => i.Name).ToString().Length > 40)
-            response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres");
+            if (listInputIdentityUpdateBrand[i].InputUpdateBrand.Code.Length > 6)
+                response.AddErrorMessage("O código não pode ultrapassar 6 caracteres");
 
-        if (listInputUpdateBrand.Select(i => i.Code).ToString().Length > 6)
-            response.AddErrorMessage("O código não pode ultrapassar 6 caracteres");
+            if (listInputIdentityUpdateBrand[i].InputUpdateBrand.Description.Length > 100)
+                response.AddErrorMessage("A descrição não pode ultrapassar 100 caracteres");
 
-        if (listInputUpdateBrand.Select(i => i.Description).ToString().Length > 100)
-            response.AddErrorMessage("A descrição não pode ultrapassar 100 caracteres");
+            if (response.Message.Count > 0)
+            {
+                listInputIdentityUpdateBrand[i] = null;
+            }
+        }
+        for (var i = 0; i < listInputIdentityUpdateBrand.Count; i++)
+        {
+            if (listInputIdentityUpdateBrand[i] is null)
+            {
+                listInputIdentityUpdateBrand.Remove(listInputIdentityUpdateBrand[i]);
+            }
+        }
 
-        if (response.Message.Count > 0)
+        if (!listInputIdentityUpdateBrand.Any())
+        {
             response.Success = false;
+        }
 
+        response.Content = listInputIdentityUpdateBrand;
         return response;
     }
 
@@ -92,11 +117,11 @@ public class BrandValidateService : IBrandValidateService
 
     #region Validate Delete
 
-    public async Task<BaseResponse<List<string?>>> ValidateDeleteBrand(List<long> id)
+    public async Task<BaseResponse<List<string?>>> ValidateDeleteBrand(List<InputIdentityDeleteBrand> listInputIdentityDeleteBrand)
     {
         var response = new BaseResponse<List<string?>>();
 
-        var existingBrand = (await _brandRepository.GetListByListId(id));
+        var existingBrand = (await _brandRepository.GetListByListIdWhere(listInputIdentityDeleteBrand.Select(i => i.Id).ToList()));
 
         foreach (var item in existingBrand)
         {

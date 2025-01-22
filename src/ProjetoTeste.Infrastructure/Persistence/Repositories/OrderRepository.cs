@@ -14,9 +14,17 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
 
         #region GetWithInclude
 
-        public async Task<List<Order?>> GetWithIncludesAsync(long id)
+        public async Task<List<Order?>> GetWithIncludesAsync(List<long> id)
         {
-            return await _context.Set<Order>().Include(x => x.ListProductOrder).Where(x => x.Id == id).ToListAsync();
+            if (id == null || !id.Any())
+                return new List<Order?>();
+
+            var getWithIncludeSet = await _context.Set<Order>()
+                                          .Include(x => x.ListProductOrder)
+                                          .Where(order => id.Contains(order.Id))
+                                          .ToListAsync();
+
+            return getWithIncludeSet;
         }
 
         public async Task<List<Order?>> GetWithIncludesAsync()

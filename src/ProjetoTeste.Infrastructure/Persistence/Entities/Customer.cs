@@ -9,6 +9,18 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
         public string CPF { get; set; }
         public string Phone { get; set; }
 
+        public Customer(string name, string email, string cpf, string phone)
+        {
+            Name = name;
+            Email = email;
+            CPF = cpf;
+            Phone = phone;
+        }
+        public Customer()
+        {
+             
+        }
+
         [JsonIgnore]
         public List<Order>? Order { get; set; }
     }

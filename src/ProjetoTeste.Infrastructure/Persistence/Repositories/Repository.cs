@@ -21,10 +21,21 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<List<TEntity?>> GetListByListId(List<long> id)
+        public async Task<TEntity> GetById(long id)
+        {
+            return await _dbSet.FindAsync(id);
+        }
+
+        public async Task<List<TEntity?>> GetListByListIdFind(List<long> id)
         {
             var findByListId = (from i in id
                                 select _dbSet.Find(i)).ToList();
+            return findByListId;
+        }
+
+        public async Task<List<TEntity?>> GetListByListIdWhere(List<long> listId)
+        {
+            var findByListId = await _dbSet.Where(i => listId.Contains(i.Id)).ToListAsync();
             return findByListId;
         }
 

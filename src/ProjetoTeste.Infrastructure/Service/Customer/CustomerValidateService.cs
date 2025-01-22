@@ -18,69 +18,96 @@ public class CustomerValidateService : ICustomerValidateService
 
     #region Validate Create
 
-    public async Task<BaseResponse<List<OutputCustomer?>>> ValidateCreateCustomer(List<InputCreateCustomer> ListInputCreateCustomer)
+    public async Task<BaseResponse<List<OutputCustomer?>>> ValidateCreateCustomer(List<InputCreateCustomer> listInputCreateCustomer)
     {
         var response = new BaseResponse<List<OutputCustomer?>>();
 
-        if (ListInputCreateCustomer.Select(i => i.CPF).ToString().Length != 11)
-            response.AddErrorMessage("Tamanho de CPF inválido, informe o CPF corretamente.");
+        for (var i = 0; i < listInputCreateCustomer.Count; i++)
+        {
+            if (listInputCreateCustomer[i] is null)
+                response.AddErrorMessage("Id não encontrado");
 
-        if (ListInputCreateCustomer.Select(i => i.Phone).ToString().Length != 11)
-            response.AddErrorMessage("Tamanho de telefone inválido, informe o telefone corretamente.");
+            if (listInputCreateCustomer[i].CPF.Length != 11)
+                response.AddErrorMessage("Tamanho de CPF inválido, informe o CPF corretamente.");
 
-        if (ListInputCreateCustomer.Select(i => i.Email).ToString().Length > 60)
-            response.AddErrorMessage("Email não pode ultrapassar 60 caracteres, informe corretamente.");
+            if (listInputCreateCustomer[i].Phone.Length != 11)
+                response.AddErrorMessage("Tamanho de telefone inválido, informe o telefone corretamente.");
 
-        if (ListInputCreateCustomer.Select(i => i.Name).ToString().Length > 40)
-            response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres, informe corretamente.");
+            if (listInputCreateCustomer[i].Email.Length > 60)
+                response.AddErrorMessage("Email não pode ultrapassar 60 caracteres, informe corretamente.");
 
-        if (response.Message.Count > 0)
-            response.Success = false;
+            if (!listInputCreateCustomer[i].Email.Contains("@") && !listInputCreateCustomer[i].Email.EndsWith(".com") || !listInputCreateCustomer[i].Email.EndsWith(".com.br"))
+                response.AddErrorMessage("Email inválido, digite corretamente");
 
+            if (listInputCreateCustomer[i].Name.Length > 40)
+                response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres, informe corretamente.");
+
+            if (string.IsNullOrEmpty(listInputCreateCustomer[i].Name))
+                response.AddErrorMessage("Nome não pode ser vazio");
+
+            if (response.Message.Count > 0)
+            {
+                response.Success = false;
+                listInputCreateCustomer.Remove(listInputCreateCustomer[i]);
+            }
+        }
         return response;
     }
 
     #endregion
 
     #region Validate Update
-    public async Task<BaseResponse<List<OutputCustomer?>>> ValidateUpdateCustomer(List<InputUpdateCustomer> inputUpdate)
+    public async Task<BaseResponse<List<OutputCustomer?>>> ValidateUpdateCustomer(List<InputIdentityUpdateCustomer> listInputIdentityUpdateCustomer)
     {
         var response = new BaseResponse<List<OutputCustomer?>>();
 
-        if (inputUpdate.Select(i => i.CPF).ToString().Length != 11)
-            response.AddErrorMessage("Tamanho de CPF inválido, informe o CPF corretamente.");
+        for (var i = 0; i < listInputIdentityUpdateCustomer.Count; i++)
+        {
+            if (listInputIdentityUpdateCustomer[i] is null)
+                response.AddErrorMessage("Id não econtrado.");
 
-        if (inputUpdate.Select(i => i.Phone).ToString().Length != 11)
-            response.AddErrorMessage("Tamanho de telefone inválido, informe o telefone corretamente.");
+            if (listInputIdentityUpdateCustomer[i].InputUpdateCustomer.CPF.Length != 11)
+                response.AddErrorMessage("Tamanho de CPF inválido, informe o CPF corretamente.");
 
-        if (inputUpdate.Select(i => i.Email).ToString().Length > 60)
-            response.AddErrorMessage("Email não pode ultrapassar 60 caracteres, informe corretamente.");
+            if (listInputIdentityUpdateCustomer[i].InputUpdateCustomer.Phone.Length != 11)
+                response.AddErrorMessage("Tamanho de telefone inválido, informe o telefone corretamente.");
 
-        if (inputUpdate.Select(i => i.Name).ToString().Length > 40)
-            response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres, informe corretamente.");
+            if (listInputIdentityUpdateCustomer[i].InputUpdateCustomer.Email.Length > 60)
+                response.AddErrorMessage("Email não pode ultrapassar 60 caracteres, informe corretamente.");
 
-        if (response.Message.Count > 0)
-            response.Success = false;
+            if (listInputIdentityUpdateCustomer[i].InputUpdateCustomer.Name.Length > 40)
+                response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres, informe corretamente.");
 
+            if (response.Message.Count > 0)
+            {
+                response.Success = false;
+                listInputIdentityUpdateCustomer.Remove(listInputIdentityUpdateCustomer[i]);
+            }
+        }
         return response;
     }
     #endregion
 
     #region Validate Delete
-    public async Task<BaseResponse<List<bool>>> ValidateDeleteCustomer(List<long> id)
+    public async Task<BaseResponse<List<bool>>> ValidateDeleteCustomer(List<InputIdentityDeleteCustomer> listInputIdentityDeleteCustomer)
     {
         var response = new BaseResponse<List<bool>>();
 
-        var existingCustomer = await _customerRepository.GetListByListId(id);
-        if (existingCustomer == null)
-            response.AddErrorMessage("Este Usuário não existe");
+        var existingCustomer = await _customerRepository.GetListByListIdWhere(listInputIdentityDeleteCustomer.Select(i => i.Id).ToList());
+        for (var i = 0; i < listInputIdentityDeleteCustomer.Count; i++)
+        {
 
-        if (response.Message.Count > 0)
-            response.Success = false;
-        else
-            response.AddSuccessMessage($"O usuário {existingCustomer.Select(i => i.Name)} foi apagado com sucesso");
+            if (existingCustomer[i] == null)
+                response.AddErrorMessage("Este Usuário não existe");
+
+            if (response.Message.Count > 0)
+                response.Success = false;
+            else
+                response.AddSuccessMessage($"O usuário {existingCustomer.Select(i => i.Name)} foi apagado com sucesso");
+        }
 
         return response;
     }
-    #endregion
 }
+
+    #endregion

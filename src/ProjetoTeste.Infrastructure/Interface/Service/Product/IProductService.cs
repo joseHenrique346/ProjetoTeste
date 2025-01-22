@@ -7,9 +7,9 @@ namespace ProjetoTeste.Infrastructure.Interface.Service
     public interface IProductService
     {
         Task<List<Product>> GetAll();
-        Task<BaseResponse<Product>> Get(long id);
-        Task<BaseResponse<Product>> Create(InputCreateProduct product);
-        Task<BaseResponse<Product>> Update(InputUpdateProduct product);
-        Task<BaseResponse<bool>> Delete(long id);
+        Task<Product> Get(long id);
+        Task<BaseResponse<List<OutputProduct>>> Create(List<InputCreateProduct> product);
+        Task<BaseResponse<List<OutputProduct>>> Update(List<InputIdentityUpdateProduct> product);
+        Task<BaseResponse<List<string>>> Delete(List<InputIdentityDeleteProduct> input);
     }
 }

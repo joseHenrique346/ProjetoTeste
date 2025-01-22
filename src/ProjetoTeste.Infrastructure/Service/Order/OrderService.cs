@@ -9,7 +9,7 @@ using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
-    public class OrderService
+    public class OrderService : IOrderService
     {
         #region Dependency Injection
 
@@ -38,9 +38,9 @@ namespace ProjetoTeste.Infrastructure.Service
             var get = await _orderRepository.GetWithIncludesAsync();
             return get.Select(i => i.ToOutputOrder()).ToList();
         }
-        public async Task<List<OutputOrder>?> Get(long id)
+        public async Task<List<OutputOrder>?> Get(List<InputIdentityViewOrder> InputIdentityViewOrder)
         {
-            var orderId = await _orderRepository.GetWithIncludesAsync(id);
+            var orderId = await _orderRepository.GetWithIncludesAsync(InputIdentityViewOrder.Select(i => i.Id).ToList());
             return orderId.Select(i => i.ToOutputOrder()).ToList();
         }
         #endregion
@@ -110,7 +110,7 @@ namespace ProjetoTeste.Infrastructure.Service
         {
             var mostOrdersClient = await _orderRepository.GetMostOrdersCustomer();
 
-            var customerName = await _customerRepository.GetListByListId(mostOrdersClient.CustomerId);
+            var customerName = await _customerRepository.GetById(mostOrdersClient.CustomerId);
 
             return new OutputMostOrderQuantityCustomer(
                 mostOrdersClient.CustomerId,
@@ -124,7 +124,7 @@ namespace ProjetoTeste.Infrastructure.Service
         {
             var mostValueOrderClient = await _orderRepository.GetMostValueOrderCustomer();
 
-            var customerName = await _customerRepository.GetListByListId(mostValueOrderClient.CustomerId);
+            var customerName = await _customerRepository.GetById(mostValueOrderClient.CustomerId);
 
             return new OutputMostValueOrderCustomer(
                 mostValueOrderClient.CustomerId,
@@ -138,50 +138,64 @@ namespace ProjetoTeste.Infrastructure.Service
 
         #region Create
 
-        public async Task<BaseResponse<OutputOrder>> Create(InputCreateOrder input)
+        public async Task<BaseResponse<List<OutputOrder>>> Create(List<InputCreateOrder> listInputCreateOrder)
         {
-            var result = await _orderValidateService.ValidateCreateOrder(input);
+            var result = await _orderValidateService.ValidateCreateOrder(listInputCreateOrder);
 
             if (!result.Success)
             {
-                return new BaseResponse<OutputOrder> { Success = false, Message = result.Message };
+                return new BaseResponse<List<OutputOrder>> { Success = false, Message = result.Message };
             }
-            var order = new Order(input.CustomerId, DateTime.Now);
+
+            var order = (from i in listInputCreateOrder
+                         select new Order
+                         (
+                             i.CustomerId, DateTime.Now
+                         )).ToList();
 
             await _orderRepository.CreateAsync(order);
-            return new BaseResponse<OutputOrder> { Success = true, Content = order.ToOutputOrder() };
+            return new BaseResponse<List<OutputOrder>> { Success = true, Content = order.ToListOutputOrder() };
         }
 
-        public async Task<BaseResponse<OutputProductOrder>> CreateProductOrder(InputCreateProductOrder input)
+        public async Task<BaseResponse<List<OutputProductOrder>>> CreateProductOrder(List<InputCreateProductOrder> listInputCreateProductOrder)
         {
-            var result = await _orderValidateService.ValidateCreateProductOrder(input);
+            var result = await _orderValidateService.ValidateCreateProductOrder(listInputCreateProductOrder);
             if (!result.Success)
             {
-                return new BaseResponse<OutputProductOrder> { Success = false, Message = result.Message };
+                return new BaseResponse<List<OutputProductOrder>> { Success = false, Message = result.Message };
             }
 
-            var currentProduct = await _productRepository.GetListByListId(input.ProductId);
+            var currentProduct = await _productRepository.GetListByListIdWhere(listInputCreateProductOrder.Select(i => i.ProductId).ToList());
 
-            var createProductOrder = new ProductOrder()
-            {
-                OrderId = input.OrderId,
-                ProductId = input.ProductId,
-                Quantity = input.Quantity,
-                UnitPrice = currentProduct.Price,
-                SubTotal = input.Quantity * currentProduct.Price
-            };
+            var createProductOrder = (from i in listInputCreateProductOrder
+                                      from j in currentProduct
+                                      select new ProductOrder
+                                      {
+                                          OrderId = i.OrderId,
+                                          ProductId = i.ProductId,
+                                          Quantity = i.Quantity,
+                                          UnitPrice = j.Price,
+                                          SubTotal = i.Quantity * j.Price
+                                      }).ToList();
 
-            //var createProductOrder = new ProductOrder() { OrderId = input.OrderId, ProductId = input.ProductId, Quantity = input.Quantity, UnitPrice = currentProduct.Price };
             await _productOrderRepository.CreateAsync(createProductOrder);
 
-            currentProduct.Stock -= input.Quantity;
+            foreach (var i in listInputCreateProductOrder)
+            {
+                var productToUpdate = currentProduct.FirstOrDefault(j => j.Id == i.ProductId);
+                productToUpdate.Stock -= i.Quantity;
+            }
             await _productRepository.Update(currentProduct);
 
-            var order = await _orderRepository.GetListByListId(input.OrderId);
-            order.Total += createProductOrder.SubTotal;
+            var order = await _orderRepository.GetListByListIdWhere(listInputCreateProductOrder.Select(i => i.OrderId).ToList());
+            foreach (var i in createProductOrder)
+            {
+                var TotalFromOrder = order.FirstOrDefault(j => j.Id == i.OrderId);
+                TotalFromOrder.Total += i.SubTotal;
+            }
             await _orderRepository.Update(order);
 
-            return new BaseResponse<OutputProductOrder> { Success = true, Content = createProductOrder.ToOuputProductOrder() };
+            return new BaseResponse<List<OutputProductOrder>> { Success = true, Content = createProductOrder.ToListOuputProductOrder() };
         }
 
         #endregion

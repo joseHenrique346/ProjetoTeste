@@ -3,6 +3,7 @@ using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
+using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
@@ -21,47 +22,53 @@ namespace ProjetoTeste.Infrastructure.Service
 
         #region Validate Create
 
-        public async Task<BaseResponse<InputCreateProduct?>> ValidateCreateProduct(InputCreateProduct input)
+        public async Task<BaseResponse<List<OutputProduct?>>> ValidateCreateProduct(List<InputCreateProduct> listInputCreateProduct)
         {
-            var response = new BaseResponse<InputCreateProduct?>();
+            var response = new BaseResponse<List<OutputProduct?>>();
 
-            var existingCodeProduct = await _productRepository.GetByCode(input.Code);
+            var existingCodeProduct = await _productRepository.GetByCode(listInputCreateProduct.Select(i => i.Code).ToString());
 
-            if (existingCodeProduct != null)
-                response.AddErrorMessage("Já existe produto com este Código.");
+            for (var i = 0; i < listInputCreateProduct.Count; i++)
+            {
+                if (existingCodeProduct is null)
+                    response.AddErrorMessage("Já existe produto com este Código.");
 
-            if (input.Name.Length > 40)
-                response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres");
+                if (listInputCreateProduct[i].Name.Length > 40)
+                    response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres");
 
-            if (string.IsNullOrEmpty(input.Code))
-                response.AddErrorMessage("O código tem que ser preenchido!");
+                if (string.IsNullOrEmpty(listInputCreateProduct[i].Code))
+                    response.AddErrorMessage("O código tem que ser preenchido!");
 
-            if (input.Code.Length > 6)
-                response.AddErrorMessage("O código não pode ser maior que 6 caracteres.");
+                if (listInputCreateProduct[i].Code.Length > 6)
+                    response.AddErrorMessage("O código não pode ser maior que 6 caracteres.");
 
-            if (string.IsNullOrEmpty(input.Description))
-                response.AddErrorMessage("O código não pode ser maior que 6 caracteres.");
+                if (string.IsNullOrEmpty(listInputCreateProduct[i].Description))
+                    response.AddErrorMessage("O código não pode ser maior que 6 caracteres.");
 
-            if (input.Description.Length > 100)
-                response.AddErrorMessage("A descrição não pode ser maior que 100 caracteres.");
+                if (listInputCreateProduct[i].Description.Length > 100)
+                    response.AddErrorMessage("A descrição não pode ser maior que 100 caracteres.");
 
-            if (input.Stock <= 0)
-                response.AddErrorMessage("O estoque não pode ser menor ou igual a zero.");
+                if (listInputCreateProduct[i].Stock <= 0)
+                    response.AddErrorMessage("O estoque não pode ser menor ou igual a zero.");
 
-            if (input.Stock.ToString().Length > 10)
-                response.AddErrorMessage("O estoque não pode ter este tamanho");
+                if (listInputCreateProduct[i].Stock.ToString().Length > 10)
+                    response.AddErrorMessage("O estoque não pode ter este tamanho");
 
-            if (input.Price < 0)
-                response.AddErrorMessage("O preço não pode ser menor que zero.");
+                if (listInputCreateProduct[i].Price < 0)
+                    response.AddErrorMessage("O preço não pode ser menor que zero.");
 
-            if (input.BrandId.HasValue && input.BrandId.Value <= 0)
-                response.AddErrorMessage("Informe um valor válido para o Id da marca.");
+                if (listInputCreateProduct[i].BrandId.HasValue && listInputCreateProduct[i].BrandId.Value <= 0)
+                    response.AddErrorMessage("Informe um valor válido para o Id da marca.");
 
-            if (!input.BrandId.HasValue)
-                response.AddErrorMessage("O ID da marca não pode ser nulo.");
+                if (!listInputCreateProduct[i].BrandId.HasValue)
+                    response.AddErrorMessage("O ID da marca não pode ser nulo.");
 
-            if (response.Message.Count > 0)
-                response.Success = false;
+                if (response.Message.Count > 0)
+                {
+                    response.Success = false;
+                    listInputCreateProduct.Remove(listInputCreateProduct[i]);
+                }
+            }
 
             return response;
         }
@@ -70,53 +77,58 @@ namespace ProjetoTeste.Infrastructure.Service
 
         #region Validate Update
 
-        public async Task<BaseResponse<InputUpdateProduct?>> ValidateUpdateProduct(InputUpdateProduct input)
+        public async Task<BaseResponse<List<OutputProduct?>>> ValidateUpdateProduct(List<InputIdentityUpdateProduct> listInputIdentityUpdateProduct)
         {
-            var response = new BaseResponse<InputUpdateProduct?>();
+            var response = new BaseResponse<List<OutputProduct?>>();
 
-            var currentProduct = await _productRepository.GetListByListId(input.Id);
+            var currentProduct = await _productRepository.GetListByListIdWhere(listInputIdentityUpdateProduct.Select(i => i.Id).ToList());
 
-            if (currentProduct == null)
-                response.AddErrorMessage("Produto não encontrado.");
 
-            var existingCodeProduct = await _productRepository.GetByCode(input.Code);
+            for (var i = 0; i < listInputIdentityUpdateProduct.Count; i++)
+            {
+                if (currentProduct[i] is null)
+                    response.AddErrorMessage("Produto não encontrado.");
 
-            var existingProduct = await _productRepository.GetByCode(input.Code);
-            if (existingProduct != null && currentProduct.Id != input.Id)
-                response.AddErrorMessage("Já existe produto com este Código.");
+                var existingProduct = await _productRepository.GetByCode(listInputIdentityUpdateProduct.Select(i => i.InputUpdateProduct.Code).ToString());
+                if (existingProduct != null && currentProduct[i].Id != listInputIdentityUpdateProduct[i].Id)
+                    response.AddErrorMessage("Já existe produto com este Código.");
 
-            if (input.Name.Length > 40)
-                response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres");
+                if (listInputIdentityUpdateProduct[i].InputUpdateProduct.Name.ToString().Length > 40)
+                    response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres");
 
-            if (string.IsNullOrEmpty(input.Code))
-                response.AddErrorMessage("O código tem que ser preenchido!");
+                if (string.IsNullOrEmpty(listInputIdentityUpdateProduct[i].InputUpdateProduct.Code.ToString()))
+                    response.AddErrorMessage("O código tem que ser preenchido!");
 
-            if (input.Code.Length > 6)
-                response.AddErrorMessage("O código não pode ser maior que 6 caracteres.");
+                if (listInputIdentityUpdateProduct[i].InputUpdateProduct.Code.ToString().Length > 6)
+                    response.AddErrorMessage("O código não pode ser maior que 6 caracteres.");
 
-            if (string.IsNullOrEmpty(input.Description))
-                response.AddErrorMessage("O código não pode ser maior que 6 caracteres.");
+                if (string.IsNullOrEmpty(listInputIdentityUpdateProduct[i].InputUpdateProduct.Description.ToString()))
+                    response.AddErrorMessage("O código não pode ser maior que 6 caracteres.");
 
-            if (input.Description.Length > 100)
-                response.AddErrorMessage("A descrição não pode ser maior que 100 caracteres.");
+                if (listInputIdentityUpdateProduct[i].InputUpdateProduct.Description.ToString().Length > 100)
+                    response.AddErrorMessage("A descrição não pode ser maior que 100 caracteres.");
 
-            if (input.Stock <= 0)
-                response.AddErrorMessage("O estoque não pode ser menor ou igual a zero.");
+                if (listInputIdentityUpdateProduct[i].InputUpdateProduct.Stock < 0)
+                    response.AddErrorMessage("O estoque não pode ser menor que zero.");
 
-            if (input.Stock.ToString().Length > 10)
-                response.AddErrorMessage("O estoque não pode ter este tamanho");
+                if (listInputIdentityUpdateProduct[i].InputUpdateProduct.Stock.ToString().Length > 10)
+                    response.AddErrorMessage("O estoque não pode ter este tamanho");
 
-            if (input.Price < 0)
-                response.AddErrorMessage("O preço não pode ser menor que zero.");
+                if (listInputIdentityUpdateProduct[i].InputUpdateProduct.Price < 0)
+                    response.AddErrorMessage("O preço não pode ser menor que zero.");
 
-            if (input.BrandId.HasValue && input.BrandId.Value <= 0)
-                response.AddErrorMessage("Informe um valor válido para o Id da marca.");
+                if (listInputIdentityUpdateProduct[i].InputUpdateProduct.BrandId.HasValue && listInputIdentityUpdateProduct[i].InputUpdateProduct.BrandId.Value <= 0)
+                    response.AddErrorMessage("Informe um valor válido para o Id da marca.");
 
-            if (!input.BrandId.HasValue)
-                response.AddErrorMessage("O ID da marca não pode ser nulo.");
-
-            if (response.Message.Count > 0)
-                response.Success = false;
+                if (!listInputIdentityUpdateProduct[i].InputUpdateProduct.BrandId.HasValue)
+                    response.AddErrorMessage("O ID da marca não pode ser nulo.");
+                
+                if (response.Message.Count > 0)
+                {
+                    response.Success = false;
+                    listInputIdentityUpdateProduct.Remove(listInputIdentityUpdateProduct[i]);
+                }
+            }
 
             return response;
         }
@@ -125,27 +137,34 @@ namespace ProjetoTeste.Infrastructure.Service
 
         #region Validate Delete
 
-        public async Task<BaseResponse<string?>> ValidateDeleteProduct(long id)
+        public async Task<BaseResponse<List<Product?>>> ValidateDeleteProduct(List<InputIdentityDeleteProduct> listInputIdentityDeleteProduct)
         {
-            var response = new BaseResponse<string?>();
+            var response = new BaseResponse<List<Product?>>();
 
             var products = await _productRepository.GetAllAsync();
-            var existingProduct = products.FirstOrDefault(x => x.Id == id);
 
-            if (existingProduct is null)
-                response.AddErrorMessage("Não foi encontrado o ID inserido, foi informado corretamente?");
+            for (int i = 0; i < listInputIdentityDeleteProduct.Count; i++)
+            {
+                var existingProduct = products.FirstOrDefault(j => j.Id == listInputIdentityDeleteProduct[i].Id);
 
-            if (existingProduct.Stock > 0)
-                response.AddErrorMessage("Não foi possível deletar o produto, o mesmo ainda possue estoque");
+                if (existingProduct is null)
+                    response.AddErrorMessage("Não foi encontrado o ID inserido, foi informado corretamente?");
 
-            if (response.Message.Count > 0)
-                response.Success = false;
-            else
-                response.AddSuccessMessage($"O produto {existingProduct.Name} foi deletado com sucesso");
+                if (existingProduct.Stock > 0)
+                    response.AddErrorMessage("Não foi possível deletar o produto, o mesmo ainda possue estoque");
 
+                if (response.Message.Count > 0)
+                {
+                    response.Success = false;
+                    listInputIdentityDeleteProduct.Remove(listInputIdentityDeleteProduct[i]);
+                }
+                else
+                    response.AddSuccessMessage($"O produto {existingProduct.Name} foi deletado com sucesso");
+            }
+
+            response.Content = products;
             return response;
         }
-
-        #endregion
     }
 }
+#endregion

@@ -3,6 +3,7 @@ using ProjetoTeste.Arguments.Arguments.ProductOrder;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
+using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Service;
 
@@ -26,48 +27,57 @@ public class OrderValidateService : IOrderValidateService
 
     #region Validate Create Order
 
-    public async Task<BaseResponse<InputCreateOrder?>> ValidateCreateOrder(InputCreateOrder input)
+    public async Task<BaseResponse<List<OutputOrder?>>> ValidateCreateOrder(List<InputCreateOrder> listInputCreateOrder)
     {
-        var response = new BaseResponse<InputCreateOrder?>();
+        var response = new BaseResponse<List<OutputOrder?>>();
 
-        var existingCustomer = await _customerRepository.GetListByListId(input.CustomerId);
+        var existingCustomer = await _customerRepository.GetListByListIdWhere(listInputCreateOrder.Select(i => i.CustomerId).ToList());
 
-        if (existingCustomer is null)
-            response.AddErrorMessage("Não foi encontrado um cliente com este ID.");
+        for (var i = 0; i < listInputCreateOrder.Count; i++)
+        {
+            if (existingCustomer[i] is null)
+                response.AddErrorMessage("Não foi encontrado um cliente com este ID.");
 
-        if (response.Message.Count > 0)
-            response.Success = false;
-
+            if (response.Message.Count > 0)
+            {
+                response.Success = false;
+                listInputCreateOrder.Remove(listInputCreateOrder[i]);
+            }
+        }
         return response;
     }
 
     #endregion
 
     #region Validate Create ProductOrder
-    public async Task<BaseResponse<InputCreateProductOrder?>> ValidateCreateProductOrder(InputCreateProductOrder input)
+    public async Task<BaseResponse<List<OutputProductOrder?>>> ValidateCreateProductOrder(List<InputCreateProductOrder> listInputCreateProductOrder)
     {
-        var response = new BaseResponse<InputCreateProductOrder>();
+        var response = new BaseResponse<List<OutputProductOrder>>();
 
-        var existingOrder = await _orderRepository.GetListByListId(input.OrderId);
-        if (existingOrder is null)
-            response.AddErrorMessage("Id de Order inválido.");
+        for (var i = 0; i < listInputCreateProductOrder.Count; i++)
+        {
+            var existingOrder = await _orderRepository.GetListByListIdWhere(listInputCreateProductOrder.Select(i => i.OrderId).ToList());
+            if (existingOrder[i] is null)
+                response.AddErrorMessage("Id de Order inválido.");
 
-        var existingProduct = await _productRepository.GetListByListId(input.ProductId);
-        if (existingProduct is null)
-            response.AddErrorMessage("Id de Produto inválido.");
+            var currentProduct = await _productRepository.GetListByListIdWhere(listInputCreateProductOrder.Select(i => i.ProductId).ToList());
+            if (currentProduct[i] is null)
+                response.AddErrorMessage("Id de Produto inválido.");
 
-        var currentProduct = await _productRepository.GetListByListId(input.ProductId);
-        if (currentProduct.Stock < input.Quantity)
-            response.AddErrorMessage("O Estoque não é suficiente para o pedido.");
+            if (currentProduct[i].Stock < listInputCreateProductOrder[i].Quantity)
+                response.AddErrorMessage("O Estoque não é suficiente para o pedido.");
 
-        if (input.Quantity <= 0)
-            response.AddErrorMessage("Quantidade inválida para pedido.");
+            if (listInputCreateProductOrder[i].Quantity <= 0)
+                response.AddErrorMessage("Quantidade inválida para pedido.");
 
-        if (response.Message.Count > 0)
-            response.Success = false;
-
+            if (response.Message.Count > 0)
+            {
+                response.Success = false;
+                listInputCreateProductOrder.Remove(listInputCreateProductOrder[i]);
+            }
+        }
         return response;
     }
+}
 
     #endregion
-}

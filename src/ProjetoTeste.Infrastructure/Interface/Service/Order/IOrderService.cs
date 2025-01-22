@@ -7,8 +7,7 @@ namespace ProjetoTeste.Infrastructure.Interface.Service
     public interface IOrderService
     {
         Task<List<OutputOrder>> GetAll();
-        Task<OutputOrder> Get(long id);
-        Task<BaseResponse<OutputOrder>> Create(InputCreateOrder input);
-        Task<string> GetBrandNameById(long? id);
+        Task<List<OutputOrder>> Get(List<InputIdentityViewOrder> input);
+        Task<BaseResponse<List<OutputOrder>>> Create(List<InputCreateOrder> input);
     }
 }

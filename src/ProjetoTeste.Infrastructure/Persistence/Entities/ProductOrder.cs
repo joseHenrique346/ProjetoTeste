@@ -10,6 +10,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
             ProductId = productId;
             Quantity = quantity;
         }
+
         public ProductOrder() { }
 
         public long OrderId { get; set; }

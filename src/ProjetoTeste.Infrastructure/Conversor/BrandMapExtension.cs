@@ -34,14 +34,14 @@ namespace ProjetoTeste.Infrastructure.Conversor
         }
 
 
-        public static List<Brand> ToListBrand(this List<InputUpdateBrand> input, List<Brand> brand)
+        public static List<Brand> ToListBrand(this List<InputIdentityUpdateBrand> input, List<Brand> brand)
         {
             return brand.Select(b =>
             {
                 var updatedInput = input.FirstOrDefault(i => i.Id == b.Id);
-                b.Name = updatedInput.Name;
-                b.Code = updatedInput.Code;
-                b.Description = updatedInput.Description;
+                b.Name = updatedInput.InputUpdateBrand.Name;
+                b.Code = updatedInput.InputUpdateBrand.Code;
+                b.Description = updatedInput.InputUpdateBrand.Description;
                 return b;
             }).ToList();
         }
@@ -56,14 +56,9 @@ namespace ProjetoTeste.Infrastructure.Conversor
             )).ToList();
         }
 
-        public static List<OutputBrand> ToListOutputBrand(this List<Brand> brand)
+        public static List<OutputBrand?>? ToListOutputBrand(this List<Brand>? brand)
         {
-            return brand.Select(x => new OutputBrand(
-                x.Id,
-                x.Name,
-                x.Code,
-                x.Description
-            )).ToList();
+            return brand != null ? brand.Select(x => x.ToOutputBrand()).ToList() : null;
         }
     }
 }

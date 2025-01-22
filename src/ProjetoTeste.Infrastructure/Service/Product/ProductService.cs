@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
-    public class ProductService
+    public class ProductService : IProductService
     {
 
         #region Dependency Injection
@@ -46,23 +46,23 @@ namespace ProjetoTeste.Infrastructure.Service
 
         #region Create
 
-        public async Task<BaseResponse<OutputProduct>> Create(InputCreateProduct input)
+        public async Task<BaseResponse<List<OutputProduct>>> Create(List<InputCreateProduct> listInputCreateProduct)
         {
-            var result = await _productValidateService.ValidateCreateProduct(input);
+            var result = await _productValidateService.ValidateCreateProduct(listInputCreateProduct);
             if (!result.Success)
             {
-                return new BaseResponse<OutputProduct>
+                return new BaseResponse<List<OutputProduct>>
                 {
                     Success = false,
                     Message = result.Message
                 };
             }
 
-            var product = await _productRepository.CreateAsync(input.ToProduct());
-            return new BaseResponse<OutputProduct>
+            var product = await _productRepository.CreateAsync(listInputCreateProduct.ToListProduct());
+            return new BaseResponse<List<OutputProduct>>
             {
                 Success = true,
-                Content = product.ToOutputProduct()
+                Content = product.ToListOutputProduct()
             };
         }
 
@@ -70,35 +70,37 @@ namespace ProjetoTeste.Infrastructure.Service
 
         #region Update
 
-        public async Task<BaseResponse<Product>> Update(InputUpdateProduct input)
+        public async Task<BaseResponse<List<OutputProduct>>> Update(List<InputIdentityUpdateProduct> listInputIdentityUpdateProduct)
         {
-            var response = new BaseResponse<Product>()
+            var response = new BaseResponse<OutputProduct>()
 ;
-            var result = await _productValidateService.ValidateUpdateProduct(input);
+            var result = await _productValidateService.ValidateUpdateProduct(listInputIdentityUpdateProduct);
             if (!result.Success)
             {
-                return new BaseResponse<Product>
+                return new BaseResponse<List<OutputProduct>>
                 {
                     Success = false,
                     Message = result.Message
                 };
             }
 
-            var existingProduct = await _productRepository.GetListByListId(input.Id);
+            var currentProduct = await _productRepository.GetListByListIdWhere(listInputIdentityUpdateProduct.Select(i => i.Id).ToList());
 
-            existingProduct.Name = input.Name;
-            existingProduct.Code = input.Code;
-            existingProduct.Description = input.Description;
-            existingProduct.Price = input.Price;
-            existingProduct.Stock = input.Stock;
-            existingProduct.BrandId = input.BrandId;
+            for (int i = 0; i < listInputIdentityUpdateProduct.Count; i++)
+            {
+                currentProduct[i].Name = listInputIdentityUpdateProduct[i].InputUpdateProduct.Name;
+                currentProduct[i].Code = listInputIdentityUpdateProduct[i].InputUpdateProduct.Code;
+                currentProduct[i].Description = listInputIdentityUpdateProduct[i].InputUpdateProduct.Description;
+                currentProduct[i].Price = listInputIdentityUpdateProduct[i].InputUpdateProduct.Price;
+                currentProduct[i].Stock = listInputIdentityUpdateProduct[i].InputUpdateProduct.Stock;
+            }
 
-            await _productRepository.Update(existingProduct);
+            await _productRepository.Update(currentProduct);
 
-            return new BaseResponse<Product>
+            return new BaseResponse<List<OutputProduct>>
             {
                 Success = true,
-                Content = existingProduct
+                Content = currentProduct.ToListOutputProduct()
             };
         }
 
@@ -106,20 +108,20 @@ namespace ProjetoTeste.Infrastructure.Service
 
         #region Delete
 
-        public async Task<BaseResponse<string>> Delete(long id)
+        public async Task<BaseResponse<List<string>>> Delete(List<InputIdentityDeleteProduct> listInputIdentityDeleteProduct)
         {
-            var result = await _productValidateService.ValidateDeleteProduct(id);
+            var result = await _productValidateService.ValidateDeleteProduct(listInputIdentityDeleteProduct);
             if (!result.Success)
             {
-                return new BaseResponse<string>
+                return new BaseResponse<List<string>>
                 {
                     Success = false,
                     Message = result.Message
                 };
             }
 
-            await _productRepository.DeleteAsync(id);
-            return new BaseResponse<string>
+            await _productRepository.DeleteAsync(result.Content);
+            return new BaseResponse<List<string>>
             {
                 Success = true,
                 Message = result.Message
