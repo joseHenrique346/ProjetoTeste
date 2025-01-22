@@ -2,8 +2,8 @@
 using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Conversor;
+using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
-using ProjetoTeste.Infrastructure.Service;
 
 namespace ProjetoTeste.Api.Controllers
 {
@@ -11,9 +11,8 @@ namespace ProjetoTeste.Api.Controllers
     {
         #region Dependency Injection
 
-        private readonly BrandService _brandService;
-
-        public BrandController(IUnitOfWork unitOfWork, BrandService brandService) : base(unitOfWork)
+        private readonly IBrandService _brandService;
+        public BrandController(IUnitOfWork unitOfWork, IBrandService brandService) : base(unitOfWork)
         {
             _brandService = brandService;
         }
@@ -29,10 +28,10 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(brands.ToListOutputBrand());
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<OutputBrand>> Get(int id)
+        [HttpPost("GetById")]
+        public async Task<ActionResult<List<OutputBrand>>> Get(List<InputIdentityViewBrand> listInputIdentityViewBrand)
         {
-            var result = await _brandService.Get(id);
+            var result = await _brandService.Get(listInputIdentityViewBrand);
             if (!result.Success)
             {
                 return BadRequest(result.Message);
@@ -40,7 +39,7 @@ namespace ProjetoTeste.Api.Controllers
 
             var brand = result.Content;
 
-            return Ok(brand.ToOutputBrand());
+            return Ok(brand.ToListOutputBrand());
         }
 
         #endregion
@@ -48,7 +47,7 @@ namespace ProjetoTeste.Api.Controllers
         #region Post
 
         [HttpPost]
-        public async Task<ActionResult<BaseResponse<OutputBrand>>> CreateAsync(InputCreateBrand input)
+        public async Task<ActionResult<BaseResponse<OutputBrand>>> CreateAsync(List<InputCreateBrand> input)
         {
             var brand = await _brandService.Create(input);
 
@@ -71,21 +70,20 @@ namespace ProjetoTeste.Api.Controllers
         #region Put
 
         [HttpPut]
-        public async Task<ActionResult<OutputBrand>> Update(InputUpdateBrand input)
+        public async Task<ActionResult<BaseResponse<OutputBrand>>> Update(List<InputIdentityUpdateBrand> listInputIdentityUpdateBrand)
         {
-            var result = await _brandService.Update(input);
+            var result = await _brandService.Update(listInputIdentityUpdateBrand);
 
             if (!result.Success)
             {
-                return BadRequest(result.Message);
+                return BadRequest(result);
             }
             if (result is null)
             {
-                return NotFound(result.Message);
+                return NotFound(result);
             }
 
-            var updatedBrand = result.Content;
-            return Ok(updatedBrand);
+            return Ok(result);
         }
 
         #endregion
@@ -93,9 +91,9 @@ namespace ProjetoTeste.Api.Controllers
         #region Delete
 
         [HttpDelete]
-        public async Task<ActionResult<string>> Delete(long id)
+        public async Task<ActionResult<List<string>>> Delete(List<InputIdentityDeleteBrand> listInputIdentityDeleteBrand)
         {
-            var result = await _brandService.Delete(id);
+            var result = await _brandService.Delete(listInputIdentityDeleteBrand);
 
             if (!result.Success)
             {

@@ -5,7 +5,7 @@ namespace ProjetoTeste.Infrastructure.Interface.Repository
 {
     public interface IOrderRepository : IRepository<Order>
     {
-        Task<List<Order?>> GetWithIncludesAsync(long id);
+        Task<List<Order?>> GetWithIncludesAsync(List<long> id);
         Task<List<Order?>> GetWithIncludesAsync();
         Task<List<MaxSaleValueProductDTO>> GetMostOrderedProduct();
         Task<List<MinSaleValueProductDTO>> GetLeastOrderedProduct();

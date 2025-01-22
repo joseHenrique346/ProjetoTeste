@@ -6,7 +6,7 @@ namespace ProjetoTeste.Infrastructure.Interface.Service
 {
     public interface IOrderValidateService
     {
-        Task<BaseResponse<InputCreateOrder?>> ValidateCreateOrder(InputCreateOrder input);
-        Task<BaseResponse<InputCreateProductOrder?>> ValidateCreateProductOrder(InputCreateProductOrder input);
+        Task<BaseResponse<List<OutputOrder?>>> ValidateCreateOrder(List<InputCreateOrder> input);
+        Task<BaseResponse<List<OutputProductOrder?>>> ValidateCreateProductOrder(List<InputCreateProductOrder> input);
     }
 }

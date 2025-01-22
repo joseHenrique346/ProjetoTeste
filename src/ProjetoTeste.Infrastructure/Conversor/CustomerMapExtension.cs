@@ -16,18 +16,18 @@ namespace ProjetoTeste.Infrastructure.Conversor
             );
         }
 
-        public static Customer? ToProduct(this InputCreateCustomer input)
+        public static Customer? ToCustomer(this InputCreateCustomer input)
         {
             return input == null ? null : new Customer
-            {
-                Name = input.Name,
-                Email = input.Email,
-                CPF = input.CPF,
-                Phone = input.Phone
-            };
+                (
+                    input.Name,
+                    input.Email,
+                    input.CPF,
+                    input.Phone
+                );
         }
 
-        public static List<OutputCustomer>? ToListOutputProduct(this List<Customer> customers)
+        public static List<OutputCustomer>? ToListOutputCustomer(this List<Customer> customers)
         {
             return customers == null ? null : customers.Select(x => new OutputCustomer(
                 x.Id,

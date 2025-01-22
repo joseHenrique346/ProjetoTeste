@@ -8,7 +8,7 @@ using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Service;
 
-public class BrandService
+public class BrandService : IBrandService
 {
     #region Dependency Injection
 
@@ -28,11 +28,11 @@ public class BrandService
 
     #region Get
 
-    public async Task<BaseResponse<Brand>> Get(long id)
+    public async Task<BaseResponse<List<Brand>>> Get(List<InputIdentityViewBrand> listInputIdentityViewBrand)
     {
-        var brand = await _brandRepository.GetAsync(id);
+        var brand = await _brandRepository.GetListByListIdWhere(listInputIdentityViewBrand.Select(i => i.Id).ToList());
 
-        return new BaseResponse<Brand>
+        return new BaseResponse<List<Brand>>
         {
             Success = true,
             Content = brand
@@ -48,56 +48,63 @@ public class BrandService
 
     #region Create
 
-    public async Task<BaseResponse<OutputBrand>> Create(InputCreateBrand input)
+    public async Task<BaseResponse<List<OutputBrand>>> Create(List<InputCreateBrand> input)
     {
         var result = await _brandValidateService.ValidateCreateBrand(input);
         if (!result.Success)
-            return new BaseResponse<OutputBrand>() { Success = false, Message = result.Message };
+            return new BaseResponse<List<OutputBrand>>() { Success = false, Message = result.Message };
 
-        var brand = await _brandRepository.CreateAsync(input.ToBrand());
-        return new BaseResponse<OutputBrand>() { Success = true, Content = brand.ToOutputBrand() };
+        var brand = await _brandRepository.CreateAsync(input.ToListBrand());
+        return new BaseResponse<List<OutputBrand>>() { Success = true, Content = brand.ToListOutputBrand() };
     }
 
     #endregion
 
     #region Update
 
-    public async Task<BaseResponse<OutputBrand>> Update(InputUpdateBrand inputUpdate)
+    public async Task<BaseResponse<List<OutputBrand>>> Update(List<InputIdentityUpdateBrand> listInputIdentityUpdateBrand)
     {
-        var result = await _brandValidateService.ValidateUpdateBrand(inputUpdate);
-        var currentBrand = await _brandRepository.GetAsync(inputUpdate.Id);
-
-        if (!result.Success)
+        var response = new BaseResponse<List<OutputBrand>>();
+        var result = await _brandValidateService.ValidateUpdateBrand(listInputIdentityUpdateBrand);
+        response.Success = result.Success;
+        response.Message = result.Message;
+        if (!response.Success)
         {
-            return new BaseResponse<OutputBrand>
-            {
-                Success = false,
-                Message = result.Message
-            };
+            return response;
         }
 
-        currentBrand.Name = inputUpdate.Name;
-        currentBrand.Code = inputUpdate.Code;
-        currentBrand.Description = inputUpdate.Description;
+        // termina isso aqui
+
+        var currentBrand = await _brandRepository.GetListByListIdWhere(listInputIdentityUpdateBrand.Select(i => i.Id).ToList());
+
+        foreach (var i in currentBrand)
+        {
+            i.Name = result.Content.Select(i => i.InputUpdateBrand.Name).ToString();
+            i.Code = result.Content.Select(i => i.InputUpdateBrand.Code).ToString();
+            i.Description = result.Content.Select(i => i.InputUpdateBrand.Description).ToString();
+            response.AddSuccessMessage($"A marca com o nome: {i.Name} foi atualizada com sucesso!");
+        } 
 
         await _brandRepository.Update(currentBrand);
-
-        return new BaseResponse<OutputBrand> { Success = true, Content = currentBrand.ToOutputBrand() };
+        response.Content = currentBrand.ToListOutputBrand();
+        return response;
     }
 
     #endregion
 
     #region Delete
 
-    public async Task<BaseResponse<string>> Delete(long id)
+    public async Task<BaseResponse<string>> Delete(List<InputIdentityDeleteBrand> listInputIdentityDeleteBrand)
     {
-        var result = await _brandValidateService.ValidateDeleteBrand(id);
+        var result = await _brandValidateService.ValidateDeleteBrand(listInputIdentityDeleteBrand);
         if (!result.Success)
         {
             return new BaseResponse<string> { Success = false, Message = result.Message };
         }
 
-        await _brandRepository.DeleteAsync(id);
+        var getBrands = await _brandRepository.GetListByListIdWhere(listInputIdentityDeleteBrand.Select(i => i.Id).ToList());
+
+        await _brandRepository.DeleteAsync(getBrands);
 
         return new BaseResponse<string> { Success = true, Message = result.Message };
     }

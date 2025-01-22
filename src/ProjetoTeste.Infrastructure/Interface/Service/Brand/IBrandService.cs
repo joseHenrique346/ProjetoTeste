@@ -7,9 +7,9 @@ namespace ProjetoTeste.Infrastructure.Interface.Service
     public interface IBrandService
     {
         Task<List<Brand>> GetAll();
-        Task<BaseResponse<Brand>> Get(long id);
-        Task<BaseResponse<Brand>> Create(InputCreateBrand product);
-        Task<BaseResponse<Brand>> Update(InputUpdateBrand product);
-        Task<BaseResponse<bool>> Delete(long id);
+        Task<BaseResponse<List<Brand>>> Get(List<InputIdentityViewBrand> input);
+        Task<BaseResponse<List<OutputBrand>>> Create(List<InputCreateBrand> input);
+        Task<BaseResponse<List<OutputBrand>>> Update(List<InputIdentityUpdateBrand> input);
+        Task<BaseResponse<string>> Delete(List<InputIdentityDeleteBrand> input);
     }
 }

@@ -31,6 +31,18 @@ namespace ProjetoTeste.Infrastructure.Conversor
             };
         }
 
+        public static List<Product>? ToListProduct(this List<InputCreateProduct> listInputCreateProduct)
+        {
+            return listInputCreateProduct == null ? null : listInputCreateProduct.Select(x => new Product(
+                x.Name,
+                x.Description,
+                x.Code,
+                x.BrandId,
+                x.Price,
+                x.Stock
+            )).ToList();
+        }
+
         public static List<OutputProduct>? ToListOutputProduct(this List<Product> products)
         {
             return products == null ? null : products.Select(x => new OutputProduct(
