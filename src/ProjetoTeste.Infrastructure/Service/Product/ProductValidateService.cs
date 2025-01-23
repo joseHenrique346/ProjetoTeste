@@ -56,11 +56,11 @@ namespace ProjetoTeste.Infrastructure.Service
                 if (listInputCreateProduct[i].Price < 0)
                     response.AddErrorMessage("O preço não pode ser menor que zero.");
 
-                if (listInputCreateProduct[i].BrandId.HasValue && listInputCreateProduct[i].BrandId.Value <= 0)
-                    response.AddErrorMessage("Informe um valor válido para o Id da marca.");
+                //if (listInputCreateProduct[i].BrandId.HasValue && listInputCreateProduct[i].BrandId.Value <= 0)
+                //    response.AddErrorMessage("Informe um valor válido para o Id da marca.");
 
-                if (!listInputCreateProduct[i].BrandId.HasValue)
-                    response.AddErrorMessage("O ID da marca não pode ser nulo.");
+                //if (!listInputCreateProduct[i].BrandId.HasValue)
+                //    response.AddErrorMessage("O ID da marca não pode ser nulo.");
 
                 if (response.Message.Count > 0)
                 {

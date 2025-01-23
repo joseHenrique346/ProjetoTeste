@@ -10,9 +10,9 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
     {
         public ProductRepository(AppDbContext context) : base(context) { }
 
-        public async Task<bool> GetExistingProductInBrand(long brandId)
+        public List<long> GetExistingProductInBrand(List<long> brandId)
         {
-            return await _dbSet.AnyAsync(i => i.BrandId == brandId);
+            return _dbSet.Where(i => brandId.Contains(i.BrandId)).Select(j => j.BrandId).ToList();
         }
 
         public async Task<Product?> GetWithIncludesAsync(long id, params Expression<Func<Product, object>>[] includes)

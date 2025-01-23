@@ -10,6 +10,6 @@ namespace ProjetoTeste.Infrastructure.Interface.Service
         Task<BaseResponse<List<Brand>>> Get(List<InputIdentityViewBrand> input);
         Task<BaseResponse<List<OutputBrand>>> Create(List<InputCreateBrand> input);
         Task<BaseResponse<List<OutputBrand>>> Update(List<InputIdentityUpdateBrand> input);
-        Task<BaseResponse<string>> Delete(List<InputIdentityDeleteBrand> input);
+        Task<BaseResponse<bool>> Delete(List<InputIdentityDeleteBrand> input);
     }
 }

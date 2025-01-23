@@ -4,7 +4,7 @@ namespace ProjetoTeste.Infrastructure.Interface.Repository
 {
     public interface IBrandRepository : IRepository<Brand>
     {
-        Task<Brand> GetByCode(string code);
+        Task<List<Brand>> GetListByCode(List<string> code);
         string GetBrandNameById(long? id);
     }
 }

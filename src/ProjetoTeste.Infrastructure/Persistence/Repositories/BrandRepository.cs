@@ -8,9 +8,9 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
     public class BrandRepository : Repository<Brand>, IBrandRepository
     {
         public BrandRepository(AppDbContext context) : base(context) { }
-        public async Task<Brand> GetByCode(string code)
+        public async Task<List<Brand>> GetListByCode(List<string> code)
         {
-            return await _dbSet.Where(x => x.Code == code).FirstOrDefaultAsync();
+            return await _dbSet.Where(i => code.Contains(i.Code)).ToListAsync();
         }
         public string GetBrandNameById(long? id)
         {

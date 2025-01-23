@@ -9,11 +9,11 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
         public string Name { get; set; } 
         public string Code { get; set; } 
         public string Description { get; set; } 
-        public long? BrandId { get; set; } 
+        public long BrandId { get; set; } 
         public decimal Price { get; set; } 
         public long Stock { get; set; }
 
-        public Product(string name, string code, string description, long? brandId, decimal price, long stock)
+        public Product(string name, string code, string description, long brandId, decimal price, long stock)
         {
             Name = name;
             Code = code;

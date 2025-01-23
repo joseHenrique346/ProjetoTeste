@@ -23,58 +23,51 @@ public class BrandValidateService : IBrandValidateService
 
     #region Validate Create
 
-    public async Task<BaseResponse<List<BrandValidate?>>> ValidateCreateBrand(List<BrandValidate> inputCreateBrand)
+    public async Task<BaseResponse<List<BrandValidate?>>> ValidateCreateBrand(List<BrandValidate> listInputCreateBrand)
     {
         var response = new BaseResponse<List<BrandValidate?>>();
-        var existingCode = await _brandRepository.GetByCode(inputCreateBrand.Select(i => i.InputCreateBrand.Code).ToString());
 
+        _ = (from i in listInputCreateBrand
+             where i.RepeatedCode != null
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível criar a marca: {i.InputCreateBrand.Name}, foi digitado mais de uma vez na requisição.")
+             select i).ToList();
 
-        for (var i = 0; i < inputCreateBrand.Count; i++)
+        _ = (from i in listInputCreateBrand
+             where i.ExistingCode != null
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível criar a marca: {i.InputCreateBrand.Name}, o código: \"{i.InputCreateBrand.Code}\" já está sendo usado.")
+             select i).ToList();
+
+        _ = (from i in listInputCreateBrand
+             where i.InputCreateBrand.Name.Length > 40 || string.IsNullOrEmpty(i.InputCreateBrand.Name) || string.IsNullOrWhiteSpace(i.InputCreateBrand.Name)
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage(i.InputCreateBrand.Name.Length > 40 ? $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, o nome passa do limite de 40 caracteres" : $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, o nome não foi preenchido corretamente.")
+             select i).ToList();
+
+        _ = (from i in listInputCreateBrand
+             where i.InputCreateBrand.Code.Length > 6 || string.IsNullOrEmpty(i.InputCreateBrand.Code) || string.IsNullOrWhiteSpace(i.InputCreateBrand.Code)
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage(i.InputCreateBrand.Code.Length > 6 ? $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, o código passa do limite de 6 caracteres" : $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, o código não foi preenchido corretamente.")
+             select i).ToList();
+
+        _ = (from i in listInputCreateBrand
+             where i.InputCreateBrand.Description.Length > 100 || string.IsNullOrEmpty(i.InputCreateBrand.Description) || string.IsNullOrWhiteSpace(i.InputCreateBrand.Description)
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage(i.InputCreateBrand.Description.Length > 100 ? $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, a descrição passa do limite de 100 caracteres" : $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, a descrição não foi preenchida corretamente.")
+             select i).ToList();
+
+        var selectedValidListBrand = (from i in listInputCreateBrand
+                                      where !i.Invalid
+                                      select i).ToList();
+
+        if (!selectedValidListBrand.Any())
         {
-            if (existingCode != null)
-            {
-                response.AddErrorMessage("Este código já está em uso!");
-                inputCreateBrand[i].SetInvalid();
-            }
-
-            if (string.IsNullOrEmpty(inputCreateBrand[i].InputCreateBrand.Code))
-            {
-                response.AddErrorMessage("O código tem que ser preenchido!");
-                inputCreateBrand[i].SetInvalid();
-            }
-
-            if (string.IsNullOrEmpty(inputCreateBrand[i].InputCreateBrand.Description))
-            {
-                response.AddErrorMessage("A descrição tem que ser preenchida!");
-                inputCreateBrand[i].SetInvalid();
-            }
-
-            if (inputCreateBrand[i].InputCreateBrand.Name.Length > 40)
-            {
-                response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres.");
-                inputCreateBrand[i].SetInvalid();
-            }
-
-            if (inputCreateBrand[i].InputCreateBrand.Code.Length > 6)
-            {
-                response.AddErrorMessage("O código não pode ultrapassar 6 caracteres.");
-                inputCreateBrand[i].SetInvalid();
-            }
-
-            if (inputCreateBrand[i].InputCreateBrand.Description.Length > 100)
-            {
-                response.AddErrorMessage("A descrição não pode ultrapassar 100 caracteres.");
-                inputCreateBrand[i].SetInvalid();
-            }
-
-            if (response.Message.Count > 0)
-            {
-                response.Success = false;
-                inputCreateBrand.Remove(inputCreateBrand[i]);
-            }
+            response.Success = false;
+            return response;
         }
-        response.Content = inputCreateBrand;
 
+        response.Content = selectedValidListBrand;
         return response;
     }
 
@@ -86,68 +79,59 @@ public class BrandValidateService : IBrandValidateService
     {
         var response = new BaseResponse<List<BrandValidate?>>();
 
-        var currentBrand = await _brandRepository.GetListByListIdFind(listInputIdentityUpdateBrand.Select(i => i.InputIdentityUpdateBrand.Id).ToList());
-        if (currentBrand is null)
-            response.AddErrorMessage("As marcas especificas não foram encontradas.");
+        _ = (from i in listInputIdentityUpdateBrand
+             where i.CurrentBrand == 0
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, o \"{i.InputIdentityUpdateBrand.Id}\" é inválido")
+             select i).ToList();
 
-        for (var i = 0; i < listInputIdentityUpdateBrand.Count; i++)
-        {
-            var existingCodeBrand = await _brandRepository.GetByCode(listInputIdentityUpdateBrand[i].InputIdentityUpdateBrand.InputUpdateBrand.Code);
-            if (currentBrand[i] is null)
-            {
-                response.AddErrorMessage($"A marca com o ID: {listInputIdentityUpdateBrand[i].InputIdentityUpdateBrand.Id} não foi encontrada.");
-                listInputIdentityUpdateBrand[i].SetInvalid();
-            }
+        _ = (from i in listInputIdentityUpdateBrand
+             where i.RepeatedCode != null
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, \"{i.InputIdentityUpdateBrand.InputUpdateBrand.Code}\" foi digitado mais de uma vez na requisição.")
+             select i).ToList();
 
-            if (existingCodeBrand != null && existingCodeBrand.Id != listInputIdentityUpdateBrand.Select(i => i.InputIdentityUpdateBrand.Id).FirstOrDefault(i => i == existingCodeBrand.Id))
-            {
-                response.AddErrorMessage("Já existe uma marca com este código.");
-                listInputIdentityUpdateBrand[i].SetInvalid();
-            }
+        _ = (from i in listInputIdentityUpdateBrand
+             where i.RepeatedCode != null
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, \"{i.InputIdentityUpdateBrand.Id}\"  foi digitado mais de uma vez na requisição.")
+             select i).ToList();
 
-            if (string.IsNullOrEmpty(listInputIdentityUpdateBrand[i].InputIdentityUpdateBrand.InputUpdateBrand.Description))
-            {
-                response.AddErrorMessage("A descrição não pode ser vazia.");
-                listInputIdentityUpdateBrand[i].SetInvalid();
-            }
+        _ = (from i in listInputIdentityUpdateBrand
+             where i.ExistingCode != null && i.InputIdentityUpdateBrand.Id != i.CurrentBrand
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, o código: \"{i.InputIdentityUpdateBrand.InputUpdateBrand.Code}\" já está sendo usado.")
+             select i).ToList();
 
-            if (listInputIdentityUpdateBrand[i].InputIdentityUpdateBrand.InputUpdateBrand.Name.Length > 40)
-            {
-                response.AddErrorMessage("O nome não pode ultrapassar 40 caracteres");
-                listInputIdentityUpdateBrand[i].SetInvalid();
-            }
+        _ = (from i in listInputIdentityUpdateBrand
+             where i.InputIdentityUpdateBrand.InputUpdateBrand.Name.Length > 40 || string.IsNullOrEmpty(i.InputIdentityUpdateBrand.InputUpdateBrand.Name) || string.IsNullOrWhiteSpace(i.InputIdentityUpdateBrand.InputUpdateBrand.Name)
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage(i.InputIdentityUpdateBrand.InputUpdateBrand.Name.Length > 40 ? $"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, o nome passa do limite de 40 caracteres" : $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, o nome não foi preenchido corretamente.")
+             select i).ToList();
 
-            if (listInputIdentityUpdateBrand[i].InputIdentityUpdateBrand.InputUpdateBrand.Code.Length > 6)
-            {
-                response.AddErrorMessage("O código não pode ultrapassar 6 caracteres");
-                listInputIdentityUpdateBrand[i].SetInvalid();
-            }
+        _ = (from i in listInputIdentityUpdateBrand
+             where i.InputIdentityUpdateBrand.InputUpdateBrand.Code.Length > 6 || string.IsNullOrEmpty(i.InputIdentityUpdateBrand.InputUpdateBrand.Code) || string.IsNullOrWhiteSpace(i.InputIdentityUpdateBrand.InputUpdateBrand.Code)
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage(i.InputIdentityUpdateBrand.InputUpdateBrand.Code.Length > 6 ? $"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, o código passa do limite de 6 caracteres" : $"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, o código não foi preenchido corretamente.")
+             select i).ToList();
 
-            if (listInputIdentityUpdateBrand[i].InputIdentityUpdateBrand.InputUpdateBrand.Description.Length > 100)
-            {
-                response.AddErrorMessage("A descrição não pode ultrapassar 100 caracteres");
-                listInputIdentityUpdateBrand[i].SetInvalid();
-            }
+        _ = (from i in listInputIdentityUpdateBrand
+             where i.InputIdentityUpdateBrand.InputUpdateBrand.Description.Length > 100 || string.IsNullOrEmpty(i.InputIdentityUpdateBrand.InputUpdateBrand.Description) || string.IsNullOrWhiteSpace(i.InputIdentityUpdateBrand.InputUpdateBrand.Description)
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage(i.InputIdentityUpdateBrand.InputUpdateBrand.Description.Length > 100 ? $"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, a descrição passa do limite de 100 caracteres" : $"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, a descrição não foi preenchida corretamente.")
+             select i).ToList();
 
-            if (response.Message.Count > 0)
-            {
-                listInputIdentityUpdateBrand[i] = null;
-            }
-        }
-        for (var i = 0; i < listInputIdentityUpdateBrand.Count; i++)
-        {
-            if (listInputIdentityUpdateBrand[i] is null)
-            {
-                listInputIdentityUpdateBrand.Remove(listInputIdentityUpdateBrand[i]);
-            }
-        }
+        var selectedValidListBrand = (from i in listInputIdentityUpdateBrand
+                                      where !i.Invalid
+                                      select i).ToList();
 
-        if (!listInputIdentityUpdateBrand.Any())
+        if (!selectedValidListBrand.Any())
         {
             response.Success = false;
+            return response;
         }
 
-        response.Content = listInputIdentityUpdateBrand;
+        response.Content = selectedValidListBrand;
         return response;
     }
 
@@ -155,32 +139,34 @@ public class BrandValidateService : IBrandValidateService
 
     #region Validate Delete
 
-    public async Task<BaseResponse<List<string?>>> ValidateDeleteBrand(List<InputIdentityDeleteBrand> listInputIdentityDeleteBrand)
+    public async Task<BaseResponse<List<BrandValidate?>>> ValidateDeleteBrand(List<BrandValidate> listInputIdentityDeleteBrand)
     {
-        var response = new BaseResponse<List<string?>>();
+        var response = new BaseResponse<List<BrandValidate?>>();
 
-        var existingBrand = (await _brandRepository.GetListByListIdWhere(listInputIdentityDeleteBrand.Select(i => i.Id).ToList()));
+        _ = (from i in listInputIdentityDeleteBrand
+             where i.ExistingBrand == 0
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível deletar a marca, {i.InputIdentityDeleteBrand.Id} é inválido")
+             select i).ToList();
 
-        foreach (var item in existingBrand)
+        _ = (from i in listInputIdentityDeleteBrand
+             where i.ExistingProductInBrand != 0
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível deletar a marca com o Id: {i.InputIdentityDeleteBrand.Id}, existem produtos cadastrados nele")
+             select i).ToList();
+
+        if (!listInputIdentityDeleteBrand.Any())
         {
-            if (item is null)
-                response.AddErrorMessage($"Não foi encontrado o ID {item}, foi informado corretamente?");
-        }
-
-        foreach (var item in existingBrand)
-        {
-            var existingProductInBrand = await _productRepository.GetExistingProductInBrand(item.Id);
-            if (existingProductInBrand)
-                response.AddErrorMessage($"Existe Produtos inseridos na marca {existingBrand.Select(i => i.Name)}, não pode ser deletada");
-        }
-
-        if (response.Message.Count > 0)
             response.Success = false;
-        else
-            response.AddSuccessMessage($"A marca {existingBrand.Select(i => i.Name)} foi deletada com sucesso");
+        }
 
+        var selecteListValidBrand = (from i in listInputIdentityDeleteBrand
+                                     where !i.Invalid
+                                     select i).ToList();
+
+        response.Content = selecteListValidBrand;
         return response;
     }
-
-    #endregion
 }
+
+#endregion

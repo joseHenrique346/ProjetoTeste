@@ -2,7 +2,6 @@
 {
     public class Order : BaseEntity
     {
-
         public Order() { }
 
         public Order(long customerId, DateTime createdDate)

@@ -7,6 +7,6 @@ namespace ProjetoTeste.Infrastructure.Interface.Repository
     {
         Task<Product?> GetWithIncludesAsync(long id, params Expression<Func<Product, object>>[] includes);
         Task<Product?> GetByCode(string code);
-        Task<bool> GetExistingProductInBrand(long brandId);
+        List<long> GetExistingProductInBrand(List<long> brandId);
     }
 }

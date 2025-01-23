@@ -47,7 +47,7 @@ namespace ProjetoTeste.Api.Controllers
         #region Post
 
         [HttpPost]
-        public async Task<ActionResult<BaseResponse<OutputBrand>>> CreateAsync(List<InputCreateBrand> input)
+        public async Task<ActionResult<BaseResponse<List<OutputBrand>>>> CreateAsync(List<InputCreateBrand> input)
         {
             var brand = await _brandService.Create(input);
 
@@ -61,7 +61,7 @@ namespace ProjetoTeste.Api.Controllers
                 return BadRequest(brand);
             }
 
-            var newBrand = brand.Content;
+            var newBrand = brand;
             return Ok(newBrand);
         }
 
@@ -100,7 +100,7 @@ namespace ProjetoTeste.Api.Controllers
                 return BadRequest(result.Message);
             }
 
-            return Ok(result.Message);
+            return Ok(result);
         }
 
         #endregion
