@@ -75,9 +75,9 @@ public class BrandValidateService : IBrandValidateService
 
     #region Validate Update
 
-    public async Task<BaseResponse<List<BrandValidate?>>> ValidateUpdateBrand(List<BrandValidate> listInputIdentityUpdateBrand)
+    public async Task<BaseResponse<List<InputIdentityUpdateBrand?>>> ValidateUpdateBrand(List<InputIdentityUpdateBrand> listInputIdentityUpdateBrand)
     {
-        var response = new BaseResponse<List<BrandValidate?>>();
+        var response = new BaseResponse<List<InputIdentityUpdateBrand?>>();
 
         _ = (from i in listInputIdentityUpdateBrand
              where i.CurrentBrand == 0
