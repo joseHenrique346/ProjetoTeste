@@ -147,6 +147,12 @@ public class BrandService : IBrandService
         var response = new BaseResponse<bool>();
 
         var existingBrand = await _brandRepository.GetListByListIdWhere(listInputIdentityDeleteBrand.Select(i => i.Id).ToList());
+        var selectIdFromExistingBrand = existingBrand.Select(i => i.Id).ToList();
+
+        // tem que fazer
+        //var listRepeatedCode = (from i in listInputIdentityDeleteBrand
+        //                        where listInputIdentityDeleteBrand.Count(j => j.Id == i.Id) > 1
+        //                        select i.Id).ToList();
 
         var existingProductInBrand = _productRepository.GetExistingProductInBrand(listInputIdentityDeleteBrand.Select(i => i.Id).ToList());
 
@@ -154,7 +160,7 @@ public class BrandService : IBrandService
                           select new
                           {
                               InputDelete = i,
-                              ExistingBrand = existingBrand.FirstOrDefault(j => i.Id == j.Id).Id,
+                              ExistingBrand = selectIdFromExistingBrand.FirstOrDefault(j => i.Id == j),
                               ExistingProductInBrand = existingProductInBrand.FirstOrDefault(j => i.Id == j)
                           }).ToList();
 

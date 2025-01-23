@@ -75,9 +75,9 @@ public class BrandValidateService : IBrandValidateService
 
     #region Validate Update
 
-    public async Task<BaseResponse<List<InputIdentityUpdateBrand?>>> ValidateUpdateBrand(List<InputIdentityUpdateBrand> listInputIdentityUpdateBrand)
+    public async Task<BaseResponse<List<BrandValidate?>>> ValidateUpdateBrand(List<BrandValidate> listInputIdentityUpdateBrand)
     {
-        var response = new BaseResponse<List<InputIdentityUpdateBrand?>>();
+        var response = new BaseResponse<List<BrandValidate?>>();
 
         _ = (from i in listInputIdentityUpdateBrand
              where i.CurrentBrand == 0
@@ -155,14 +155,14 @@ public class BrandValidateService : IBrandValidateService
              let message = response.AddErrorMessage($"Não foi possível deletar a marca com o Id: {i.InputIdentityDeleteBrand.Id}, existem produtos cadastrados nele")
              select i).ToList();
 
-        if (!listInputIdentityDeleteBrand.Any())
-        {
-            response.Success = false;
-        }
-
         var selecteListValidBrand = (from i in listInputIdentityDeleteBrand
                                      where !i.Invalid
                                      select i).ToList();
+
+        if (!selecteListValidBrand.Any())
+        {
+            response.Success = false;
+        }
 
         response.Content = selecteListValidBrand;
         return response;

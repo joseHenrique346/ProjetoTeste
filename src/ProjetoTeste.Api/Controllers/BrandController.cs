@@ -49,19 +49,19 @@ namespace ProjetoTeste.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<BaseResponse<List<OutputBrand>>>> CreateAsync(List<InputCreateBrand> input)
         {
-            var brand = await _brandService.Create(input);
+            var result = await _brandService.Create(input);
 
-            if (brand is null)
+            if (result is null)
             {
-                return NotFound(brand);
+                return NotFound(result);
             }
 
-            if (!brand.Success)
+            if (!result.Success)
             {
-                return BadRequest(brand);
+                return BadRequest(result);
             }
 
-            var newBrand = brand;
+            var newBrand = result;
             return Ok(newBrand);
         }
 
@@ -97,7 +97,7 @@ namespace ProjetoTeste.Api.Controllers
 
             if (!result.Success)
             {
-                return BadRequest(result.Message);
+                return BadRequest(result);
             }
 
             return Ok(result);
