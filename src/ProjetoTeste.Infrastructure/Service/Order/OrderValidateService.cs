@@ -3,7 +3,6 @@ using ProjetoTeste.Arguments.Arguments.ProductOrder;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
-using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Service;
 
@@ -80,4 +79,4 @@ public class OrderValidateService : IOrderValidateService
     }
 }
 
-    #endregion
+#endregion

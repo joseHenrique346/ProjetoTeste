@@ -1,4 +1,5 @@
-﻿using ProjetoTeste.Arguments.Arguments.Product;
+﻿using ProjetoTeste.Arguments.Arguments;
+using ProjetoTeste.Arguments.Arguments.Product;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Conversor
@@ -18,22 +19,22 @@ namespace ProjetoTeste.Infrastructure.Conversor
             );
         }
 
-        public static Product? ToProduct(this InputCreateProduct input)
+        public static ProductDTO? ToProductDto(this Product product)
         {
-            return input == null ? null : new Product
+            return product == null ? null : new ProductDTO
             {
-                Name = input.Name,
-                Code = input.Code,
-                Description = input.Description,
-                Price = input.Price,
-                BrandId = input.BrandId,
-                Stock = input.Stock
+                Name = product.Name,
+                Code = product.Code,
+                Description = product.Description,
+                Price = product.Price,
+                BrandId = product.BrandId,
+                Stock = product.Stock
             };
         }
 
-        public static List<Product>? ToListProduct(this List<InputCreateProduct> listInputCreateProduct)
+        public static List<Product>? ToListProduct(this List<ProductDTO> listProductDto)
         {
-            return listInputCreateProduct == null ? null : listInputCreateProduct.Select(x => new Product(
+            return listProductDto == null ? null : listProductDto.Select(x => new Product(
                 x.Name,
                 x.Description,
                 x.Code,
@@ -42,6 +43,18 @@ namespace ProjetoTeste.Infrastructure.Conversor
                 x.Stock
             )).ToList();
         }
+
+        //public static List<Product>? ToListProduct(this List<InputIdentityUpdateProduct> listInputIdentityUpdateProduct)
+        //{
+        //    return listInputIdentityUpdateProduct == null ? null : listInputIdentityUpdateProduct.Select(x => new Product(
+        //        x.InputUpdateProduct.Name,
+        //        x.InputUpdateProduct.Description,
+        //        x.InputUpdateProduct.Code,
+        //        x.InputUpdateProduct.BrandId,
+        //        x.InputUpdateProduct.Price,
+        //        x.InputUpdateProduct.Stock
+        //    )).ToList();
+        //}
 
         public static List<OutputProduct>? ToListOutputProduct(this List<Product> products)
         {

@@ -1,6 +1,5 @@
 ﻿using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Arguments.Arguments.Response;
-using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
 

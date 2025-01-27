@@ -1,6 +1,4 @@
-﻿using ProjetoTeste.Arguments.Arguments;
-
-namespace ProjetoTeste.Arguments.Arguments
+﻿namespace ProjetoTeste.Arguments.Arguments
 {
     public class OrderDTO
     {

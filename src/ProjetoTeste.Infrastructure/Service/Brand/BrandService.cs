@@ -28,14 +28,14 @@ public class BrandService : IBrandService
 
     #region Get
 
-    public async Task<BaseResponse<List<Brand>>> Get(List<InputIdentityViewBrand> listInputIdentityViewBrand)
+    public async Task<BaseResponse<List<OutputBrand?>>> Get(List<InputIdentityViewBrand> listInputIdentityViewBrand)
     {
         var brand = await _brandRepository.GetListByListIdWhere(listInputIdentityViewBrand.Select(i => i.Id).ToList());
 
-        return new BaseResponse<List<Brand>>
+        return new BaseResponse<List<OutputBrand?>>
         {
             Success = true,
-            Content = brand
+            Content = brand.ToListOutputBrand()
         };
     }
 
@@ -148,11 +148,6 @@ public class BrandService : IBrandService
 
         var existingBrand = await _brandRepository.GetListByListIdWhere(listInputIdentityDeleteBrand.Select(i => i.Id).ToList());
         var selectIdFromExistingBrand = existingBrand.Select(i => i.Id).ToList();
-
-        // tem que fazer
-        //var listRepeatedCode = (from i in listInputIdentityDeleteBrand
-        //                        where listInputIdentityDeleteBrand.Count(j => j.Id == i.Id) > 1
-        //                        select i.Id).ToList();
 
         var existingProductInBrand = _productRepository.GetExistingProductInBrand(listInputIdentityDeleteBrand.Select(i => i.Id).ToList());
 

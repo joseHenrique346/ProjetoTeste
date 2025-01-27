@@ -28,18 +28,14 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(brands.ToListOutputBrand());
         }
 
-        [HttpPost("GetById")]
+        [HttpPost("GetByListId")]
         public async Task<ActionResult<List<OutputBrand>>> Get(List<InputIdentityViewBrand> listInputIdentityViewBrand)
         {
             var result = await _brandService.Get(listInputIdentityViewBrand);
-            if (!result.Success)
-            {
-                return BadRequest(result.Message);
-            }
 
             var brand = result.Content;
 
-            return Ok(brand.ToListOutputBrand());
+            return Ok(brand);
         }
 
         #endregion

@@ -18,7 +18,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
         }
         public Customer()
         {
-             
+
         }
 
         [JsonIgnore]
