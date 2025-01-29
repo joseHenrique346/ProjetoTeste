@@ -53,7 +53,7 @@ namespace ProjetoTeste.Infrastructure.Persistence.Repositories
             return entity;
         }
 
-        public async Task<bool> DeleteAsync(List<TEntity> entity)
+        public async Task<bool> DeleteAsync(List<TEntity>? entity)
         {
             _dbSet.RemoveRange(entity);
             await _context.SaveChangesAsync();

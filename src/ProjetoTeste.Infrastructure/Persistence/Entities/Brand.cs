@@ -14,10 +14,8 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
             Code = code;
             Description = description;
         }
-        public Brand()
-        {
+        public Brand() { }
 
-        }
         [JsonIgnore]
         public virtual List<Product>? ListProduct { get; set; }
     }

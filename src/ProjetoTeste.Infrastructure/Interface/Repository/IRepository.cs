@@ -8,6 +8,6 @@
         Task<T?> GetById(long id);
         Task<List<T>> CreateAsync(List<T> entities);
         Task<List<T>> Update(List<T> entities);
-        Task<bool> DeleteAsync(List<T> entities);
+        Task<bool> DeleteAsync(List<T>? entities);
     }
 }

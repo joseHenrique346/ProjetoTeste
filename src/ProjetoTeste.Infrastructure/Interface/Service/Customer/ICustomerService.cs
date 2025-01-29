@@ -8,5 +8,7 @@ namespace ProjetoTeste.Infrastructure.Interface.Service
         Task<List<OutputCustomer>> GetAll();
         Task<List<OutputCustomer>> Get(List<InputIdentityViewCustomer> input);
         Task<BaseResponse<List<OutputCustomer>>> Create(List<InputCreateCustomer> input);
+        Task<BaseResponse<List<OutputCustomer>>> Update(List<InputIdentityUpdateCustomer> input);
+        Task<BaseResponse<bool>> Delete(List<InputIdentityDeleteCustomer> input);
     }
 }

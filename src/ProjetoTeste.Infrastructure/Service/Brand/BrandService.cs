@@ -119,10 +119,9 @@ public class BrandService : IBrandService
         var result = await _brandValidateService.ValidateUpdateBrand(listBrandValidate);
         response.Success = result.Success;
         response.Message = result.Message;
+
         if (!response.Success)
-        {
             return response;
-        }
 
         var updatedBrand = (from i in result.Content
                             from j in currentBrand
@@ -152,7 +151,7 @@ public class BrandService : IBrandService
         var existingProductInBrand = _productRepository.GetExistingProductInBrand(listInputIdentityDeleteBrand.Select(i => i.Id).ToList());
 
         var listDelete = (from i in listInputIdentityDeleteBrand
-                          select new
+                          select new 
                           {
                               InputDelete = i,
                               ExistingBrand = selectIdFromExistingBrand.FirstOrDefault(j => i.Id == j),

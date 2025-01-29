@@ -5,8 +5,8 @@ namespace ProjetoTeste.Infrastructure.Interface.Service
 {
     public interface ICustomerValidateService
     {
-        Task<BaseResponse<List<OutputCustomer>>> ValidateCreateCustomer(List<InputCreateCustomer> inputCreate);
-        Task<BaseResponse<List<OutputCustomer>>> ValidateUpdateCustomer(List<InputIdentityUpdateCustomer> inputUpdate);
-        Task<BaseResponse<List<bool>>> ValidateDeleteCustomer(List<InputIdentityDeleteCustomer> inputDelete);
+        Task<BaseResponse<List<CustomerValidate>>> ValidateCreateCustomer(List<CustomerValidate> inputCreate);
+        Task<BaseResponse<List<CustomerValidate>>> ValidateUpdateCustomer(List<CustomerValidate> inputUpdate);
+        Task<BaseResponse<List<CustomerValidate>>> ValidateDeleteCustomer(List<CustomerValidate> inputDelete);
     }
 }
