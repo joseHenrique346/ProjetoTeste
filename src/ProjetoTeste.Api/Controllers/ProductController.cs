@@ -4,7 +4,6 @@ using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
-using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Api.Controllers
 {
@@ -40,7 +39,7 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Post
 
-        [HttpPost]
+        [HttpPost("Multiple")]
         public async Task<ActionResult<OutputProduct>> Create(List<InputCreateProduct> listInputCreateProduct)
         {
             var result = await _productService.Create(listInputCreateProduct);
@@ -62,7 +61,7 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Put
 
-        [HttpPut]
+        [HttpPut("Multiple")]
         public async Task<ActionResult<OutputProduct>> Update(List<InputIdentityUpdateProduct> listIdentityUpdateProduct)
         {
             var result = await _productService.Update(listIdentityUpdateProduct);
@@ -79,7 +78,7 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Delete
 
-        [HttpDelete]
+        [HttpDelete("Multiple")]
         public async Task<ActionResult<BaseResponse<string>>> Delete(List<InputIdentityDeleteProduct> listInputIdentityDeleteProduct)
         {
             var result = await _productService.Delete(listInputIdentityDeleteProduct);
@@ -89,7 +88,7 @@ namespace ProjetoTeste.Api.Controllers
 
             return Ok(result);
         }
-
-        #endregion
     }
 }
+
+#endregion

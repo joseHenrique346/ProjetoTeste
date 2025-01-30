@@ -17,7 +17,7 @@ namespace ProjetoTeste.Arguments.Arguments.Brand
         public long? ExistingProductInBrand { get; private set; }
 
         public BrandValidate() { }
-        
+
         public BrandValidate CreateValidate(InputCreateBrand inputCreateBrand, string repeatedCode, string existingCode)
         {
             InputCreateBrand = inputCreateBrand;

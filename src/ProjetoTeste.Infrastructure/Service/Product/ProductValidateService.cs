@@ -1,13 +1,11 @@
 ﻿using ProjetoTeste.Arguments.Arguments.Product;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Interface.Service;
-using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
     public class ProductValidateService : IProductValidateService
     {
-
         #region Validate Create
 
         public async Task<BaseResponse<List<ProductValidate?>>> ValidateCreateProduct(List<ProductValidate> listInputCreateProduct)

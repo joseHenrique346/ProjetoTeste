@@ -32,6 +32,19 @@ namespace ProjetoTeste.Infrastructure.Conversor
             };
         }
 
+        public static Product? ToProduct(this ProductDTO productDTO)
+        {
+            return productDTO == null ? null : new Product
+            {
+                Name = productDTO.Name,
+                Code = productDTO.Code,
+                Description = productDTO.Description,
+                Price = productDTO.Price,
+                BrandId = productDTO.BrandId,
+                Stock = productDTO.Stock
+            };
+        }
+
         public static List<Product>? ToListProduct(this List<ProductDTO> listProductDto)
         {
             return listProductDto == null ? null : listProductDto.Select(x => new Product(

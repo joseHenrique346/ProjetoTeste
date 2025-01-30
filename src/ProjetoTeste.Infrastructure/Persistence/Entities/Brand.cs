@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace ProjetoTeste.Infrastructure.Persistence.Entities
+﻿namespace ProjetoTeste.Infrastructure.Persistence.Entities
 {
     public class Brand : BaseEntity
     {
@@ -15,8 +13,6 @@ namespace ProjetoTeste.Infrastructure.Persistence.Entities
             Description = description;
         }
         public Brand() { }
-
-        [JsonIgnore]
-        public virtual List<Product>? ListProduct { get; set; }
+        public List<Product>? ListProduct { get; set; }
     }
 }

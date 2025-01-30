@@ -42,15 +42,24 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Post
 
-        [HttpPost]
-        public async Task<ActionResult<BaseResponse<List<OutputBrand>>>> CreateAsync(List<InputCreateBrand> input)
+        [HttpPost("Single")]
+        public async Task<ActionResult<BaseResponse<OutputBrand>>> CreateSingle(InputCreateBrand inputCreateBrand)
         {
-            var result = await _brandService.Create(input);
+            var result = await _brandService.CreateSingle(inputCreateBrand);
 
-            if (result is null)
+            if (!result.Success)
             {
-                return NotFound(result);
+                return BadRequest(result);
             }
+
+            var newBrand = result;
+            return Ok(newBrand);
+        }
+
+        [HttpPost("Multiple")]
+        public async Task<ActionResult<BaseResponse<List<OutputBrand>>>> CreateAsync(List<InputCreateBrand> listInputCreateBrand)
+        {
+            var result = await _brandService.Create(listInputCreateBrand);
 
             if (!result.Success)
             {
@@ -65,7 +74,20 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Put
 
-        [HttpPut]
+        [HttpPut("Multiple")]
+        public async Task<ActionResult<BaseResponse<OutputBrand>>> Update(InputIdentityUpdateBrand inputIdentityUpdateBrand)
+        {
+            var result = await _brandService.UpdateSingle(inputIdentityUpdateBrand);
+
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPut("Multiple")]
         public async Task<ActionResult<BaseResponse<OutputBrand>>> Update(List<InputIdentityUpdateBrand> listInputIdentityUpdateBrand)
         {
             var result = await _brandService.Update(listInputIdentityUpdateBrand);
@@ -73,10 +95,6 @@ namespace ProjetoTeste.Api.Controllers
             if (!result.Success)
             {
                 return BadRequest(result);
-            }
-            if (result is null)
-            {
-                return NotFound(result);
             }
 
             return Ok(result);
@@ -86,7 +104,20 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Delete
 
-        [HttpDelete]
+        [HttpDelete("Multiple")]
+        public async Task<ActionResult<string>> DeleteSingle(InputIdentityDeleteBrand inputIdentityDeleteBrand)
+        {
+            var result = await _brandService.DeleteSingle(inputIdentityDeleteBrand);
+
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        [HttpDelete("Multiple")]
         public async Task<ActionResult<List<string>>> Delete(List<InputIdentityDeleteBrand> listInputIdentityDeleteBrand)
         {
             var result = await _brandService.Delete(listInputIdentityDeleteBrand);
@@ -98,7 +129,7 @@ namespace ProjetoTeste.Api.Controllers
 
             return Ok(result);
         }
-
-        #endregion
     }
 }
+
+#endregion

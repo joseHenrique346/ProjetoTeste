@@ -48,6 +48,21 @@ public class BrandService : IBrandService
 
     #region Create
 
+    public async Task<BaseResponse<OutputBrand>> CreateSingle(InputCreateBrand inputCreateBrand)
+    {
+        var response = new BaseResponse<OutputBrand>();
+        var result = await Create([inputCreateBrand]);
+
+        response.Success = result.Success;
+        response.Message = result.Message;
+
+        if (!response.Success)
+            return response;
+
+        response.Content = result.Content.FirstOrDefault();
+        return response;
+    }
+
     public async Task<BaseResponse<List<OutputBrand>>> Create(List<InputCreateBrand> listInputCreateBrand)
     {
         var response = new BaseResponse<List<OutputBrand>>();
@@ -56,14 +71,14 @@ public class BrandService : IBrandService
                                 where listInputCreateBrand.Count(j => j.Code == i.Code) > 1
                                 select i.Code).ToList();
 
-        var listExistingBrand = (await _brandRepository.GetListByCode(listInputCreateBrand.Select(i => i.Code).ToList())).Select(i => i.Code).ToList();
+        var listExistingCode = (await _brandRepository.GetListByCode(listInputCreateBrand.Select(i => i.Code).ToList())).Select(i => i.Code).ToList();
 
         var listCreate = (from i in listInputCreateBrand
                           select new
                           {
                               InputCreate = i,
                               RepeatedCode = listRepeatedCode.FirstOrDefault(j => i.Code == j),
-                              ExistingCode = listExistingBrand.FirstOrDefault(j => i.Code == j)
+                              ExistingCode = listExistingCode.FirstOrDefault(j => i.Code == j)
                           }).ToList();
 
         List<BrandValidate> listBrandValidate = listCreate.Select(i => new BrandValidate().CreateValidate(i.InputCreate, i.RepeatedCode, i.ExistingCode)).ToList();
@@ -86,6 +101,21 @@ public class BrandService : IBrandService
     #endregion
 
     #region Update
+
+    public async Task<BaseResponse<OutputBrand>> UpdateSingle(InputIdentityUpdateBrand inputIdentityUpdateBrand)
+    {
+        var response = new BaseResponse<OutputBrand>();
+        var result = await Update([inputIdentityUpdateBrand]);
+
+        response.Success = result.Success;
+        response.Message = result.Message;
+
+        if (!response.Success)
+            return response;
+
+        response.Content = result.Content.FirstOrDefault();
+        return response;
+    }
 
     public async Task<BaseResponse<List<OutputBrand>>> Update(List<InputIdentityUpdateBrand> listInputIdentityUpdateBrand)
     {
@@ -141,6 +171,11 @@ public class BrandService : IBrandService
 
     #region Delete
 
+    public async Task<BaseResponse<bool>> DeleteSingle(InputIdentityDeleteBrand inputIdentityDeleteBrand)
+    {
+        return await Delete([inputIdentityDeleteBrand]);
+    }
+
     public async Task<BaseResponse<bool>> Delete(List<InputIdentityDeleteBrand> listInputIdentityDeleteBrand)
     {
         var response = new BaseResponse<bool>();
@@ -151,7 +186,7 @@ public class BrandService : IBrandService
         var existingProductInBrand = _productRepository.GetExistingProductInBrand(listInputIdentityDeleteBrand.Select(i => i.Id).ToList());
 
         var listDelete = (from i in listInputIdentityDeleteBrand
-                          select new 
+                          select new
                           {
                               InputDelete = i,
                               ExistingBrand = selectIdFromExistingBrand.FirstOrDefault(j => i.Id == j),

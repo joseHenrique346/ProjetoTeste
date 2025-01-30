@@ -5,7 +5,6 @@ using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Persistence.Context;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
-using System.ComponentModel.DataAnnotations;
 
 namespace ProjetoTeste.Infrastructure.Service
 {

@@ -21,14 +21,14 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Get
 
-        [HttpPost("id")]
+        [HttpPost("GetByListId")]
         public async Task<ActionResult<OutputCustomer>> Get(List<InputIdentityViewCustomer> listInputIdentityViewCustomer)
         {
             var getCustomer = await _customerService.Get(listInputIdentityViewCustomer);
             return Ok(getCustomer);
         }
 
-        [HttpGet]
+        [HttpGet("Multiple")]
         public async Task<ActionResult<OutputCustomer>> GetAll()
         {
             var getAllCustomers = await _customerService.GetAll();
@@ -38,7 +38,7 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Post
 
-        [HttpPost]
+        [HttpPost("Multiple")]
         public async Task<ActionResult<BaseResponse<List<OutputCustomer>>>> Create(List<InputCreateCustomer> listInputCreateCustomer)
         {
             var result = await _customerService.Create(listInputCreateCustomer);
@@ -51,7 +51,7 @@ namespace ProjetoTeste.Api.Controllers
         #endregion
 
         #region Put
-        [HttpPut]
+        [HttpPut("Multiple")]
         public async Task<ActionResult<BaseResponse<List<OutputCustomer>>>> Update(List<InputIdentityUpdateCustomer> listInputIdentityUpdateCustomer)
         {
             var result = await _customerService.Update(listInputIdentityUpdateCustomer);
@@ -65,7 +65,7 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Delete
 
-        [HttpDelete]
+        [HttpDelete("Multiple")]
         public async Task<ActionResult<BaseResponse<List<string>>>> Delete(List<InputIdentityDeleteCustomer> listInputIdentityDeleteCustomer)
         {
             var result = await _customerService.Delete(listInputIdentityDeleteCustomer);

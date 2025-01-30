@@ -1,21 +1,11 @@
 ﻿using ProjetoTeste.Arguments.Arguments.Customer;
 using ProjetoTeste.Arguments.Arguments.Response;
-using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
 
 namespace ProjetoTeste.Infrastructure.Service;
 
 public class CustomerValidateService : ICustomerValidateService
 {
-    #region Dependency Injection
-    public readonly ICustomerRepository _customerRepository;
-
-    public CustomerValidateService(ICustomerRepository customerRepository)
-    {
-        _customerRepository = customerRepository;
-    }
-    #endregion
-
     #region Validate Create
 
     public async Task<BaseResponse<List<CustomerValidate?>>> ValidateCreateCustomer(List<CustomerValidate> listInputCreateCustomer)
@@ -23,9 +13,15 @@ public class CustomerValidateService : ICustomerValidateService
         var response = new BaseResponse<List<CustomerValidate?>>();
 
         _ = (from i in listInputCreateCustomer
-             where i.InputCreateCustomer.CPF.Length != 11 || i.InputCreateCustomer.Phone.Length != 11
+             where i.InputCreateCustomer.CPF.Length != 11
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage(i.InputCreateCustomer.CPF.Length != 11 ? $"Não foi possível criar o cliente {i.InputCreateCustomer.Name}, o cpf está inválido" : $"Não foi possível criar o cliente {i.InputCreateCustomer.Name}, o telefone está inválido")
+             let message = response.AddErrorMessage($"Não foi possível criar o cliente {i.InputCreateCustomer.Name}, o cpf está inválido")
+             select i).ToList();
+
+        _ = (from i in listInputCreateCustomer
+             where i.InputCreateCustomer.Phone.Length != 11
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível criar o cliente {i.InputCreateCustomer.Name}, o telefone está inválido")
              select i).ToList();
 
         _ = (from i in listInputCreateCustomer

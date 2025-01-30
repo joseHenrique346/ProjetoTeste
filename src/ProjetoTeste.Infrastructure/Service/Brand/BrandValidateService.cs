@@ -1,25 +1,11 @@
 ﻿using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Arguments.Arguments.Response;
-using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
 
 namespace ProjetoTeste.Infrastructure.Service;
 
 public class BrandValidateService : IBrandValidateService
 {
-
-    #region Dependency Injection
-
-    private readonly IProductRepository _productRepository;
-    private readonly IBrandRepository _brandRepository;
-    public BrandValidateService(IBrandRepository brandRepository, IProductRepository productRepository)
-    {
-        _brandRepository = brandRepository;
-        _productRepository = productRepository;
-    }
-
-    #endregion
-
     #region Validate Create
 
     public async Task<BaseResponse<List<BrandValidate?>>> ValidateCreateBrand(List<BrandValidate> listInputCreateBrand)

@@ -1,6 +1,4 @@
-﻿using ProjetoTeste.Arguments.Arguments.Base;
-using ProjetoTeste.Arguments.Arguments.Brand;
-using ProjetoTeste.Arguments.Arguments.Product;
+﻿using ProjetoTeste.Arguments.Arguments.Product;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
@@ -187,7 +185,7 @@ namespace ProjetoTeste.Infrastructure.Service
             await _productRepository.DeleteAsync(deletedProduct);
             return response;
         }
-
-        #endregion
     }
 }
+
+#endregion
