@@ -13,63 +13,89 @@ namespace ProjetoTeste.Infrastructure.Service
             var response = new BaseResponse<List<ProductValidate?>>();
 
             _ = (from i in listInputCreateProduct
-                 where i.ExistingCodeProduct != null
+                 where i.ExistingCodeId != null
+                 let name = i.InputCreateProduct.Name
+                 let code = i.InputCreateProduct.Code
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage($"Erro ao criar o produto {i.InputCreateProduct.Name}, o código {i.InputCreateProduct.Code} já está sendo utilizado")
+                 let message = response.AddErrorMessage($"Erro ao criar o produto {name}, o código {code} já está sendo utilizado")
                  select i).ToList();
 
             _ = (from i in listInputCreateProduct
                  where i.RepeatedCode != null
+                 let name = i.InputCreateProduct.Name
+                 let code = i.InputCreateProduct.Code
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage($"Erro ao criar o produto {i.InputCreateProduct.Name}, o código {i.InputCreateProduct.Code} está sendo utilizado mais de uma vez na requisição")
+                 let message = response.AddErrorMessage($"Erro ao criar o produto {name}, o código {code} está sendo utilizado mais de uma vez na requisição")
+                 select i).ToList();
+
+            _ = (from i in listInputCreateProduct.Select((value, index) => new { Value = value, Index = index })
+                 let name = i.Value.InputCreateProduct.Name
+                 where string.IsNullOrWhiteSpace(name) || name?.Length > 40
+                 let index = i.Index + 1
+                 let setInvalid = i.Value.SetInvalid()
+                 let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(name)
+                    ? $"Erro ao criar o produto na {index}° posição, o nome não foi preenchido corretamente."
+                    : $"Erro ao criar o produto {name}, o nome ultrapassou o limite de 40 caracteres")
                  select i).ToList();
 
             _ = (from i in listInputCreateProduct
-                 where i.InputCreateProduct.Name.Length > 40 || string.IsNullOrEmpty(i.InputCreateProduct.Name) || string.IsNullOrWhiteSpace(i.InputCreateProduct.Name)
+                 let code = i.InputCreateProduct.Code
+                 where string.IsNullOrWhiteSpace(code) || code?.Length > 6
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage(i.InputCreateProduct.Name.Length > 40 ? $"Erro ao criar o produto {i.InputCreateProduct.Name}, o nome ultrapassou o limite de 40 caracteres" : $"Erro ao criar o produto {i.InputCreateProduct.Name}, o nome não possue valor")
+                 let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(code)
+                    ? $"Erro ao criar o produto {code}, o código não foi preenchido corretamente."
+                    : $"Erro ao criar o produto {code}, o código ultrapassou o limite de 6 caracteres")
                  select i).ToList();
 
             _ = (from i in listInputCreateProduct
-                 where i.InputCreateProduct.Code.Length > 6 || string.IsNullOrEmpty(i.InputCreateProduct.Code) || string.IsNullOrWhiteSpace(i.InputCreateProduct.Code)
+                 let description = i.InputCreateProduct.Description
+                 where string.IsNullOrWhiteSpace(description) || description?.Length > 100
+                 let code = i.InputCreateProduct.Code
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage(i.InputCreateProduct.Code.Length > 6 ? $"Erro ao criar o produto {i.InputCreateProduct.Code},  o código ultrapassou o limite de 6 caracteres." : $"Erro ao criar o produto {i.InputCreateProduct.Code}, o código não possue valor.")
+                 let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(description)
+                    ? $"Erro ao criar o produto {code}, a descrição não foi preenchida corretamente."
+                    : $"Erro ao criar o produto {code}, a descrição ultrapassou o limite de 100 caracteres")
                  select i).ToList();
 
             _ = (from i in listInputCreateProduct
-                 where i.InputCreateProduct.Description.Length > 100 || string.IsNullOrEmpty(i.InputCreateProduct.Description) || string.IsNullOrWhiteSpace(i.InputCreateProduct.Description)
+                 let stock = i.InputCreateProduct.Stock
+                 where string.IsNullOrWhiteSpace(stock.ToString()) || stock.ToString().Length > 10
+                 let name = i.InputCreateProduct.Name
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage(i.InputCreateProduct.Description.Length > 100 ? $"Erro ao criar o produto {i.InputCreateProduct.Code}, a descrição ultrapassou o limite de 100 caracteres." : $"Erro ao criar o produto {i.InputCreateProduct.Code}, a descrição não possue valor.")
-                 select i).ToList();
-
-            _ = (from i in listInputCreateProduct
-                 where i.InputCreateProduct.Stock.ToString().Length > 10 || string.IsNullOrEmpty(i.InputCreateProduct.Stock.ToString()) || string.IsNullOrWhiteSpace(i.InputCreateProduct.Stock.ToString())
-                 let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage(i.InputCreateProduct.Stock.ToString().Length > 10 ? $"Erro ao criar o produto {i.InputCreateProduct.Name}, o tamanho do estoque é inválido" : $"Erro ao criar o produto {i.InputCreateProduct.Name}, o estoque não possue valor")
+                 let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(stock.ToString())
+                    ? $"Erro ao criar o produto {name}, o estoque não foi preenchido corretamente."
+                    : $"Erro ao criar o produto {name}, o tamanho do estoque é inválido")
                  select i).ToList();
 
             _ = (from i in listInputCreateProduct
                  where i.InputCreateProduct.Stock < 0
+                 let name = i.InputCreateProduct.Name
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage($"Erro ao criar o produto {i.InputCreateProduct.Name}, o estoque não pode ser menor que zero")
+                 let message = response.AddErrorMessage($"Erro ao criar o produto {name}, o estoque não pode ser menor que zero")
                  select i).ToList();
 
             _ = (from i in listInputCreateProduct
-                 where i.InputCreateProduct.Price.ToString().Length > 10 || string.IsNullOrEmpty(i.InputCreateProduct.Price.ToString()) || string.IsNullOrWhiteSpace(i.InputCreateProduct.Price.ToString())
+                 let price = i.InputCreateProduct.Price
+                 where string.IsNullOrWhiteSpace(price.ToString()) || price.ToString().Length > 10
+                 let name = i.InputCreateProduct.Name
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage(i.InputCreateProduct.Price.ToString().Length > 10 ? $"Erro ao criar o produto {i.InputCreateProduct.Name}, o preço é inválido" : $"Erro ao criar o produto {i.InputCreateProduct.Name}, o preço não possue valor")
+                 let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(price.ToString())
+                    ? $"Erro ao criar o produto {name}, o preço não foi preenchido corretamente"
+                    : $"Erro ao criar o produto {name}, o preço não pode ter este tamanho")
                  select i).ToList();
 
             _ = (from i in listInputCreateProduct
                  where i.InputCreateProduct.Price < 0
+                 let name = i.InputCreateProduct.Name
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage($"Erro ao criar o produto {i.InputCreateProduct.Name}, o preço não pode ser menor que zero")
+                 let message = response.AddErrorMessage($"Erro ao criar o produto {name}, o preço não pode ser menor que zero")
                  select i).ToList();
 
             _ = (from i in listInputCreateProduct
                  where i.ExistingBrand == 0
+                 let name = i.InputCreateProduct.Name
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage($"Erro ao criar o produto {i.InputCreateProduct.Name}, o Id da marca é inválido")
+                 let message = response.AddErrorMessage($"Erro ao criar o produto {name}, o Id da marca é inválido")
                  select i).ToList();
 
             var selectedValidListCreate = (from i in listInputCreateProduct
@@ -94,63 +120,74 @@ namespace ProjetoTeste.Infrastructure.Service
         {
             var response = new BaseResponse<List<ProductValidate?>>();
 
-            var listValidateIds = (from i in listProductValidate
-                                   where i.CurrentProduct != i.InputIdentityUpdateProduct.Id
-                                   select i).ToList();
-
-            _ = (from i in listValidateIds
-                 where i == null
+            _ = (from i in listProductValidate
+                 let id = i.InputIdentityUpdateProduct.Id
+                 where id != i.CurrentProduct
+                 let name = i.InputIdentityUpdateProduct.InputUpdateProduct.Name
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage($"Erro ao atualizar o produto {i.InputIdentityUpdateProduct.InputUpdateProduct.Name}, seu Id: {i.InputIdentityUpdateProduct.Id} está inválido.")
+                 let message = response.AddErrorMessage($"Erro ao atualizar o produto {name}, seu Id: {id} está inválido.")
                  select i).ToList();
 
             _ = (from i in listProductValidate
-                 where i.ExistingCodeProduct != null && i.InputIdentityUpdateProduct.Id != i.CurrentProduct
+                 where i.ExistingCodeProduct != null && i.InputIdentityUpdateProduct.Id != i.ExistingCodeProduct?.Id
+                 let name = i.InputIdentityUpdateProduct.InputUpdateProduct.Name
+                 let code = i.InputIdentityUpdateProduct.InputUpdateProduct.Code
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage($"Erro ao atualizar o produto {i.InputIdentityUpdateProduct.InputUpdateProduct.Name}, seu código: {i.InputIdentityUpdateProduct.InputUpdateProduct.Code} já sendo utilizado")
+                 let message = response.AddErrorMessage($"Erro ao atualizar o produto {name}, seu código: {code} já sendo utilizado")
+                 select i).ToList();
+
+            _ = (from i in listProductValidate.Select((value, index) => new { Value = value, Index = index })
+                 let name = i.Value.InputIdentityUpdateProduct.InputUpdateProduct.Name
+                 where string.IsNullOrWhiteSpace(name) || name?.Length > 40
+                 let index = i.Index + 1
+                 let setInvalid = i.Value.SetInvalid()
+                 let errorMessage = response.AddErrorMessage(string.IsNullOrWhiteSpace(name)
+                    ? $"Erro ao atualizar o produto na {index}° posição, o nome não foi preenchido corretamente."
+                    : $"Erro ao atualizar o produto {name}, o nome ultrapassa o limite de 40 caracteres")
                  select i).ToList();
 
             _ = (from i in listProductValidate
-                 where i.InputIdentityUpdateProduct.InputUpdateProduct.Name.Length > 40
-                 || string.IsNullOrEmpty(i.InputIdentityUpdateProduct.InputUpdateProduct.Name)
-                 || string.IsNullOrWhiteSpace(i.InputIdentityUpdateProduct.InputUpdateProduct.Name)
+                 let code = i.InputIdentityUpdateProduct.InputUpdateProduct.Code
+                 where string.IsNullOrWhiteSpace(code) || code?.Length > 6
+                 let name = i.InputIdentityUpdateProduct.InputUpdateProduct.Name
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage(i.InputIdentityUpdateProduct.InputUpdateProduct.Name.Length > 40 ? $"Erro ao atualizar o produto {i.InputIdentityUpdateProduct.InputUpdateProduct.Name}, o nome ultrapassa o limite de 40 caracteres" : $"Erro ao atualizar o produto {i.InputIdentityUpdateProduct.InputUpdateProduct.Name}, o nome não foi preenchido corretamente")
+                 let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(code)
+                    ? $"Erro ao atualizar o produto {name}, o código não foi preenchido corretamente."
+                    : $"Erro ao atualizar o produto {name}, o código ultrapassa o limite de 6 caracteres")
                  select i).ToList();
 
             _ = (from i in listProductValidate
-                 where i.InputIdentityUpdateProduct.InputUpdateProduct.Code.Length > 6
-                 || string.IsNullOrEmpty(i.InputIdentityUpdateProduct.InputUpdateProduct.Code)
-                 || string.IsNullOrWhiteSpace(i.InputIdentityUpdateProduct.InputUpdateProduct.Code)
+                 let description = i.InputIdentityUpdateProduct.InputUpdateProduct.Description
+                 where string.IsNullOrWhiteSpace(description) || description?.Length > 100
+                 let name = i.InputIdentityUpdateProduct.InputUpdateProduct.Name
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage(i.InputIdentityUpdateProduct.InputUpdateProduct.Code.Length > 6 ? $"Erro ao atualizar o produto {i.InputIdentityUpdateProduct.InputUpdateProduct.Name}, o código ultrapassa o limite de 6 caracteres" : $"Erro ao atualizar o produto {i.InputIdentityUpdateProduct.InputUpdateProduct.Name}, o código não foi preenchido corretamente")
+                 let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(description)
+                    ? $"Erro ao atualizar o produto {name}, a descrição não foi preenchida corretamente"
+                    : $"Erro ao atualizar o produto {name}, a descrição ultrapassa o limite de 100 caracteres")
                  select i).ToList();
 
             _ = (from i in listProductValidate
-                 where i.InputIdentityUpdateProduct.InputUpdateProduct.Description.Length > 100
-                 || string.IsNullOrEmpty(i.InputIdentityUpdateProduct.InputUpdateProduct.Description)
-                 || string.IsNullOrWhiteSpace(i.InputIdentityUpdateProduct.InputUpdateProduct.Description)
+                 let stock = i.InputIdentityUpdateProduct.InputUpdateProduct.Stock
+                 where stock < 0 || stock.ToString().Length > 10
+                 let name = i.InputIdentityUpdateProduct.InputUpdateProduct.Name
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage(i.InputIdentityUpdateProduct.InputUpdateProduct.Code.Length > 6 ? $"Erro ao atualizar o produto {i.InputIdentityUpdateProduct.InputUpdateProduct.Name}, a descrição ultrapassa o limite de 100 caracteres" : $"Erro ao atualizar o produto {i.InputIdentityUpdateProduct.InputUpdateProduct.Name}, a descrição não foi preenchido corretamente")
-                 select i).ToList();
-
-            _ = (from i in listProductValidate
-                 where i.InputIdentityUpdateProduct.InputUpdateProduct.Stock < 0
-                 || i.InputIdentityUpdateProduct.InputUpdateProduct.Stock.ToString().Length > 10
-                 let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage(i.InputIdentityUpdateProduct.InputUpdateProduct.Stock < 0 ? $"Erro ao atualizar o produto {i.InputIdentityUpdateProduct.InputUpdateProduct.Name}, o estoque não pode ser menor que zero." : $"Erro ao atualizar o produto {i.InputIdentityUpdateProduct.InputUpdateProduct.Name}, o estoque não pode ter este tamanho.")
+                 let errorMessage = response.AddErrorMessage(stock < 0
+                    ? $"Erro ao atualizar o produto {name}, o estoque não pode ser menor que zero."
+                    : $"Erro ao atualizar o produto {name}, o estoque não pode ter este tamanho.")
                  select i).ToList();
 
             _ = (from i in listProductValidate
                  where i.InputIdentityUpdateProduct.InputUpdateProduct.Price < 0
+                 let name = i.InputIdentityUpdateProduct.InputUpdateProduct.Name
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage($"Erro ao atualizar o produto {i.InputIdentityUpdateProduct.InputUpdateProduct.Name}, o preço não pode ser menor que zero.")
+                 let message = response.AddErrorMessage($"Erro ao atualizar o produto {name}, o preço não pode ser menor que zero.")
                  select i).ToList();
 
             _ = (from i in listProductValidate
                  where i.ExistingBrand == 0
+                 let name = i.InputIdentityUpdateProduct.InputUpdateProduct.Name
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage($"Erro ao atualizar o produto {i.InputIdentityUpdateProduct.InputUpdateProduct.Name}, o Id da marca está inválido.")
+                 let message = response.AddErrorMessage($"Erro ao atualizar o produto {name}, o Id da marca está inválido.")
                  select i).ToList();
 
             var selectedValidProducts = (from i in listProductValidate
@@ -176,15 +213,25 @@ namespace ProjetoTeste.Infrastructure.Service
             var response = new BaseResponse<List<ProductValidate?>>();
 
             _ = (from i in listProductValidate
-                 where i.InputIdentityDeleteProduct.Id == 0
+                 let id = i.InputIdentityDeleteProduct.Id
+                 where i.RepeatedId != null
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage($"Não foi possível deletar o produto do Id: {i.InputIdentityDeleteProduct.Id}, Id inválido.")
+                 let message = response.AddErrorMessage($"Não foi possível deletar o produto do Id: {id}, Id foi digitado mais de uma vez na requisição")
                  select i).ToList();
 
             _ = (from i in listProductValidate
-                 where i.Product.Stock > 0
+                 let id = i.InputIdentityDeleteProduct.Id
+                 where i.Product == null
                  let setInvalid = i.SetInvalid()
-                 let message = response.AddErrorMessage($"Não foi possível deletar o produto do Id: {i.InputIdentityDeleteProduct.Id}, o produto {i.Product.Name} ainda possue estoque")
+                 let message = response.AddErrorMessage($"Não foi possível deletar o produto do Id: {id}, Id inválido.")
+                 select i).ToList();
+
+            _ = (from i in listProductValidate
+                 let id = i.InputIdentityDeleteProduct.Id
+                 where i.Product != null && i.Product.Stock > 0
+                 let name = i.Product.Name
+                 let setInvalid = i.SetInvalid()
+                 let message = response.AddErrorMessage($"Não foi possível deletar o produto do Id: {id}, o produto {name} ainda possue estoque")
                  select i).ToList();
 
             var selectedValidDelete = (from i in listProductValidate

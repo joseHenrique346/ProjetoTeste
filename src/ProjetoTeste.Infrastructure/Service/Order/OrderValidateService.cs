@@ -42,32 +42,39 @@ public class OrderValidateService : IOrderValidateService
 
         _ = (from i in listInputCreateProductOrder.Select((value, index) => new { Value = value, Index = index })
              where i.Value.ExistingOrder == 0
+             let orderId = i.Value.InputCreateProductOrder?.OrderId
+             let index = i.Index + 1
              let setInvalid = i.Value.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível fazer o {i.Index + 1}º pedido, seu id {i.Value.InputCreateProductOrder.OrderId} é inválido")
+             let message = response.AddErrorMessage($"Não foi possível fazer o {index}º pedido, seu id {orderId} é inválido")
              select i.Value).ToList();
 
         _ = (from i in listInputCreateProductOrder.Select((value, index) => new { Value = value, Index = index })
              where i.Value.ExistingProduct == null
+             let productId = i.Value.InputCreateProductOrder?.ProductId
+             let index = i.Index + 1
              let setInvalid = i.Value.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível fazer o {i.Index + 1}º pedido, o id de produto {i.Value.InputCreateProductOrder.ProductId} é inválido")
+             let message = response.AddErrorMessage($"Não foi possível fazer o {index}º pedido, o id de produto {productId} é inválido")
              select i.Value).ToList();
 
         _ = (from i in listInputCreateProductOrder.Select((value, index) => new { Value = value, Index = index })
-             where i.Value.InputCreateProductOrder.Quantity <= 0
+             let quantity = i.Value.InputCreateProductOrder?.Quantity
+             where quantity <= 0
+             let index = i.Index + 1
              let setInvalid = i.Value.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível fazer o {i.Index + 1}º pedido, a quantidade é inválida")
+             let message = response.AddErrorMessage($"Não foi possível fazer o {index}º pedido, a quantidade {quantity} é inválida")
              select i.Value).ToList();
 
         var listProduct = listInputCreateProductOrder.Select(i => i.ExistingProduct).ToList();
 
-
         foreach (var i in listInputCreateProductOrder.Select((value, index) => new { Value = value, Index = index }))
         {
-            if (!i.Value.Invalid && listProduct.FirstOrDefault(k => k.Id == i.Value.InputCreateProductOrder.ProductId).Stock > i.Value.InputCreateProductOrder.Quantity)
-                i.Value.ExistingProduct.Stock -= i.Value.InputCreateProductOrder.Quantity;
-            else
+            if (!i.Value.Invalid && listProduct.FirstOrDefault(k => k.Id == i.Value.InputCreateProductOrder?.ProductId)?.Stock > i.Value.InputCreateProductOrder?.Quantity)
+                listProduct.FirstOrDefault(k => k.Id == i.Value.InputCreateProductOrder.ProductId).Stock -= i.Value.InputCreateProductOrder.Quantity;
+            else if (!i.Value.Invalid)
+            {
                 i.Value.SetInvalid();
-            response.AddErrorMessage($"Não foi possível fazer o {i.Index + 1}º pedido, o estoque não é suficiente");
+                response.AddErrorMessage($"Não foi possível fazer o {i.Index + 1}º pedido, o estoque: {i.Value.ExistingProduct.Stock} é insuficiente para a quantidade pedida: {i.Value.InputCreateProductOrder.Quantity}");
+            }
         }
 
         //_ = (from i in listInputCreateProductOrder.Select((value, index) => new { Value = value, Index = index })

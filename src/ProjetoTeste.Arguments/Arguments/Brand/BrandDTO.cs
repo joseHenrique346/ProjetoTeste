@@ -9,12 +9,14 @@ namespace ProjetoTeste.Arguments.Arguments
         public string Code { get; set; }
         public string Description { get; set; }
 
-        public BrandDTO(string name, string code, string description)
+        public BrandDTO(long id, string name, string code, string description)
         {
+            Id = id;
             Name = name;
             Code = code;
             Description = description;
         }
+
         public BrandDTO()
         {
 

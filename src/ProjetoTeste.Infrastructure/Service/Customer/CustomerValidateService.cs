@@ -13,40 +13,48 @@ public class CustomerValidateService : ICustomerValidateService
         var response = new BaseResponse<List<CustomerValidate?>>();
 
         _ = (from i in listInputCreateCustomer
-             where i.InputCreateCustomer.CPF.Length != 11
+             where i.InputCreateCustomer.CPF?.Length != 11
+             let name = i.InputCreateCustomer.Name
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar o cliente {i.InputCreateCustomer.Name}, o cpf está inválido")
+             let message = response.AddErrorMessage($"Não foi possível criar o cliente {name}, o cpf está inválido")
              select i).ToList();
 
         _ = (from i in listInputCreateCustomer
-             where i.InputCreateCustomer.Phone.Length != 11
+             where i.InputCreateCustomer.Phone?.Length != 11
+             let name = i.InputCreateCustomer.Name
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar o cliente {i.InputCreateCustomer.Name}, o telefone está inválido")
+             let message = response.AddErrorMessage($"Não foi possível criar o cliente {name}, o telefone está inválido")
              select i).ToList();
 
         _ = (from i in listInputCreateCustomer
-             where string.IsNullOrEmpty(i.InputCreateCustomer.Email) || string.IsNullOrWhiteSpace(i.InputCreateCustomer.Email)
+             where i.InputCreateCustomer.Email?.Length > 60
+             let name = i.InputCreateCustomer.Name
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar o cliente {i.InputCreateCustomer.Name}, o email não pode ser vazio")
+             let message = response.AddErrorMessage($"Não foi possível criar o cliente {name}, o email passa do limite de 60 caracteres")
              select i).ToList();
 
         _ = (from i in listInputCreateCustomer
-             where i.InputCreateCustomer.Email.Length > 60 ||
-             !i.InputCreateCustomer.Email.Contains("@")
+             where !i.InputCreateCustomer.Email.Contains("@")
+             let name = i.InputCreateCustomer.Name
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage(i.InputCreateCustomer.Email.Length > 60 ? $"Não foi possível criar o cliente {i.InputCreateCustomer.Name}, o email passa do limite de 60 caracteres" : $"Não foi possível criar o cliente {i.InputCreateCustomer.Name}, o email está inválido")
+             let message = response.AddErrorMessage($"Não foi possível criar o cliente {name}, o email está inválido")
              select i).ToList();
 
         _ = (from i in listInputCreateCustomer
              where !i.InputCreateCustomer.Email.EndsWith(".com")
+             let name = i.InputCreateCustomer.Name
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar o cliente {i.InputCreateCustomer.Name}, o email é inválido")
+             let message = response.AddErrorMessage($"Não foi possível criar o cliente {name}, o email é inválido")
              select i).ToList();
 
-        _ = (from i in listInputCreateCustomer
-             where i.InputCreateCustomer.Name.Length > 40 || string.IsNullOrEmpty(i.InputCreateCustomer.Name) || string.IsNullOrWhiteSpace(i.InputCreateCustomer.Name)
-             let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage(i.InputCreateCustomer.Name.Length > 40 ? $"Não foi possível criar o cliente {i.InputCreateCustomer.Name}, o nome passa do limite de 40 caracteres" : $"Não foi possível criar o cliente {i.InputCreateCustomer.Name}, o nome está inválido")
+        _ = (from i in listInputCreateCustomer.Select((value, index) => new { Value = value, Index = index })
+             let name = i.Value.InputCreateCustomer.Name
+             where string.IsNullOrWhiteSpace(name) || name?.Length > 40
+             let index = i.Index + 1
+             let setInvalid = i.Value.SetInvalid()
+             let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(name)
+                ? $"Não foi possível criar o cliente na {index}° posição, o nome não foi preenchido corretamente"
+                : $"Não foi possível criar o cliente {name}, o nome passa do limite de 40 caracteres")
              select i).ToList();
 
         var selectedValidList = (from i in listInputCreateCustomer
@@ -71,39 +79,66 @@ public class CustomerValidateService : ICustomerValidateService
         var response = new BaseResponse<List<CustomerValidate?>>();
 
         _ = (from i in listInputIdentityUpdateCustomer
-             where i.RepeatedCode != 0
+             where i.ExistingCustomer == 0
+             let name = i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name
+             let id = i.InputIdentityUpdateCustomer.Id
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar o cliente {i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name}, o seu Id {i.InputIdentityUpdateCustomer.Id} foi digitado mais de uma vez na requisição")
+             let message = response.AddErrorMessage($"Não foi possível atualizar o cliente {name}, o seu Id {id} é inválido")
              select i).ToList();
 
         _ = (from i in listInputIdentityUpdateCustomer
-             where i.InputIdentityUpdateCustomer.InputUpdateCustomer.CPF.Length != 11 || i.InputIdentityUpdateCustomer.InputUpdateCustomer.Phone.Length != 11
+             where i.RepeatedId != 0
+             let name = i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name
+             let id = i.InputIdentityUpdateCustomer.Id
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage(i.InputCreateCustomer.CPF.Length != 11 ? $"Não foi possível criar o cliente {i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name}, o cpf é inválido" : $"Não foi possível criar o cliente {i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name}, o telefone é inválido")
+             let message = response.AddErrorMessage($"Não foi possível atualizar o cliente {name}, o seu Id {id} foi digitado mais de uma vez na requisição")
              select i).ToList();
 
         _ = (from i in listInputIdentityUpdateCustomer
-             where string.IsNullOrEmpty(i.InputIdentityUpdateCustomer.InputUpdateCustomer.Email) || string.IsNullOrWhiteSpace(i.InputIdentityUpdateCustomer.InputUpdateCustomer.Email)
+             let cpf = i.InputIdentityUpdateCustomer.InputUpdateCustomer.CPF
+             where cpf?.Length != 11
+             let name = i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar o cliente {i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name}, o email não pode ser vazio")
+             let message = response.AddErrorMessage($"Não foi possível atualizar o cliente {name}, o cpf é inválido")
              select i).ToList();
 
         _ = (from i in listInputIdentityUpdateCustomer
-             where i.InputIdentityUpdateCustomer.InputUpdateCustomer.Email.Length > 60 || !i.InputIdentityUpdateCustomer.InputUpdateCustomer.Email.Contains("@")
+             let phone = i.InputIdentityUpdateCustomer.InputUpdateCustomer.Phone
+             where phone?.Length != 11
+             let name = i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage(i.InputIdentityUpdateCustomer.InputUpdateCustomer.Email.Length > 60 ? $"Não foi possível criar o cliente {i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name}, o email passa do limite de 60 caracteres" : $"Não foi possível criar o cliente {i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name}, o email é inválido")
+             let message = response.AddErrorMessage($"Não foi possível atualizar o cliente {name}, o telefone é inválido")
+             select i).ToList();
+
+        _ = (from i in listInputIdentityUpdateCustomer
+             where i.InputIdentityUpdateCustomer.InputUpdateCustomer.Email?.Length > 60
+             let name = i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível atualizar o cliente {name}, o email passa do limite de 60 caracteres")
+             select i).ToList();
+
+        _ = (from i in listInputIdentityUpdateCustomer
+             where !i.InputIdentityUpdateCustomer.InputUpdateCustomer.Email.Contains("@")
+             let name = i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível atualizar o cliente {name}, o email é inválido")
              select i).ToList();
 
         _ = (from i in listInputIdentityUpdateCustomer
              where !i.InputIdentityUpdateCustomer.InputUpdateCustomer.Email.EndsWith(".com")
+             let name = i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar o cliente {i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name}, o email é inválido")
+             let message = response.AddErrorMessage($"Não foi possível atualizar o cliente {name}, o email é inválido")
              select i).ToList();
 
-        _ = (from i in listInputIdentityUpdateCustomer
-             where i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name.Length > 40 || string.IsNullOrEmpty(i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name) || string.IsNullOrWhiteSpace(i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name)
-             let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage(i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name.Length > 40 ? $"Não foi possível criar o cliente {i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name}, o nome passa do limite de 40 caracteres" : $"Não foi possível criar o cliente {i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name}, o nome é inválido")
+        _ = (from i in listInputIdentityUpdateCustomer.Select((value, index) => new { Value = value, Index = index })
+             let name = i.Value.InputIdentityUpdateCustomer.InputUpdateCustomer.Name
+             where string.IsNullOrWhiteSpace(name) || name?.Length > 40
+             let index = i.Index + 1
+             let setInvalid = i.Value.SetInvalid()
+             let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(name)
+                ? $"Não foi possível atualizar o cliente na {index}° posição, o nome não foi preenchido corretamente"
+                : $"Não foi possível atualizar o cliente {name}, o nome passa do limite de 40 caracteres")
              select i).ToList();
 
         var selectedValidList = (from i in listInputIdentityUpdateCustomer
@@ -129,9 +164,17 @@ public class CustomerValidateService : ICustomerValidateService
         var response = new BaseResponse<List<CustomerValidate>>();
 
         _ = (from i in listInputIdentityDeleteCustomer
-             where i.ExistingCustomer == 0
+             where i.RepeatedId != null 
+             let id = i.InputIdentityDeleteCustomer.Id
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível deletar o cliente do Id: {i.InputIdentityDeleteCustomer.Id}, id inválido")
+             let message = response.AddErrorMessage($"Não foi possível deletar o cliente do Id: {id}, id foi digitado mais de uma vez na requisição")
+             select i).ToList();
+
+        _ = (from i in listInputIdentityDeleteCustomer
+             where i.ExistingCustomer == 0
+             let id = i.InputIdentityDeleteCustomer.Id
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível deletar o cliente do Id: {id}, id inválido")
              select i).ToList();
 
         var selectedValidList = (from i in listInputIdentityDeleteCustomer

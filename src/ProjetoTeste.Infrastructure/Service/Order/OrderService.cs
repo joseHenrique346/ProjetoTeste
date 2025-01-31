@@ -32,16 +32,25 @@ namespace ProjetoTeste.Infrastructure.Service
         #endregion
 
         #region Get
+        public async Task<OutputOrder?> GetSingle(InputIdentityViewOrder inputIdentityViewOrder)
+        {
+            return (await _orderRepository.GetWithIncludesId(inputIdentityViewOrder.Id)).ToOutputOrder();
+        }
 
         public async Task<List<OutputOrder>> GetAll()
         {
-            var get = await _orderRepository.GetWithIncludesAsync();
+            var get = await _orderRepository.GetWithIncludesAll();
             return get.Select(i => i.ToOutputOrder()).ToList();
         }
-        public async Task<List<OutputOrder>?> Get(List<InputIdentityViewOrder> InputIdentityViewOrder)
+        public async Task<BaseResponse<List<OutputOrder>?>> Get(List<InputIdentityViewOrder> listInputIdentityViewOrder)
         {
-            var orderId = await _orderRepository.GetWithIncludesAsync(InputIdentityViewOrder.Select(i => i.Id).ToList());
-            return orderId.Select(i => i.ToOutputOrder()).ToList();
+            var response = new BaseResponse<List<OutputOrder>>();
+
+            var orderId = await _orderRepository.GetWithIncludesList(listInputIdentityViewOrder.Select(i => i.Id).ToList());
+
+            response.Content = orderId.ToListOutputOrder();
+
+            return response;
         }
         #endregion
 
@@ -137,6 +146,18 @@ namespace ProjetoTeste.Infrastructure.Service
         #endregion
 
         #region Create
+        //Cria um por vez
+        public async Task<BaseResponse<OutputOrder>> CreateSingle(InputCreateOrder inputCreateOrder)
+        {
+            var response = new BaseResponse<OutputOrder>();
+
+            var result = await Create([inputCreateOrder]);
+
+            response.Success = result.Success;
+            response.Message = result.Message;
+
+            return response;
+        }
 
         public async Task<BaseResponse<List<OutputOrder>>> Create(List<InputCreateOrder> listInputCreateOrder)
         {
@@ -170,6 +191,20 @@ namespace ProjetoTeste.Infrastructure.Service
             return response;
         }
 
+        //Cria um por vez
+
+        public async Task<BaseResponse<OutputProductOrder>> CreateProductOrderSingle(InputCreateProductOrder inputCreateProductOrder)
+        {
+            var response = new BaseResponse<OutputProductOrder>();
+
+            var result = await CreateProductOrder([inputCreateProductOrder]);
+
+            response.Success = result.Success;
+            response.Message = result.Message;
+
+            return response;
+        }
+
         public async Task<BaseResponse<List<OutputProductOrder>>> CreateProductOrder(List<InputCreateProductOrder> listInputCreateProductOrder)
         {
             var response = new BaseResponse<List<OutputProductOrder>>();
@@ -197,10 +232,10 @@ namespace ProjetoTeste.Infrastructure.Service
             if (!response.Success)
                 return response;
 
+            var listProductDTOValidate = result.Content.Select(i => i.ExistingProduct).ToList();
             existingProduct = (from i in existingProduct
-                               from j in result.Content
-                               where i.Id == j.ExistingProduct.Id
-                               let updateStock = i.Stock = j.ExistingProduct.Stock
+                               where i.Id == listProductDTOValidate.FirstOrDefault(j => j.Id == i.Id)?.Id
+                               let updateStock = i.Stock = listProductDTOValidate.FirstOrDefault(j => j.Id == i.Id).Stock
                                select i).ToList();
 
             var createProductOrder = (from i in result.Content

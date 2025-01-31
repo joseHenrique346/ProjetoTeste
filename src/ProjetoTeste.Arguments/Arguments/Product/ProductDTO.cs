@@ -12,8 +12,9 @@ namespace ProjetoTeste.Arguments.Arguments
         public decimal Price { get; set; }
         public long Stock { get; set; }
 
-        public ProductDTO(string name, string code, string description, long brandId, decimal price, long stock)
+        public ProductDTO(long id, string name, string code, string description, long brandId, decimal price, long stock)
         {
+            Id = id;
             Name = name;
             Code = code;
             Description = description;

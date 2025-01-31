@@ -23,6 +23,7 @@ namespace ProjetoTeste.Infrastructure.Conversor
         {
             return product == null ? null : new ProductDTO
             {
+                Id = product.Id,
                 Name = product.Name,
                 Code = product.Code,
                 Description = product.Description,

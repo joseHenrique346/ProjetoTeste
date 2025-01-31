@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Arguments.Arguments.Response;
-using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 
@@ -21,21 +20,22 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Get
 
+        [HttpPost("GetBySingleId")]
+        public async Task<ActionResult<OutputBrand>> GetSingle(InputIdentityViewBrand inputIdentityViewBrand)
+        {
+            return Ok(await _brandService.GetSingle(inputIdentityViewBrand));
+        }
+
         [HttpGet]
         public async Task<ActionResult<List<OutputBrand>>> GetAll()
         {
-            var brands = await _brandService.GetAll();
-            return Ok(brands.ToListOutputBrand());
+            return Ok(await _brandService.GetAll());
         }
 
         [HttpPost("GetByListId")]
         public async Task<ActionResult<List<OutputBrand>>> Get(List<InputIdentityViewBrand> listInputIdentityViewBrand)
         {
-            var result = await _brandService.Get(listInputIdentityViewBrand);
-
-            var brand = result.Content;
-
-            return Ok(brand);
+            return Ok(await _brandService.Get(listInputIdentityViewBrand));
         }
 
         #endregion
@@ -74,7 +74,7 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Put
 
-        [HttpPut("Multiple")]
+        [HttpPut("Single")]
         public async Task<ActionResult<BaseResponse<OutputBrand>>> Update(InputIdentityUpdateBrand inputIdentityUpdateBrand)
         {
             var result = await _brandService.UpdateSingle(inputIdentityUpdateBrand);
@@ -104,7 +104,7 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Delete
 
-        [HttpDelete("Multiple")]
+        [HttpDelete("Single")]
         public async Task<ActionResult<string>> DeleteSingle(InputIdentityDeleteBrand inputIdentityDeleteBrand)
         {
             var result = await _brandService.DeleteSingle(inputIdentityDeleteBrand);

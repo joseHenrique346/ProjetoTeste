@@ -1,4 +1,5 @@
-﻿using ProjetoTeste.Arguments.Arguments.Brand;
+﻿using ProjetoTeste.Arguments.Arguments;
+using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
@@ -28,26 +29,26 @@ public class BrandService : IBrandService
 
     #region Get
 
-    public async Task<BaseResponse<List<OutputBrand?>>> Get(List<InputIdentityViewBrand> listInputIdentityViewBrand)
+    public async Task<OutputBrand> GetSingle(InputIdentityViewBrand inputIdentityViewBrand)
     {
-        var brand = await _brandRepository.GetListByListIdWhere(listInputIdentityViewBrand.Select(i => i.Id).ToList());
-
-        return new BaseResponse<List<OutputBrand?>>
-        {
-            Success = true,
-            Content = brand.ToListOutputBrand()
-        };
+        return (await _brandRepository.GetById(inputIdentityViewBrand.Id)).ToOutputBrand();
     }
 
-    public async Task<List<Brand>> GetAll()
+    public async Task<List<OutputBrand?>> Get(List<InputIdentityViewBrand> listInputIdentityViewBrand)
     {
-        return await _brandRepository.GetAllAsync();
+        var listBrand = await _brandRepository.GetListByListIdWhere(listInputIdentityViewBrand.Select(i => i.Id).ToList());
+        return listBrand.ToListOutputBrand();
+    }
+
+    public async Task<List<OutputBrandWithProducts>> GetAll()
+    {
+        return (await _brandRepository.GetWithIncludesAll()).ToOutputBrandWithProducts();
     }
 
     #endregion
 
     #region Create
-
+    //Cria um por vez
     public async Task<BaseResponse<OutputBrand>> CreateSingle(InputCreateBrand inputCreateBrand)
     {
         var response = new BaseResponse<OutputBrand>();
@@ -79,6 +80,7 @@ public class BrandService : IBrandService
                               InputCreate = i,
                               RepeatedCode = listRepeatedCode.FirstOrDefault(j => i.Code == j),
                               ExistingCode = listExistingCode.FirstOrDefault(j => i.Code == j)
+
                           }).ToList();
 
         List<BrandValidate> listBrandValidate = listCreate.Select(i => new BrandValidate().CreateValidate(i.InputCreate, i.RepeatedCode, i.ExistingCode)).ToList();
@@ -101,7 +103,7 @@ public class BrandService : IBrandService
     #endregion
 
     #region Update
-
+    //Cria um por vez
     public async Task<BaseResponse<OutputBrand>> UpdateSingle(InputIdentityUpdateBrand inputIdentityUpdateBrand)
     {
         var response = new BaseResponse<OutputBrand>();
@@ -129,7 +131,7 @@ public class BrandService : IBrandService
                               where listInputIdentityUpdateBrand.Count(j => j.Id == i.Id) > 1
                               select i.Id).ToList();
 
-        var listExistingCode = (await _brandRepository.GetListByCode(listInputIdentityUpdateBrand.Select(i => i.InputUpdateBrand.Code).ToList())).Select(i => i.Code).ToList();
+        var listExistingCode = await _brandRepository.GetListByCode(listInputIdentityUpdateBrand.Select(i => i.InputUpdateBrand.Code).ToList());
 
         var currentBrand = await _brandRepository.GetListByListIdWhere(listInputIdentityUpdateBrand.Select(i => i.Id).ToList());
         var selectedCurrentBrandById = currentBrand.Select(i => i.Id).ToList();
@@ -140,7 +142,7 @@ public class BrandService : IBrandService
                              inputUpdate = i,
                              RepeatedCode = listRepeatedCode.FirstOrDefault(j => i.InputUpdateBrand.Code == j),
                              RepeatedId = listRepeatedId.FirstOrDefault(j => i.Id == j),
-                             ExistingCode = listExistingCode.FirstOrDefault(j => i.InputUpdateBrand.Code == j),
+                             ExistingCode = listExistingCode.Select(j => j.ToBrandDto()).FirstOrDefault(k => k.Id != i.Id),
                              CurrentBrand = selectedCurrentBrandById.FirstOrDefault(j => i.Id == j)
                          };
 
@@ -170,7 +172,7 @@ public class BrandService : IBrandService
     #endregion
 
     #region Delete
-
+    //Cria um por vez
     public async Task<BaseResponse<bool>> DeleteSingle(InputIdentityDeleteBrand inputIdentityDeleteBrand)
     {
         return await Delete([inputIdentityDeleteBrand]);
@@ -183,6 +185,10 @@ public class BrandService : IBrandService
         var existingBrand = await _brandRepository.GetListByListIdWhere(listInputIdentityDeleteBrand.Select(i => i.Id).ToList());
         var selectIdFromExistingBrand = existingBrand.Select(i => i.Id).ToList();
 
+        var listRepeatedId = (from i in listInputIdentityDeleteBrand
+                                where listInputIdentityDeleteBrand.Count(j => i.Id == j.Id) > 1
+                                select i).ToList();
+
         var existingProductInBrand = _productRepository.GetExistingProductInBrand(listInputIdentityDeleteBrand.Select(i => i.Id).ToList());
 
         var listDelete = (from i in listInputIdentityDeleteBrand
@@ -190,10 +196,11 @@ public class BrandService : IBrandService
                           {
                               InputDelete = i,
                               ExistingBrand = selectIdFromExistingBrand.FirstOrDefault(j => i.Id == j),
-                              ExistingProductInBrand = existingProductInBrand.FirstOrDefault(j => i.Id == j)
+                              ExistingProductInBrand = existingProductInBrand.FirstOrDefault(j => i.Id == j),
+                              RepeatedId = listRepeatedId.FirstOrDefault(j => j.Id == i.Id).Id
                           }).ToList();
 
-        List<BrandValidate> listDeleteValidate = listDelete.Select(i => new BrandValidate().DeleteValidate(i.InputDelete, i.ExistingBrand, i.ExistingProductInBrand)).ToList();
+        List<BrandValidate> listDeleteValidate = listDelete.Select(i => new BrandValidate().DeleteValidate(i.InputDelete, i.ExistingBrand, i.ExistingProductInBrand, i.RepeatedId)).ToList();
 
         var result = await _brandValidateService.ValidateDeleteBrand(listDeleteValidate);
         response.Success = result.Success;

@@ -26,6 +26,10 @@ namespace ProjetoTeste.Infrastructure.Service
         #endregion
 
         #region Get
+        public async Task<OutputProduct?> GetSingle(InputIdentityViewProduct inputIdentityViewProduct)
+        {
+            return (await _productRepository.GetById(inputIdentityViewProduct.Id)).ToOutputProduct();
+        }
 
         public async Task<BaseResponse<List<OutputProduct?>>> Get(List<InputIdentityViewProduct> listInputIdentityViewProduct)
         {
@@ -51,6 +55,18 @@ namespace ProjetoTeste.Infrastructure.Service
         #endregion
 
         #region Create
+
+        public async Task<BaseResponse<OutputProduct>> CreateSingle(InputCreateProduct inputCreateProduct)
+        {
+            var response = new BaseResponse<OutputProduct>();
+
+            var result = await Create([inputCreateProduct]);
+
+            response.Success = result.Success;
+            response.Message = result.Message;
+
+            return response;
+        }
 
         public async Task<BaseResponse<List<OutputProduct>>> Create(List<InputCreateProduct> listInputCreateProduct)
         {
@@ -99,6 +115,18 @@ namespace ProjetoTeste.Infrastructure.Service
 
         #region Update
 
+        public async Task<BaseResponse<OutputProduct>> UpdateSingle(InputIdentityUpdateProduct inputIdentityUpdateProduct)
+        {
+            var response = new BaseResponse<OutputProduct>();
+
+            var result = await Update([inputIdentityUpdateProduct]);
+
+            response.Success = result.Success;
+            response.Message = result.Message;
+
+            return response;
+        }
+
         public async Task<BaseResponse<List<OutputProduct>>> Update(List<InputIdentityUpdateProduct> listInputIdentityUpdateProduct)
         {
             var response = new BaseResponse<List<OutputProduct>>();
@@ -107,7 +135,6 @@ namespace ProjetoTeste.Infrastructure.Service
             var selectCurrentProduct = currentProduct.Select(i => i.Id);
 
             var existingCodeProduct = await _productRepository.GetListByCode(listInputIdentityUpdateProduct.Select(i => i.InputUpdateProduct.Code).ToList());
-            var selectExistingCodeProduct = existingCodeProduct.Select(i => i.Code);
 
             var existingBrand = await _brandRepository.GetListByListIdWhere(listInputIdentityUpdateProduct.Select(i => i.InputUpdateProduct.BrandId).ToList());
             var selectedExistingBrand = existingBrand.Select(i => i.Id);
@@ -117,7 +144,7 @@ namespace ProjetoTeste.Infrastructure.Service
                               {
                                   InputUpdate = i,
                                   CurrentProduct = selectCurrentProduct.FirstOrDefault(j => i.Id == j),
-                                  ExistingCodeProduct = selectExistingCodeProduct.FirstOrDefault(j => i.InputUpdateProduct.Code == j),
+                                  ExistingCodeProduct = existingCodeProduct.FirstOrDefault(j => j.Id != i.Id).ToProductDto(),
                                   ExistingBrand = selectedExistingBrand.FirstOrDefault(j => i.InputUpdateProduct.BrandId == j)
                               }).ToList();
 
@@ -125,13 +152,11 @@ namespace ProjetoTeste.Infrastructure.Service
 
             var result = await _productValidateService.ValidateUpdateProduct(listValidateUpdate);
 
-            if (!result.Success)
-            {
-                return response;
-            }
-
             response.Success = result.Success;
             response.Message = result.Message;
+
+            if (!response.Success)
+                return response;
 
             var updatedList = (from i in result.Content
                                from j in currentProduct
@@ -155,21 +180,30 @@ namespace ProjetoTeste.Infrastructure.Service
 
         #region Delete
 
-        public async Task<BaseResponse<List<string>>> Delete(List<InputIdentityDeleteProduct> listInputIdentityDeleteProduct)
+        public async Task<BaseResponse<bool>> DeleteSingle(InputIdentityDeleteProduct inputIdentityDeleteProduct)
         {
-            var response = new BaseResponse<List<string>>();
+            return await Delete([inputIdentityDeleteProduct]);
+        }
+
+        public async Task<BaseResponse<bool>> Delete(List<InputIdentityDeleteProduct> listInputIdentityDeleteProduct)
+        {
+            var response = new BaseResponse<bool>();
 
             var listProduct = await _productRepository.GetListByListIdWhere(listInputIdentityDeleteProduct.Select(i => i.Id).ToList());
 
+            var listRepeatedId = (from i in listInputIdentityDeleteProduct
+                                  where listInputIdentityDeleteProduct.Count(j => i.Id == j.Id) > 1
+                                  select i).ToList();
 
             var listInputDelete = (from i in listInputIdentityDeleteProduct
                                    select new
                                    {
                                        InputDelete = i,
                                        Product = listProduct.FirstOrDefault(j => i.Id == j.Id).ToProductDto(),
+                                       RepeatedId = listRepeatedId.FirstOrDefault(j => i.Id == j.Id).Id
                                    }).ToList();
 
-            var listInputValidateDelete = listInputDelete.Select(i => new ProductValidate().DeleteValidate(i.InputDelete, i.Product)).ToList();
+            var listInputValidateDelete = listInputDelete.Select(i => new ProductValidate().DeleteValidate(i.InputDelete, i.Product, i.RepeatedId)).ToList();
 
             var result = await _productValidateService.ValidateDeleteProduct(listInputValidateDelete);
             response.Success = result.Success;
@@ -183,6 +217,7 @@ namespace ProjetoTeste.Infrastructure.Service
                 response.AddSuccessMessage($"O produto {i.Name} foi deletado com sucesso!");
 
             await _productRepository.DeleteAsync(deletedProduct);
+            response.Content = true;
             return response;
         }
     }

@@ -21,22 +21,36 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Get
 
+        [HttpPost("GetBySingleId")]
+        public async Task<ActionResult<OutputCustomer>> GetSingle(InputIdentityViewCustomer inputIdentityViewCustomer)
+        {
+            return Ok(await _customerService.GetSingle(inputIdentityViewCustomer));
+        }
+
         [HttpPost("GetByListId")]
         public async Task<ActionResult<OutputCustomer>> Get(List<InputIdentityViewCustomer> listInputIdentityViewCustomer)
         {
-            var getCustomer = await _customerService.Get(listInputIdentityViewCustomer);
-            return Ok(getCustomer);
+            return Ok(await _customerService.Get(listInputIdentityViewCustomer));
         }
 
-        [HttpGet("Multiple")]
+        [HttpGet]
         public async Task<ActionResult<OutputCustomer>> GetAll()
         {
-            var getAllCustomers = await _customerService.GetAll();
-            return Ok(getAllCustomers);
+            return Ok(await _customerService.GetAll());
         }
         #endregion
 
         #region Post
+
+        [HttpPost("Single")]
+        public async Task<ActionResult<BaseResponse<OutputCustomer>>> CreateSingle(InputCreateCustomer inputCreateCustomer)
+        {
+            var result = await _customerService.CreateSingle(inputCreateCustomer);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
 
         [HttpPost("Multiple")]
         public async Task<ActionResult<BaseResponse<List<OutputCustomer>>>> Create(List<InputCreateCustomer> listInputCreateCustomer)
@@ -51,6 +65,17 @@ namespace ProjetoTeste.Api.Controllers
         #endregion
 
         #region Put
+
+        [HttpPut("Single")]
+        public async Task<ActionResult<BaseResponse<OutputCustomer>>> UpdateSingle(InputIdentityUpdateCustomer inputIdentityUpdateCustomer)
+        {
+            var result = await _customerService.UpdateSingle(inputIdentityUpdateCustomer);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
         [HttpPut("Multiple")]
         public async Task<ActionResult<BaseResponse<List<OutputCustomer>>>> Update(List<InputIdentityUpdateCustomer> listInputIdentityUpdateCustomer)
         {
@@ -64,6 +89,16 @@ namespace ProjetoTeste.Api.Controllers
         #endregion
 
         #region Delete
+
+        [HttpDelete("Single")]
+        public async Task<ActionResult<BaseResponse<string>>> DeleteSingle(InputIdentityDeleteCustomer inputIdentityDeleteCustomer)
+        {
+            var result = await _customerService.DeleteSingle(inputIdentityDeleteCustomer);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
 
         [HttpDelete("Multiple")]
         public async Task<ActionResult<BaseResponse<List<string>>>> Delete(List<InputIdentityDeleteCustomer> listInputIdentityDeleteCustomer)

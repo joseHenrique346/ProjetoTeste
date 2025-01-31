@@ -1,6 +1,7 @@
 ﻿using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Interface.Service;
+using System.Xml.Linq;
 
 namespace ProjetoTeste.Infrastructure.Service;
 
@@ -14,32 +15,48 @@ public class BrandValidateService : IBrandValidateService
 
         _ = (from i in listInputCreateBrand
              where i.RepeatedCode != null
+             let name = i.InputCreateBrand.Name
+             let code = i.InputCreateBrand.Code
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar a marca: {i.InputCreateBrand.Name}, foi digitado mais de uma vez na requisição.")
+             let message = response.AddErrorMessage($"Não foi possível criar a marca: {name}, o código: {code} foi digitado mais de uma vez na requisição.")
              select i).ToList();
 
         _ = (from i in listInputCreateBrand
-             where i.ExistingCode != null
+             where i.ExistingCodeId != null
+             let name = i.InputCreateBrand.Name
+             let code = i.InputCreateBrand.Code
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar a marca: {i.InputCreateBrand.Name}, o código: \"{i.InputCreateBrand.Code}\" já está sendo usado.")
+             let message = response.AddErrorMessage($"Não foi possível criar a marca: {name}, o código: {code} já está sendo usado.")
+             select i).ToList();
+
+        _ = (from i in listInputCreateBrand.Select((value, index) => new { Value = value, Index = index })
+             let name = i.Value.InputCreateBrand.Name
+             where string.IsNullOrWhiteSpace(name) || name.Length > 40
+             let index = i.Index + 1
+             let setInvalid = i.Value.SetInvalid()
+             let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(name)
+                ? $"Não foi possível criar a marca na {index}° posição, o nome não foi preenchido corretamente."
+                : $"Não foi possível criar a marca: {name}, o nome ultrapassa o limite de 40 caracteres.")
              select i).ToList();
 
         _ = (from i in listInputCreateBrand
-             where i.InputCreateBrand.Name.Length > 40 || string.IsNullOrEmpty(i.InputCreateBrand.Name) || string.IsNullOrWhiteSpace(i.InputCreateBrand.Name)
+             let code = i.InputCreateBrand.Code
+             where string.IsNullOrWhiteSpace(code) || code.Length > 6
+             let name = i.InputCreateBrand.Name
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage(i.InputCreateBrand.Name.Length > 40 ? $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, o nome passa do limite de 40 caracteres" : $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, o nome não foi preenchido corretamente.")
+             let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(code)
+                ? $"Não foi possível criar a marca: {name}, o código não foi preenchido corretamente"
+                : $"Não foi possível criar a marca: {name}, o código passa do limite de 6 caracteres")
              select i).ToList();
 
         _ = (from i in listInputCreateBrand
-             where i.InputCreateBrand.Code.Length > 6 || string.IsNullOrEmpty(i.InputCreateBrand.Code) || string.IsNullOrWhiteSpace(i.InputCreateBrand.Code)
+             let description = i.InputCreateBrand.Description
+             where string.IsNullOrWhiteSpace(description) || description.Length > 100
+             let name = i.InputCreateBrand.Name
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage(i.InputCreateBrand.Code.Length > 6 ? $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, o código passa do limite de 6 caracteres" : $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, o código não foi preenchido corretamente.")
-             select i).ToList();
-
-        _ = (from i in listInputCreateBrand
-             where i.InputCreateBrand.Description.Length > 100 || string.IsNullOrEmpty(i.InputCreateBrand.Description) || string.IsNullOrWhiteSpace(i.InputCreateBrand.Description)
-             let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage(i.InputCreateBrand.Description.Length > 100 ? $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, a descrição passa do limite de 100 caracteres" : $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, a descrição não foi preenchida corretamente.")
+             let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(description)
+                ? $"Não foi possível criar a marca: {name}, a descrição não foi preenchida corretamente"
+                : $"Não foi possível criar a marca: {name}, a descrição ultrapassa o limite de 100 caracteres")
              select i).ToList();
 
         var selectedValidListBrand = (from i in listInputCreateBrand
@@ -66,44 +83,64 @@ public class BrandValidateService : IBrandValidateService
 
         _ = (from i in listInputIdentityUpdateBrand
              where i.CurrentBrand == 0
+             let name = i.InputIdentityUpdateBrand.InputUpdateBrand.Name
+             let id = i.InputIdentityUpdateBrand.Id
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, o \"{i.InputIdentityUpdateBrand.Id}\" é inválido")
+             let message = response.AddErrorMessage($"Não foi possível atualizar a marca: {name}, o id: {id} é inválido")
+             select i).ToList();
+
+        _ = (from i in listInputIdentityUpdateBrand
+             where i.RepeatedId != 0
+             let name = i.InputIdentityUpdateBrand.InputUpdateBrand.Name
+             let id = i.InputIdentityUpdateBrand.Id
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível atualizar a marca: {name}, o id: {id} foi digitado mais de uma vez na requisição.")
              select i).ToList();
 
         _ = (from i in listInputIdentityUpdateBrand
              where i.RepeatedCode != null
+             let name = i.InputIdentityUpdateBrand.InputUpdateBrand.Name
+             let code = i.InputIdentityUpdateBrand.InputUpdateBrand.Code
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, \"{i.InputIdentityUpdateBrand.InputUpdateBrand.Code}\" foi digitado mais de uma vez na requisição.")
+             let message = response.AddErrorMessage($"Não foi possível atualizar a marca: {name}, o código: {code} foi digitado mais de uma vez na requisição.")
              select i).ToList();
 
         _ = (from i in listInputIdentityUpdateBrand
-             where i.RepeatedCode != null
+             where i.ExistingCodeBrand != null && i.InputIdentityUpdateBrand.Id != i.ExistingCodeBrand.Id
+             let name = i.InputIdentityUpdateBrand.InputUpdateBrand.Name
+             let code = i.InputIdentityUpdateBrand.InputUpdateBrand.Code
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, \"{i.InputIdentityUpdateBrand.Id}\"  foi digitado mais de uma vez na requisição.")
+             let message = response.AddErrorMessage($"Não foi possível atualizar a marca: {name}, o código: {code} já está sendo usado.")
+             select i).ToList();
+
+        _ = (from i in listInputIdentityUpdateBrand.Select((value, index) => new { Value = value, Index = index })
+             let name = i.Value.InputIdentityUpdateBrand.InputUpdateBrand.Name
+             where string.IsNullOrWhiteSpace(name) || name?.Length > 40
+             let index = i.Index + 1
+             let setInvalid = i.Value.SetInvalid()
+             let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(name)
+                ? $"Não foi possível atualizar a marca na {index}° posição, o nome não foi preenchido corretamente."
+                : $"Não foi possível atualizar a marca: {name}, o nome passa do limite de 40 caracteres")
              select i).ToList();
 
         _ = (from i in listInputIdentityUpdateBrand
-             where i.ExistingCode != null && i.InputIdentityUpdateBrand.Id != i.CurrentBrand
+             let code = i.InputIdentityUpdateBrand.InputUpdateBrand.Code
+             where string.IsNullOrWhiteSpace(code) || code?.Length > 6
+             let name = i.InputIdentityUpdateBrand.InputUpdateBrand.Name
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, o código: \"{i.InputIdentityUpdateBrand.InputUpdateBrand.Code}\" já está sendo usado.")
+             let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(code)
+                ? $"Não foi possível atualizar a marca: {name}, o código não foi preenchido corretamente."
+                : $"Não foi possível atualizar a marca: {name}, o código ultrapassa o limite de 6 caracteres")
              select i).ToList();
 
         _ = (from i in listInputIdentityUpdateBrand
-             where i.InputIdentityUpdateBrand.InputUpdateBrand.Name.Length > 40 || string.IsNullOrEmpty(i.InputIdentityUpdateBrand.InputUpdateBrand.Name) || string.IsNullOrWhiteSpace(i.InputIdentityUpdateBrand.InputUpdateBrand.Name)
+             let description = i.InputIdentityUpdateBrand.InputUpdateBrand.Description
+             where string.IsNullOrWhiteSpace(description) || description?.Length > 100
+             let name = i.InputIdentityUpdateBrand.InputUpdateBrand.Name
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage(i.InputIdentityUpdateBrand.InputUpdateBrand.Name.Length > 40 ? $"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, o nome passa do limite de 40 caracteres" : $"Não foi possível criar a marca: {i.InputCreateBrand.Name}, o nome não foi preenchido corretamente.")
-             select i).ToList();
-
-        _ = (from i in listInputIdentityUpdateBrand
-             where i.InputIdentityUpdateBrand.InputUpdateBrand.Code.Length > 6 || string.IsNullOrEmpty(i.InputIdentityUpdateBrand.InputUpdateBrand.Code) || string.IsNullOrWhiteSpace(i.InputIdentityUpdateBrand.InputUpdateBrand.Code)
-             let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage(i.InputIdentityUpdateBrand.InputUpdateBrand.Code.Length > 6 ? $"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, o código passa do limite de 6 caracteres" : $"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, o código não foi preenchido corretamente.")
-             select i).ToList();
-
-        _ = (from i in listInputIdentityUpdateBrand
-             where i.InputIdentityUpdateBrand.InputUpdateBrand.Description.Length > 100 || string.IsNullOrEmpty(i.InputIdentityUpdateBrand.InputUpdateBrand.Description) || string.IsNullOrWhiteSpace(i.InputIdentityUpdateBrand.InputUpdateBrand.Description)
-             let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage(i.InputIdentityUpdateBrand.InputUpdateBrand.Description.Length > 100 ? $"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, a descrição passa do limite de 100 caracteres" : $"Não foi possível criar a marca: {i.InputIdentityUpdateBrand.InputUpdateBrand.Name}, a descrição não foi preenchida corretamente.")
+             let message = response.AddErrorMessage(string.IsNullOrWhiteSpace(description)
+                ? $"Não foi possível atualizar a marca: {name}, a descrição não foi preenchida corretamente."
+                : $"Não foi possível atualizar a marca: {name}, a descrição passa do limite de 100 caracteres")
              select i).ToList();
 
         var selectedValidListBrand = (from i in listInputIdentityUpdateBrand
@@ -129,15 +166,24 @@ public class BrandValidateService : IBrandValidateService
         var response = new BaseResponse<List<BrandValidate?>>();
 
         _ = (from i in listInputIdentityDeleteBrand
-             where i.ExistingBrand == 0
+             where i.RepeatedId != null
+             let id = i.InputIdentityDeleteBrand.Id
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível deletar a marca, {i.InputIdentityDeleteBrand.Id} é inválido")
+             let message = response.AddErrorMessage($"Não foi possível deletar a marca, {id} é digitado mais de uma vez na requisição")
+             select i).ToList();
+
+        _ = (from i in listInputIdentityDeleteBrand
+             where i.ExistingBrand == 0
+             let id = i.InputIdentityDeleteBrand.Id
+             let setInvalid = i.SetInvalid()
+             let message = response.AddErrorMessage($"Não foi possível deletar a marca, {id} é inválido")
              select i).ToList();
 
         _ = (from i in listInputIdentityDeleteBrand
              where i.ExistingProductInBrand != 0
+             let id = i.InputIdentityDeleteBrand.Id
              let setInvalid = i.SetInvalid()
-             let message = response.AddErrorMessage($"Não foi possível deletar a marca com o Id: {i.InputIdentityDeleteBrand.Id}, existem produtos cadastrados nele")
+             let message = response.AddErrorMessage($"Não foi possível deletar a marca com o Id: {id}, existem produtos cadastrados nele")
              select i).ToList();
 
         var selecteListValidBrand = (from i in listInputIdentityDeleteBrand

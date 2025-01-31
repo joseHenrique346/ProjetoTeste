@@ -4,7 +4,7 @@ namespace ProjetoTeste.Arguments.Arguments.ProductOrder
 {
     public class ProductOrderValidate : BaseValidate
     {
-        public InputCreateProductOrder InputCreateProductOrder { get; private set; }
+        public InputCreateProductOrder? InputCreateProductOrder { get; private set; }
         public long ExistingOrder { get; private set; }
         public ProductDTO ExistingProduct { get; private set; }
 

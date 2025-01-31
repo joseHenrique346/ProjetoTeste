@@ -26,10 +26,18 @@ namespace ProjetoTeste.Infrastructure.Service
         #endregion
 
         #region Get
-        public async Task<List<OutputCustomer>> Get(List<InputIdentityViewCustomer> listInputIdentityViewCustomer)
+
+        public async Task<OutputCustomer?> GetSingle(InputIdentityViewCustomer inputIdentityViewCustomer)
         {
+            return (await _customerRepository.GetById(inputIdentityViewCustomer.Id)).ToOutputCustomer();
+        }
+
+        public async Task<BaseResponse<List<OutputCustomer>>> Get(List<InputIdentityViewCustomer> listInputIdentityViewCustomer)
+        {
+            var response = new BaseResponse<List<OutputCustomer>>();
             var customer = await _customerRepository.GetListByListIdWhere(listInputIdentityViewCustomer.Select(i => i.Id).ToList());
-            return customer.ToListOutputCustomer();
+            response.Content = customer.ToListOutputCustomer();
+            return response;
         }
 
         public async Task<List<OutputCustomer?>> GetAll()
@@ -41,6 +49,19 @@ namespace ProjetoTeste.Infrastructure.Service
         #endregion
 
         #region Create
+        //Cria um por vez
+        public async Task<BaseResponse<OutputCustomer>> CreateSingle(InputCreateCustomer inputCreateCustomer)
+        {
+            var response = new BaseResponse<OutputCustomer>();
+
+            var result = await Create([inputCreateCustomer]);
+
+            response.Success = result.Success;
+            response.Message = result.Message;
+
+            return response;
+        }
+
         public async Task<BaseResponse<List<OutputCustomer>>> Create(List<InputCreateCustomer> listInputCreateCustomer)
         {
             var response = new BaseResponse<List<OutputCustomer>>();
@@ -66,24 +87,40 @@ namespace ProjetoTeste.Infrastructure.Service
         #endregion
 
         #region Update
+        //Cria um por vez
+        public async Task<BaseResponse<OutputCustomer>> UpdateSingle(InputIdentityUpdateCustomer inputIdentityUpdateCustomer)
+        {
+            var response = new BaseResponse<OutputCustomer>();
+
+            var result = await Update([inputIdentityUpdateCustomer]);
+
+            response.Success = result.Success;
+            response.Message = result.Message;
+
+            return response;
+        }
+
         public async Task<BaseResponse<List<OutputCustomer>>> Update(List<InputIdentityUpdateCustomer> listInputIdentityUpdateCustomer)
         {
             var response = new BaseResponse<List<OutputCustomer>>();
-            var listRepeatedCode = (from i in listInputIdentityUpdateCustomer
+            var listRepeatedId = (from i in listInputIdentityUpdateCustomer
                                     where listInputIdentityUpdateCustomer.Count(j => j.Id == i.Id) > 1
                                     select i.Id).ToList();
+
+            var existingCustomer = await _customerRepository.GetListByListIdWhere(listInputIdentityUpdateCustomer.Select(i => i.Id).ToList());
+            var selectedExistingCustomer = existingCustomer.Select(i => i.Id);
 
             var listInputUpdate = (from i in listInputIdentityUpdateCustomer
                                    select new
                                    {
                                        InputUpdate = i,
-                                       RepeatedCode = listRepeatedCode.FirstOrDefault(j => i.Id == j)
+                                       RepeatedId = listRepeatedId.FirstOrDefault(j => i.Id == j),
+                                       ExistingCustomer = selectedExistingCustomer.FirstOrDefault(j => i.Id == j)
                                    }).ToList();
 
-            var listInputValidateUpdate = listInputUpdate.Select(i => new CustomerValidate().UpdateValidate(i.InputUpdate, i.RepeatedCode)).ToList();
+            var listInputValidateUpdate = listInputUpdate.Select(i => new CustomerValidate().UpdateValidate(i.InputUpdate, i.RepeatedId, i.ExistingCustomer)).ToList();
 
             var result = await _customerValidateService.ValidateUpdateCustomer(listInputValidateUpdate);
-            var currentCustomer = await _customerRepository.GetListByListIdWhere(listInputIdentityUpdateCustomer.Select(i => i.Id).ToList());
 
             response.Success = result.Success;
             response.Message = result.Message;
@@ -92,7 +129,7 @@ namespace ProjetoTeste.Infrastructure.Service
                 return response;
 
             var updatedList = (from i in result.Content
-                               from j in currentCustomer
+                               from j in existingCustomer
                                let name = j.Name = i.InputIdentityUpdateCustomer.InputUpdateCustomer.Name
                                let cpf = j.CPF = i.InputIdentityUpdateCustomer.InputUpdateCustomer.CPF
                                let email = j.Email = i.InputIdentityUpdateCustomer.InputUpdateCustomer.Email
@@ -108,21 +145,32 @@ namespace ProjetoTeste.Infrastructure.Service
         #endregion
 
         #region Delete
+        //Cria um por vez
+        public async Task<BaseResponse<bool>> DeleteSingle(InputIdentityDeleteCustomer inputIdentityDeleteCustomer)
+        {
+            return await Delete([inputIdentityDeleteCustomer]);
+        }
 
         public async Task<BaseResponse<bool>> Delete(List<InputIdentityDeleteCustomer> listInputIdentityDeleteCustomers)
         {
             var response = new BaseResponse<bool>();
+
             var existingCustomer = await _customerRepository.GetListByListIdWhere(listInputIdentityDeleteCustomers.Select(i => i.Id).ToList());
             var selectedExistingCustomer = existingCustomer.Select(i => i.Id);
+
+            var listRepeatedId = (from i in listInputIdentityDeleteCustomers
+                                  where listInputIdentityDeleteCustomers.Count(j => i.Id == j.Id) > 1
+                                  select i).ToList();
 
             var listInputDelete = (from i in listInputIdentityDeleteCustomers
                                    select new
                                    {
                                        InputDelete = i,
-                                       ExistingCustomer = selectedExistingCustomer.FirstOrDefault(j => i.Id == j)
+                                       ExistingCustomer = selectedExistingCustomer.FirstOrDefault(j => i.Id == j),
+                                       RepeatedId = listRepeatedId.FirstOrDefault(j => i.Id == j.Id).Id
                                    }).ToList();
 
-            var listInputValidateDelete = (listInputDelete.Select(i => new CustomerValidate().DeleteValidate(i.InputDelete, i.ExistingCustomer))).ToList();
+            var listInputValidateDelete = listInputDelete.Select(i => new CustomerValidate().DeleteValidate(i.InputDelete, i.ExistingCustomer, i.RepeatedId)).ToList();
 
             var result = await _customerValidateService.ValidateDeleteCustomer(listInputValidateDelete);
 

@@ -21,23 +21,40 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Get
 
+        [HttpPost("GetBySingleId")]
+        public async Task<ActionResult<OutputProduct>> GetId(InputIdentityViewProduct inputIdentityViewProduct)
+        {
+            return Ok(await _productService.GetSingle(inputIdentityViewProduct));
+        }
+
         [HttpGet]
         public async Task<ActionResult<List<OutputProduct>>> GetAll()
         {
-            var result = await _productService.GetAll();
-            return Ok(result.ToListOutputProduct());
+            return Ok((await _productService.GetAll()).ToListOutputProduct());
         }
 
         [HttpPost("GetByListId")]
         public async Task<ActionResult<OutputProduct>> GetId(List<InputIdentityViewProduct> listInputIdentityViewProduct)
         {
-            var result = await _productService.Get(listInputIdentityViewProduct);
-            return Ok(result);
+            return Ok(await _productService.Get(listInputIdentityViewProduct));
         }
 
         #endregion
 
         #region Post
+
+        [HttpPost("Single")]
+        public async Task<ActionResult<OutputProduct>> CreateSingle(InputCreateProduct inputCreateProduct)
+        {
+            var result = await _productService.CreateSingle(inputCreateProduct);
+
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+
+            return Ok(result.Message);
+        }
 
         [HttpPost("Multiple")]
         public async Task<ActionResult<OutputProduct>> Create(List<InputCreateProduct> listInputCreateProduct)
@@ -49,11 +66,6 @@ namespace ProjetoTeste.Api.Controllers
                 return BadRequest(result.Message);
             }
 
-            if (result is null)
-            {
-                return NotFound(result.Message);
-            }
-
             return Ok(result.Message);
         }
 
@@ -61,22 +73,46 @@ namespace ProjetoTeste.Api.Controllers
 
         #region Put
 
+        [HttpPut("Single")]
+        public async Task<ActionResult<BaseResponse<OutputProduct>>> UpdateSingle(InputIdentityUpdateProduct inputIdentityUpdateProduct)
+        {
+            var result = await _productService.UpdateSingle(inputIdentityUpdateProduct);
+
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
         [HttpPut("Multiple")]
-        public async Task<ActionResult<OutputProduct>> Update(List<InputIdentityUpdateProduct> listIdentityUpdateProduct)
+        public async Task<ActionResult<BaseResponse<List<OutputProduct>>>> Update(List<InputIdentityUpdateProduct> listIdentityUpdateProduct)
         {
             var result = await _productService.Update(listIdentityUpdateProduct);
 
             if (!result.Success)
             {
-                return BadRequest(result.Message);
+                return BadRequest(result);
             }
 
-            return Ok(result.Message);
+            return Ok(result);
         }
 
         #endregion
 
         #region Delete
+
+        [HttpDelete("Single")]
+        public async Task<ActionResult<BaseResponse<string>>> DeleteSingle(InputIdentityDeleteProduct inputIdentityDeleteProduct)
+        {
+            var result = await _productService.DeleteSingle(inputIdentityDeleteProduct);
+
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
 
         [HttpDelete("Multiple")]
         public async Task<ActionResult<BaseResponse<string>>> Delete(List<InputIdentityDeleteProduct> listInputIdentityDeleteProduct)

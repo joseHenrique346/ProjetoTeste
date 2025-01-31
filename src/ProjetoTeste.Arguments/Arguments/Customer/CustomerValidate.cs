@@ -6,9 +6,9 @@ namespace ProjetoTeste.Arguments.Arguments.Customer
     {
         public InputCreateCustomer InputCreateCustomer { get; set; }
         public InputIdentityUpdateCustomer InputIdentityUpdateCustomer { get; set; }
-        public long RepeatedCode { get; private set; }
-        public InputIdentityDeleteCustomer InputIdentityDeleteCustomer { get; set; }
+        public long RepeatedId { get; private set; }
         public long ExistingCustomer { get; private set; }
+        public InputIdentityDeleteCustomer InputIdentityDeleteCustomer { get; set; }
 
         public CustomerValidate CreateValidate(InputCreateCustomer inputCreateCustomer)
         {
@@ -16,17 +16,18 @@ namespace ProjetoTeste.Arguments.Arguments.Customer
             return this;
         }
 
-        public CustomerValidate UpdateValidate(InputIdentityUpdateCustomer inputIdentityUpdateCustomer, long repeatedCode)
+        public CustomerValidate UpdateValidate(InputIdentityUpdateCustomer inputIdentityUpdateCustomer, long repeatedCode, long existingCustomer)
         {
             InputIdentityUpdateCustomer = inputIdentityUpdateCustomer;
-            RepeatedCode = repeatedCode;
+            RepeatedId = repeatedCode;
             return this;
         }
 
-        public CustomerValidate DeleteValidate(InputIdentityDeleteCustomer inputIdentityDeleteCustomer, long existingCustomer)
+        public CustomerValidate DeleteValidate(InputIdentityDeleteCustomer inputIdentityDeleteCustomer, long existingCustomer, long repeatedId)
         {
             InputIdentityDeleteCustomer = inputIdentityDeleteCustomer;
             ExistingCustomer = existingCustomer;
+            RepeatedId = repeatedId;
             return this;
         }
     }
