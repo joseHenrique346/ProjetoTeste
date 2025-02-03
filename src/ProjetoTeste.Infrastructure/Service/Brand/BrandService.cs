@@ -80,7 +80,6 @@ public class BrandService : IBrandService
                               InputCreate = i,
                               RepeatedCode = listRepeatedCode.FirstOrDefault(j => i.Code == j),
                               ExistingCode = listExistingCode.FirstOrDefault(j => i.Code == j)
-
                           }).ToList();
 
         List<BrandValidate> listBrandValidate = listCreate.Select(i => new BrandValidate().CreateValidate(i.InputCreate, i.RepeatedCode, i.ExistingCode)).ToList();

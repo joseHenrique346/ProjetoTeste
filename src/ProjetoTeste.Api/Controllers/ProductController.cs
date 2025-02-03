@@ -49,9 +49,7 @@ namespace ProjetoTeste.Api.Controllers
             var result = await _productService.CreateSingle(inputCreateProduct);
 
             if (!result.Success)
-            {
                 return BadRequest(result.Message);
-            }
 
             return Ok(result.Message);
         }
@@ -62,9 +60,7 @@ namespace ProjetoTeste.Api.Controllers
             var result = await _productService.Create(listInputCreateProduct);
 
             if (!result.Success)
-            {
                 return BadRequest(result.Message);
-            }
 
             return Ok(result.Message);
         }
@@ -79,9 +75,7 @@ namespace ProjetoTeste.Api.Controllers
             var result = await _productService.UpdateSingle(inputIdentityUpdateProduct);
 
             if (!result.Success)
-            {
                 return BadRequest(result);
-            }
 
             return Ok(result);
         }
@@ -92,9 +86,7 @@ namespace ProjetoTeste.Api.Controllers
             var result = await _productService.Update(listIdentityUpdateProduct);
 
             if (!result.Success)
-            {
                 return BadRequest(result);
-            }
 
             return Ok(result);
         }

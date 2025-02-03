@@ -48,9 +48,7 @@ namespace ProjetoTeste.Api.Controllers
             var result = await _brandService.CreateSingle(inputCreateBrand);
 
             if (!result.Success)
-            {
                 return BadRequest(result);
-            }
 
             var newBrand = result;
             return Ok(newBrand);
@@ -62,9 +60,7 @@ namespace ProjetoTeste.Api.Controllers
             var result = await _brandService.Create(listInputCreateBrand);
 
             if (!result.Success)
-            {
                 return BadRequest(result);
-            }
 
             var newBrand = result;
             return Ok(newBrand);
@@ -80,9 +76,7 @@ namespace ProjetoTeste.Api.Controllers
             var result = await _brandService.UpdateSingle(inputIdentityUpdateBrand);
 
             if (!result.Success)
-            {
                 return BadRequest(result);
-            }
 
             return Ok(result);
         }
@@ -93,9 +87,7 @@ namespace ProjetoTeste.Api.Controllers
             var result = await _brandService.Update(listInputIdentityUpdateBrand);
 
             if (!result.Success)
-            {
                 return BadRequest(result);
-            }
 
             return Ok(result);
         }
@@ -110,9 +102,7 @@ namespace ProjetoTeste.Api.Controllers
             var result = await _brandService.DeleteSingle(inputIdentityDeleteBrand);
 
             if (!result.Success)
-            {
                 return BadRequest(result);
-            }
 
             return Ok(result);
         }
@@ -123,9 +113,7 @@ namespace ProjetoTeste.Api.Controllers
             var result = await _brandService.Delete(listInputIdentityDeleteBrand);
 
             if (!result.Success)
-            {
                 return BadRequest(result);
-            }
 
             return Ok(result);
         }
