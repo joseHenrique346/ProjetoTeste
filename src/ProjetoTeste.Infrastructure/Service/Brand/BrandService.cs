@@ -1,70 +1,46 @@
-﻿using ProjetoTeste.Arguments.Arguments;
+﻿using AutoMapper;
+using ProjetoTeste.Arguments.Arguments;
 using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
-using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
+using ProjetoTeste.Infrastructure.Service.Base;
 
 namespace ProjetoTeste.Infrastructure.Service;
 
-public class BrandService : IBrandService
+public class BrandService : BaseService<IBrandRepository, Brand, InputIdentityViewBrand, InputCreateBrand, InputIdentityUpdateBrand, InputIdentityDeleteBrand, OutputBrand, BrandDTO>, IBrandService
 {
     #region Dependency Injection
 
     private readonly IProductRepository _productRepository;
     private readonly IBrandRepository _brandRepository;
     private readonly IBrandValidateService _brandValidateService;
-    private readonly IUnitOfWork _unitOfWork;
-    public BrandService(IBrandRepository brandRepository, IProductRepository productRepository, IUnitOfWork unitOfWork, IBrandValidateService brandValidateService)
+    private readonly IMapper _mapper;
+    public BrandService(IMapper mapper, IBrandRepository brandRepository, IProductRepository productRepository, IBrandValidateService brandValidateService) : base(brandRepository, mapper)
     {
         _brandRepository = brandRepository;
         _productRepository = productRepository;
-        _unitOfWork = unitOfWork;
         _brandValidateService = brandValidateService;
+        _mapper = mapper;
     }
 
     #endregion
 
     #region Get
 
-    public async Task<OutputBrand> GetSingle(InputIdentityViewBrand inputIdentityViewBrand)
+    public async Task<List<OutputBrandWithProducts>> GetAllWithProducts()
     {
-        return (await _brandRepository.GetById(inputIdentityViewBrand.Id)).ToOutputBrand();
-    }
-
-    public async Task<List<OutputBrand?>> Get(List<InputIdentityViewBrand> listInputIdentityViewBrand)
-    {
-        var listBrand = await _brandRepository.GetListByListIdWhere(listInputIdentityViewBrand.Select(i => i.Id).ToList());
-        return listBrand.ToListOutputBrand();
-    }
-
-    public async Task<List<OutputBrandWithProducts>> GetAll()
-    {
-        return (await _brandRepository.GetWithIncludesAll()).ToOutputBrandWithProducts();
+        var getAllWithProducts = await _brandRepository.GetWithIncludesAll();
+        return _mapper.Map<List<OutputBrandWithProducts>>(getAllWithProducts);
     }
 
     #endregion
 
     #region Create
-    //Cria um por vez
-    public async Task<BaseResponse<OutputBrand>> CreateSingle(InputCreateBrand inputCreateBrand)
-    {
-        var response = new BaseResponse<OutputBrand>();
-        var result = await Create([inputCreateBrand]);
 
-        response.Success = result.Success;
-        response.Message = result.Message;
-
-        if (!response.Success)
-            return response;
-
-        response.Content = result.Content.FirstOrDefault();
-        return response;
-    }
-
-    public async Task<BaseResponse<List<OutputBrand>>> Create(List<InputCreateBrand> listInputCreateBrand)
+    public override async Task<BaseResponse<List<OutputBrand>>> Create(List<InputCreateBrand> listInputCreateBrand)
     {
         var response = new BaseResponse<List<OutputBrand>>();
 
@@ -95,30 +71,15 @@ public class BrandService : IBrandService
                             select new Brand(i.InputCreateBrand.Name, i.InputCreateBrand.Code, i.InputCreateBrand.Description)).ToList();
 
         var brand = await _brandRepository.CreateAsync(listNewBrand);
-        response.Content = brand.ToListOutputBrand();
+        response.Content = _mapper.Map<List<OutputBrand>>(brand);
         return response;
     }
 
     #endregion
 
     #region Update
-    //Cria um por vez
-    public async Task<BaseResponse<OutputBrand>> UpdateSingle(InputIdentityUpdateBrand inputIdentityUpdateBrand)
-    {
-        var response = new BaseResponse<OutputBrand>();
-        var result = await Update([inputIdentityUpdateBrand]);
 
-        response.Success = result.Success;
-        response.Message = result.Message;
-
-        if (!response.Success)
-            return response;
-
-        response.Content = result.Content.FirstOrDefault();
-        return response;
-    }
-
-    public async Task<BaseResponse<List<OutputBrand>>> Update(List<InputIdentityUpdateBrand> listInputIdentityUpdateBrand)
+    public override async Task<BaseResponse<List<OutputBrand>>> Update(List<InputIdentityUpdateBrand> listInputIdentityUpdateBrand)
     {
         var response = new BaseResponse<List<OutputBrand>>();
 
@@ -164,20 +125,15 @@ public class BrandService : IBrandService
                             select j).ToList();
 
         await _brandRepository.Update(updatedBrand);
-        response.Content = updatedBrand.ToListOutputBrand();
+        response.Content = _mapper.Map<List<OutputBrand>>(updatedBrand);
         return response;
     }
 
     #endregion
 
     #region Delete
-    //Cria um por vez
-    public async Task<BaseResponse<bool>> DeleteSingle(InputIdentityDeleteBrand inputIdentityDeleteBrand)
-    {
-        return await Delete([inputIdentityDeleteBrand]);
-    }
 
-    public async Task<BaseResponse<bool>> Delete(List<InputIdentityDeleteBrand> listInputIdentityDeleteBrand)
+    public override async Task<BaseResponse<bool>> Delete(List<InputIdentityDeleteBrand> listInputIdentityDeleteBrand)
     {
         var response = new BaseResponse<bool>();
 
@@ -185,8 +141,9 @@ public class BrandService : IBrandService
         var selectIdFromExistingBrand = existingBrand.Select(i => i.Id).ToList();
 
         var listRepeatedId = (from i in listInputIdentityDeleteBrand
-                                where listInputIdentityDeleteBrand.Count(j => i.Id == j.Id) > 1
-                                select i).ToList();
+                              where listInputIdentityDeleteBrand.Count(j => i.Id == j.Id) > 1
+                              select i).ToList();
+        var selectedRepeatedId = listRepeatedId.Select(i => i.Id).ToList();
 
         var existingProductInBrand = _productRepository.GetExistingProductInBrand(listInputIdentityDeleteBrand.Select(i => i.Id).ToList());
 
@@ -196,7 +153,7 @@ public class BrandService : IBrandService
                               InputDelete = i,
                               ExistingBrand = selectIdFromExistingBrand.FirstOrDefault(j => i.Id == j),
                               ExistingProductInBrand = existingProductInBrand.FirstOrDefault(j => i.Id == j),
-                              RepeatedId = listRepeatedId.FirstOrDefault(j => j.Id == i.Id).Id
+                              RepeatedId = selectedRepeatedId.FirstOrDefault(j => i.Id == j)
                           }).ToList();
 
         List<BrandValidate> listDeleteValidate = listDelete.Select(i => new BrandValidate().DeleteValidate(i.InputDelete, i.ExistingBrand, i.ExistingProductInBrand, i.RepeatedId)).ToList();
@@ -219,5 +176,6 @@ public class BrandService : IBrandService
 
         return response;
     }
+
+    #endregion
 }
-#endregion

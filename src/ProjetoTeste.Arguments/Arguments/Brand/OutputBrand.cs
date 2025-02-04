@@ -1,7 +1,9 @@
-﻿namespace ProjetoTeste.Arguments.Arguments.Brand
+﻿using ProjetoTeste.Arguments.Arguments.Base.Outputs;
+
+namespace ProjetoTeste.Arguments.Arguments.Brand
 {
     [method: JsonConstructor]
-    public class OutputBrand
+    public class OutputBrand : BaseOutput<OutputBrand>
     {
         public long Id { get; }
         public string Name { get; }

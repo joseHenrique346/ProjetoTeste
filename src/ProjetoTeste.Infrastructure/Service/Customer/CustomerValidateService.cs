@@ -164,7 +164,7 @@ public class CustomerValidateService : ICustomerValidateService
         var response = new BaseResponse<List<CustomerValidate>>();
 
         _ = (from i in listInputIdentityDeleteCustomer
-             where i.RepeatedId != null 
+             where i.RepeatedId != 0
              let id = i.InputIdentityDeleteCustomer.Id
              let setInvalid = i.SetInvalid()
              let message = response.AddErrorMessage($"Não foi possível deletar o cliente do Id: {id}, id foi digitado mais de uma vez na requisição")
@@ -189,7 +189,7 @@ public class CustomerValidateService : ICustomerValidateService
 
         response.Content = selectedValidList;
         return response;
+
+        #endregion
     }
 }
-
-#endregion

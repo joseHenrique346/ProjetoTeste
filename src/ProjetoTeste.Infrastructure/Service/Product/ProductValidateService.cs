@@ -214,7 +214,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
             _ = (from i in listProductValidate
                  let id = i.InputIdentityDeleteProduct.Id
-                 where i.RepeatedId != null
+                 where i.RepeatedId != 0
                  let setInvalid = i.SetInvalid()
                  let message = response.AddErrorMessage($"Não foi possível deletar o produto do Id: {id}, Id foi digitado mais de uma vez na requisição")
                  select i).ToList();
@@ -247,6 +247,6 @@ namespace ProjetoTeste.Infrastructure.Service
             response.Content = selectedValidDelete;
             return response;
         }
+        #endregion
     }
 }
-#endregion

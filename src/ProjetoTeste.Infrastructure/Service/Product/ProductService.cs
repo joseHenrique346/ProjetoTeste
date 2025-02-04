@@ -1,14 +1,15 @@
-﻿using ProjetoTeste.Arguments.Arguments.Product;
+﻿using AutoMapper;
+using ProjetoTeste.Arguments.Arguments;
+using ProjetoTeste.Arguments.Arguments.Product;
 using ProjetoTeste.Arguments.Arguments.Response;
-using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
-using System.Linq.Expressions;
+using ProjetoTeste.Infrastructure.Service.Base;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
-    public class ProductService : IProductService
+    public class ProductService : BaseService<IProductRepository, Product, InputIdentityViewProduct, InputCreateProduct, InputIdentityUpdateProduct, InputIdentityDeleteProduct, OutputProduct, ProductDTO>, IProductService
     {
 
         #region Dependency Injection
@@ -16,59 +17,20 @@ namespace ProjetoTeste.Infrastructure.Service
         private readonly IProductRepository _productRepository;
         private readonly IBrandRepository _brandRepository;
         private readonly IProductValidateService _productValidateService;
-        public ProductService(IProductRepository productRepository, IBrandRepository brandRepository, IProductValidateService productValidateService)
+        private readonly IMapper _mapper;
+        public ProductService(IProductRepository productRepository, IBrandRepository brandRepository, IProductValidateService productValidateService, IMapper mapper) : base(productRepository, mapper)
         {
             _productRepository = productRepository;
             _brandRepository = brandRepository;
             _productValidateService = productValidateService;
-        }
-
-        #endregion
-
-        #region Get
-        public async Task<OutputProduct?> GetSingle(InputIdentityViewProduct inputIdentityViewProduct)
-        {
-            return (await _productRepository.GetById(inputIdentityViewProduct.Id)).ToOutputProduct();
-        }
-
-        public async Task<BaseResponse<List<OutputProduct?>>> Get(List<InputIdentityViewProduct> listInputIdentityViewProduct)
-        {
-            var listProduct = await _productRepository.GetListByListIdWhere(listInputIdentityViewProduct.Select(i => i.Id).ToList());
-
-            return new BaseResponse<List<OutputProduct?>>
-            {
-                Success = true,
-                Content = listProduct.ToListOutputProduct()
-            }; ;
-        }
-
-        public async Task<List<Product>> GetAll()
-        {
-            return await _productRepository.GetAllAsync();
-        }
-
-        public async Task<Product> GetWithIncludesAsync(long id, params Expression<Func<Product, object>>[] includes)
-        {
-            return await _productRepository.GetWithIncludesAsync(id, includes);
+            _mapper = mapper;
         }
 
         #endregion
 
         #region Create
 
-        public async Task<BaseResponse<OutputProduct>> CreateSingle(InputCreateProduct inputCreateProduct)
-        {
-            var response = new BaseResponse<OutputProduct>();
-
-            var result = await Create([inputCreateProduct]);
-
-            response.Success = result.Success;
-            response.Message = result.Message;
-
-            return response;
-        }
-
-        public async Task<BaseResponse<List<OutputProduct>>> Create(List<InputCreateProduct> listInputCreateProduct)
+        public override async Task<BaseResponse<List<OutputProduct>>> Create(List<InputCreateProduct> listInputCreateProduct)
         {
             var response = new BaseResponse<List<OutputProduct?>>();
 
@@ -105,9 +67,9 @@ namespace ProjetoTeste.Infrastructure.Service
                                   select new Product(i.InputCreateProduct.Name, i.InputCreateProduct.Code, i.InputCreateProduct.Description, i.InputCreateProduct.BrandId, i.InputCreateProduct.Price, i.InputCreateProduct.Stock)
                                   ).ToList();
 
-            var product = await _productRepository.CreateAsync(listNewProduct);
+            var listProduct = await _productRepository.CreateAsync(listNewProduct);
 
-            response.Content = product.ToListOutputProduct();
+            response.Content = _mapper.Map<List<Product>, List<OutputProduct>>(listProduct);
             return response;
         }
 
@@ -115,19 +77,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
         #region Update
 
-        public async Task<BaseResponse<OutputProduct>> UpdateSingle(InputIdentityUpdateProduct inputIdentityUpdateProduct)
-        {
-            var response = new BaseResponse<OutputProduct>();
-
-            var result = await Update([inputIdentityUpdateProduct]);
-
-            response.Success = result.Success;
-            response.Message = result.Message;
-
-            return response;
-        }
-
-        public async Task<BaseResponse<List<OutputProduct>>> Update(List<InputIdentityUpdateProduct> listInputIdentityUpdateProduct)
+        public override async Task<BaseResponse<List<OutputProduct>>> Update(List<InputIdentityUpdateProduct> listInputIdentityUpdateProduct)
         {
             var response = new BaseResponse<List<OutputProduct>>();
 
@@ -144,11 +94,11 @@ namespace ProjetoTeste.Infrastructure.Service
                               {
                                   InputUpdate = i,
                                   CurrentProduct = selectCurrentProduct.FirstOrDefault(j => i.Id == j),
-                                  ExistingCodeProduct = existingCodeProduct.FirstOrDefault(j => j.Id != i.Id).ToProductDto(),
+                                  ExistingCodeProduct = existingCodeProduct.FirstOrDefault(j => j.Id != i.Id),
                                   ExistingBrand = selectedExistingBrand.FirstOrDefault(j => i.InputUpdateProduct.BrandId == j)
                               }).ToList();
 
-            var listValidateUpdate = listUpdate.Select(i => new ProductValidate().UpdateValidate(i.InputUpdate, i.ExistingCodeProduct, i.CurrentProduct, i.ExistingBrand)).ToList();
+            var listValidateUpdate = listUpdate.Select(i => new ProductValidate().UpdateValidate(i.InputUpdate, _mapper.Map<ProductDTO>(i.ExistingCodeProduct), i.CurrentProduct, i.ExistingBrand)).ToList();
 
             var result = await _productValidateService.ValidateUpdateProduct(listValidateUpdate);
 
@@ -172,7 +122,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
             await _productRepository.Update(updatedList);
 
-            response.Content = updatedList.ToListOutputProduct();
+            response.Content = _mapper.Map<List<OutputProduct>>(updatedList);
             return response;
         }
 
@@ -180,12 +130,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
         #region Delete
 
-        public async Task<BaseResponse<bool>> DeleteSingle(InputIdentityDeleteProduct inputIdentityDeleteProduct)
-        {
-            return await Delete([inputIdentityDeleteProduct]);
-        }
-
-        public async Task<BaseResponse<bool>> Delete(List<InputIdentityDeleteProduct> listInputIdentityDeleteProduct)
+        public override async Task<BaseResponse<bool>> Delete(List<InputIdentityDeleteProduct> listInputIdentityDeleteProduct)
         {
             var response = new BaseResponse<bool>();
 
@@ -194,16 +139,17 @@ namespace ProjetoTeste.Infrastructure.Service
             var listRepeatedId = (from i in listInputIdentityDeleteProduct
                                   where listInputIdentityDeleteProduct.Count(j => i.Id == j.Id) > 1
                                   select i).ToList();
+            var selectedRepeatedId = listRepeatedId.Select(i => i.Id).ToList();
 
             var listInputDelete = (from i in listInputIdentityDeleteProduct
                                    select new
                                    {
                                        InputDelete = i,
-                                       Product = listProduct.FirstOrDefault(j => i.Id == j.Id).ToProductDto(),
-                                       RepeatedId = listRepeatedId.FirstOrDefault(j => i.Id == j.Id).Id
+                                       Product = listProduct.FirstOrDefault(j => i.Id == j.Id),
+                                       RepeatedId = selectedRepeatedId.FirstOrDefault(j => i.Id == j)
                                    }).ToList();
 
-            var listInputValidateDelete = listInputDelete.Select(i => new ProductValidate().DeleteValidate(i.InputDelete, i.Product, i.RepeatedId)).ToList();
+            var listInputValidateDelete = listInputDelete.Select(i => new ProductValidate().DeleteValidate(i.InputDelete, _mapper.Map<ProductDTO>(i.Product), i.RepeatedId)).ToList();
 
             var result = await _productValidateService.ValidateDeleteProduct(listInputValidateDelete);
             response.Success = result.Success;
@@ -220,7 +166,7 @@ namespace ProjetoTeste.Infrastructure.Service
             response.Content = true;
             return response;
         }
+
+        #endregion
     }
 }
-
-#endregion

@@ -1,9 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using ProjetoTeste.Arguments.Arguments.Base.Outputs;
+using System.Text.Json.Serialization;
 
 namespace ProjetoTeste.Arguments.Arguments.ProductOrder
 {
     [method: JsonConstructor]
-    public class OutputProductOrder(long id, long orderId, long productId, int quantity, decimal unitPrice, decimal subtotal)
+    public class OutputProductOrder(long id, long orderId, long productId, int quantity, decimal unitPrice, decimal subtotal) : BaseOutput<OutputProductOrder>
     {
         public long Id { get; set; } = id;
         public long OrderId { get; } = orderId;

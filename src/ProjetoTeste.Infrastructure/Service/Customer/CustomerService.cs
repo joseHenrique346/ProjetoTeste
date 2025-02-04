@@ -1,68 +1,34 @@
-﻿using ProjetoTeste.Arguments.Arguments.Customer;
+﻿using AutoMapper;
+using ProjetoTeste.Arguments.Arguments;
+using ProjetoTeste.Arguments.Arguments.Customer;
 using ProjetoTeste.Arguments.Arguments.Response;
-using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
-using ProjetoTeste.Infrastructure.Persistence.Context;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
+using ProjetoTeste.Infrastructure.Service.Base;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
-    public class CustomerService : ICustomerService
+    public class CustomerService : BaseService<ICustomerRepository, Customer, InputIdentityViewCustomer, InputCreateCustomer, InputIdentityUpdateCustomer, InputIdentityDeleteCustomer, OutputCustomer, CustomerDTO>, ICustomerService
     {
         #region Dependency Injection
 
         private readonly ICustomerRepository _customerRepository;
         private readonly ICustomerValidateService _customerValidateService;
-        private readonly AppDbContext _context;
+        private readonly IMapper _mapper;
 
-        public CustomerService(ICustomerRepository customerRepository, AppDbContext context, ICustomerValidateService customerValidateService)
+        public CustomerService(ICustomerRepository customerRepository, ICustomerValidateService customerValidateService, IMapper mapper) : base(customerRepository, mapper)
         {
             _customerRepository = customerRepository;
-            _context = context;
             _customerValidateService = customerValidateService;
-        }
-
-        #endregion
-
-        #region Get
-
-        public async Task<OutputCustomer?> GetSingle(InputIdentityViewCustomer inputIdentityViewCustomer)
-        {
-            return (await _customerRepository.GetById(inputIdentityViewCustomer.Id)).ToOutputCustomer();
-        }
-
-        public async Task<BaseResponse<List<OutputCustomer>>> Get(List<InputIdentityViewCustomer> listInputIdentityViewCustomer)
-        {
-            var response = new BaseResponse<List<OutputCustomer>>();
-            var customer = await _customerRepository.GetListByListIdWhere(listInputIdentityViewCustomer.Select(i => i.Id).ToList());
-            response.Content = customer.ToListOutputCustomer();
-            return response;
-        }
-
-        public async Task<List<OutputCustomer?>> GetAll()
-        {
-            var allCustomers = await _customerRepository.GetAllAsync();
-            return allCustomers.ToListOutputCustomer();
+            _mapper = mapper;
         }
 
         #endregion
 
         #region Create
-        //Cria um por vez
-        public async Task<BaseResponse<OutputCustomer>> CreateSingle(InputCreateCustomer inputCreateCustomer)
-        {
-            var response = new BaseResponse<OutputCustomer>();
 
-            var result = await Create([inputCreateCustomer]);
-
-            response.Success = result.Success;
-            response.Message = result.Message;
-
-            return response;
-        }
-
-        public async Task<BaseResponse<List<OutputCustomer>>> Create(List<InputCreateCustomer> listInputCreateCustomer)
+        public override async Task<BaseResponse<List<OutputCustomer>>> Create(List<InputCreateCustomer> listInputCreateCustomer)
         {
             var response = new BaseResponse<List<OutputCustomer>>();
 
@@ -80,32 +46,20 @@ namespace ProjetoTeste.Infrastructure.Service
 
             await _customerRepository.CreateAsync(listCustomer);
 
-            response.Content = listCustomer.ToListOutputCustomer();
+            response.Content = _mapper.Map<List<OutputCustomer>>(listCustomer);
 
             return response;
         }
         #endregion
 
         #region Update
-        //Cria um por vez
-        public async Task<BaseResponse<OutputCustomer>> UpdateSingle(InputIdentityUpdateCustomer inputIdentityUpdateCustomer)
-        {
-            var response = new BaseResponse<OutputCustomer>();
 
-            var result = await Update([inputIdentityUpdateCustomer]);
-
-            response.Success = result.Success;
-            response.Message = result.Message;
-
-            return response;
-        }
-
-        public async Task<BaseResponse<List<OutputCustomer>>> Update(List<InputIdentityUpdateCustomer> listInputIdentityUpdateCustomer)
+        public override async Task<BaseResponse<List<OutputCustomer>>> Update(List<InputIdentityUpdateCustomer> listInputIdentityUpdateCustomer)
         {
             var response = new BaseResponse<List<OutputCustomer>>();
             var listRepeatedId = (from i in listInputIdentityUpdateCustomer
-                                    where listInputIdentityUpdateCustomer.Count(j => j.Id == i.Id) > 1
-                                    select i.Id).ToList();
+                                  where listInputIdentityUpdateCustomer.Count(j => j.Id == i.Id) > 1
+                                  select i.Id).ToList();
 
             var existingCustomer = await _customerRepository.GetListByListIdWhere(listInputIdentityUpdateCustomer.Select(i => i.Id).ToList());
             var selectedExistingCustomer = existingCustomer.Select(i => i.Id);
@@ -138,20 +92,15 @@ namespace ProjetoTeste.Infrastructure.Service
 
             await _customerRepository.Update(updatedList);
 
-            response.Content = updatedList.ToListOutputCustomer();
+            response.Content = _mapper.Map<List<OutputCustomer>>(updatedList);
             return response;
         }
 
         #endregion
 
         #region Delete
-        //Cria um por vez
-        public async Task<BaseResponse<bool>> DeleteSingle(InputIdentityDeleteCustomer inputIdentityDeleteCustomer)
-        {
-            return await Delete([inputIdentityDeleteCustomer]);
-        }
 
-        public async Task<BaseResponse<bool>> Delete(List<InputIdentityDeleteCustomer> listInputIdentityDeleteCustomers)
+        public override async Task<BaseResponse<bool>> Delete(List<InputIdentityDeleteCustomer> listInputIdentityDeleteCustomers)
         {
             var response = new BaseResponse<bool>();
 
@@ -161,13 +110,14 @@ namespace ProjetoTeste.Infrastructure.Service
             var listRepeatedId = (from i in listInputIdentityDeleteCustomers
                                   where listInputIdentityDeleteCustomers.Count(j => i.Id == j.Id) > 1
                                   select i).ToList();
+            var selectedRepeatedId = listRepeatedId.Select(i => i.Id).ToList();
 
             var listInputDelete = (from i in listInputIdentityDeleteCustomers
                                    select new
                                    {
                                        InputDelete = i,
                                        ExistingCustomer = selectedExistingCustomer.FirstOrDefault(j => i.Id == j),
-                                       RepeatedId = listRepeatedId.FirstOrDefault(j => i.Id == j.Id).Id
+                                       RepeatedId = selectedRepeatedId.FirstOrDefault(j => i.Id == j)
                                    }).ToList();
 
             var listInputValidateDelete = listInputDelete.Select(i => new CustomerValidate().DeleteValidate(i.InputDelete, i.ExistingCustomer, i.RepeatedId)).ToList();
@@ -192,7 +142,7 @@ namespace ProjetoTeste.Infrastructure.Service
 
             return response;
         }
+
+        #endregion
     }
 }
-
-#endregion

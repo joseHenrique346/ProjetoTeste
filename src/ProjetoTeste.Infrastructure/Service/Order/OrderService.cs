@@ -233,6 +233,7 @@ namespace ProjetoTeste.Infrastructure.Service
                 return response;
 
             var listProductDTOValidate = result.Content.Select(i => i.ExistingProduct).ToList();
+
             existingProduct = (from i in existingProduct
                                where i.Id == listProductDTOValidate.FirstOrDefault(j => j.Id == i.Id)?.Id
                                let updateStock = i.Stock = listProductDTOValidate.FirstOrDefault(j => j.Id == i.Id).Stock
@@ -255,6 +256,7 @@ namespace ProjetoTeste.Infrastructure.Service
             response.Content = createProductOrder.ToListOuputProductOrder();
             return response;
         }
+
+        #endregion
     }
 }
-#endregion

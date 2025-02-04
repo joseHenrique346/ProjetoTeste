@@ -26,7 +26,13 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(await _brandService.GetSingle(inputIdentityViewBrand));
         }
 
-        [HttpGet]
+        [HttpGet("GetAllWithProducts")]
+        public async Task<ActionResult<List<OutputBrand>>> GetAllWithProducts()
+        {
+            return Ok(await _brandService.GetAllWithProducts());
+        }
+
+        [HttpGet("GetAll")]
         public async Task<ActionResult<List<OutputBrand>>> GetAll()
         {
             return Ok(await _brandService.GetAll());

@@ -1,4 +1,4 @@
-﻿using ProjetoTeste.Arguments.Arguments.Base;
+﻿using ProjetoTeste.Arguments.Arguments.Base.Notification;
 
 namespace ProjetoTeste.Arguments.Arguments.Response
 {

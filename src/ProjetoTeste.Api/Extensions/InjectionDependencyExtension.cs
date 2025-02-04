@@ -4,6 +4,7 @@
     using ProjetoTeste.Infrastructure.Interface.Repository;
     using ProjetoTeste.Infrastructure.Interface.Service;
     using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
+    using ProjetoTeste.Infrastructure.Mapper;
     using ProjetoTeste.Infrastructure.Persistence;
     using ProjetoTeste.Infrastructure.Persistence.Repositories;
     using ProjetoTeste.Infrastructure.Service;
@@ -26,6 +27,8 @@
             services.AddScoped<IBrandValidateService, BrandValidateService>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<ICustomerValidateService, CustomerValidateService>();
+
+            services.AddAutoMapper(typeof(MappingProfile));
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 

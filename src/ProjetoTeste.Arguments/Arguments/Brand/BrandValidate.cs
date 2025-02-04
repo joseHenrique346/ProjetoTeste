@@ -14,7 +14,7 @@ namespace ProjetoTeste.Arguments.Arguments.Brand
         public long? RepeatedId { get; private set; }
 
         public InputIdentityDeleteBrand InputIdentityDeleteBrand { get; private set; }
-        public long ExistingBrand { get; private set; }
+        public long? ExistingBrand { get; private set; }
         public long? ExistingProductInBrand { get; private set; }
 
         public BrandValidate() { }

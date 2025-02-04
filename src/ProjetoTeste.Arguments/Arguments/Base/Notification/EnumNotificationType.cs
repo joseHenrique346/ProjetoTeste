@@ -1,4 +1,4 @@
-﻿namespace ProjetoTeste.Arguments.Arguments.Base
+﻿namespace ProjetoTeste.Arguments.Arguments.Base.Notification
 {
     public enum EnumNotificationType
     {

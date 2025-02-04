@@ -1,9 +1,10 @@
-﻿using System.Text.Json.Serialization;
+﻿using ProjetoTeste.Arguments.Arguments.Base.Outputs;
+using System.Text.Json.Serialization;
 
 namespace ProjetoTeste.Arguments.Arguments.Product
 {
     [method: JsonConstructor]
-    public class OutputProduct(long id, string name, string description, string code, decimal price, long? brandId, long stock)
+    public class OutputProduct(long id, string name, string description, string code, decimal price, long? brandId, long stock) : BaseOutput<OutputProduct>
     {
         public long Id { get; } = id;
         public string Name { get; } = name;

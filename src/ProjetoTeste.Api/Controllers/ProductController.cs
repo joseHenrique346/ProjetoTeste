@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjetoTeste.Arguments.Arguments.Product;
 using ProjetoTeste.Arguments.Arguments.Response;
-using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Interface.UnitOfWork;
 
@@ -30,7 +29,7 @@ namespace ProjetoTeste.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<List<OutputProduct>>> GetAll()
         {
-            return Ok((await _productService.GetAll()).ToListOutputProduct());
+            return Ok(await _productService.GetAll());
         }
 
         [HttpPost("GetByListId")]

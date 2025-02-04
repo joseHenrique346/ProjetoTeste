@@ -1,7 +1,6 @@
 ﻿using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Arguments.Arguments.Response;
 using ProjetoTeste.Infrastructure.Interface.Service;
-using System.Xml.Linq;
 
 namespace ProjetoTeste.Infrastructure.Service;
 
@@ -166,7 +165,7 @@ public class BrandValidateService : IBrandValidateService
         var response = new BaseResponse<List<BrandValidate?>>();
 
         _ = (from i in listInputIdentityDeleteBrand
-             where i.RepeatedId != null
+             where i.RepeatedId != 0
              let id = i.InputIdentityDeleteBrand.Id
              let setInvalid = i.SetInvalid()
              let message = response.AddErrorMessage($"Não foi possível deletar a marca, {id} é digitado mais de uma vez na requisição")
@@ -197,7 +196,7 @@ public class BrandValidateService : IBrandValidateService
 
         response.Content = selecteListValidBrand;
         return response;
+
+        #endregion
     }
 }
-
-#endregion
