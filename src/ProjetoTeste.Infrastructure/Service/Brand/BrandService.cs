@@ -2,7 +2,6 @@
 using ProjetoTeste.Arguments.Arguments;
 using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Arguments.Arguments.Response;
-using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
@@ -102,11 +101,11 @@ public class BrandService : BaseService<IBrandRepository, Brand, InputIdentityVi
                              inputUpdate = i,
                              RepeatedCode = listRepeatedCode.FirstOrDefault(j => i.InputUpdateBrand.Code == j),
                              RepeatedId = listRepeatedId.FirstOrDefault(j => i.Id == j),
-                             ExistingCode = listExistingCode.Select(j => j.ToBrandDto()).FirstOrDefault(k => k.Id != i.Id),
+                             ExistingCode = listExistingCode.FirstOrDefault(k => k.Id != i.Id),
                              CurrentBrand = selectedCurrentBrandById.FirstOrDefault(j => i.Id == j)
                          };
 
-        List<BrandValidate> listBrandValidate = listUpdate.Select(i => new BrandValidate().UpdateValidate(i.inputUpdate, i.RepeatedCode, i.ExistingCode, i.CurrentBrand, i.RepeatedId)).ToList();
+        List<BrandValidate> listBrandValidate = listUpdate.Select(i => new BrandValidate().UpdateValidate(i.inputUpdate, i.RepeatedCode, _mapper.Map<BrandDTO>(i.ExistingCode), i.CurrentBrand, i.RepeatedId)).ToList();
 
         var result = await _brandValidateService.ValidateUpdateBrand(listBrandValidate);
         response.Success = result.Success;

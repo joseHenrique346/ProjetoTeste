@@ -11,8 +11,8 @@ using ProjetoTeste.Infrastructure.Persistence.Context;
 namespace ProjetoTeste.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250117120109_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250205120409_firstMigration")]
+    partial class firstMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -92,12 +92,12 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("data_de_criacao");
-
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("data_de_criacao");
 
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(65,30)");
@@ -115,8 +115,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("BrandId")
-                        .IsRequired()
+                    b.Property<long>("BrandId")
                         .HasColumnType("bigint")
                         .HasColumnName("marca_id");
 

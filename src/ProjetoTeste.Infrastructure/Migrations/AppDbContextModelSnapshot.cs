@@ -89,12 +89,12 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("data_de_criacao");
-
                     b.Property<long>("CustomerId")
                         .HasColumnType("bigint");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("data_de_criacao");
 
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(65,30)");
@@ -112,8 +112,7 @@ namespace ProjetoTeste.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("BrandId")
-                        .IsRequired()
+                    b.Property<long>("BrandId")
                         .HasColumnType("bigint")
                         .HasColumnName("marca_id");
 
