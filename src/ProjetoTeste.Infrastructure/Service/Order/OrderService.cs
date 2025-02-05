@@ -1,15 +1,18 @@
-﻿using ProjetoTeste.Arguments.Arguments.Order;
+﻿using AutoMapper;
+using ProjetoTeste.Arguments.Arguments;
+using ProjetoTeste.Arguments.Arguments.Base.Inputs;
+using ProjetoTeste.Arguments.Arguments.Order;
 using ProjetoTeste.Arguments.Arguments.Order.Reports.Outputs;
 using ProjetoTeste.Arguments.Arguments.ProductOrder;
 using ProjetoTeste.Arguments.Arguments.Response;
-using ProjetoTeste.Infrastructure.Conversor;
 using ProjetoTeste.Infrastructure.Interface.Repository;
 using ProjetoTeste.Infrastructure.Interface.Service;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
+using ProjetoTeste.Infrastructure.Service.Base;
 
 namespace ProjetoTeste.Infrastructure.Service
 {
-    public class OrderService : IOrderService
+    public class OrderService : BaseService<IOrderRepository, Order, InputIdentityViewOrder, InputCreateOrder, BaseInputIdentityUpdate_0, BaseInputIdentityDelete_0, OutputOrder, OrderDTO>, IOrderService
     {
         #region Dependency Injection
 
@@ -19,7 +22,8 @@ namespace ProjetoTeste.Infrastructure.Service
         private readonly IOrderValidateService _orderValidateService;
         private readonly IBrandRepository _brandRepository;
         private readonly ICustomerRepository _customerRepository;
-        public OrderService(IOrderRepository orderRepository, IProductRepository productRepository, IProductOrderRepository productOrderRepository, IOrderValidateService orderValidateService, IBrandRepository brandRepository, ICustomerRepository customerRepository)
+        private readonly IMapper _mapper;
+        public OrderService(IOrderRepository orderRepository, IProductRepository productRepository, IProductOrderRepository productOrderRepository, IOrderValidateService orderValidateService, IBrandRepository brandRepository, ICustomerRepository customerRepository, IMapper mapper) : base(orderRepository, mapper)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
@@ -27,28 +31,30 @@ namespace ProjetoTeste.Infrastructure.Service
             _orderValidateService = orderValidateService;
             _brandRepository = brandRepository;
             _customerRepository = customerRepository;
+            _mapper = mapper;
         }
 
         #endregion
 
         #region Get
-        public async Task<OutputOrder?> GetSingle(InputIdentityViewOrder inputIdentityViewOrder)
+        public override async Task<OutputOrder?> GetSingle(InputIdentityViewOrder inputIdentityViewOrder)
         {
-            return (await _orderRepository.GetWithIncludesId(inputIdentityViewOrder.Id)).ToOutputOrder();
+            return _mapper.Map<OutputOrder>(await _orderRepository.GetWithIncludesId(inputIdentityViewOrder.Id));
         }
 
-        public async Task<List<OutputOrder>> GetAll()
+        public override async Task<List<OutputOrder>> GetAll()
         {
-            var get = await _orderRepository.GetWithIncludesAll();
-            return get.Select(i => i.ToOutputOrder()).ToList();
+            var getAll = await _orderRepository.GetWithIncludesAll();
+            return _mapper.Map<List<OutputOrder>>(getAll);
         }
+
         public async Task<BaseResponse<List<OutputOrder>?>> Get(List<InputIdentityViewOrder> listInputIdentityViewOrder)
         {
             var response = new BaseResponse<List<OutputOrder>>();
 
             var orderId = await _orderRepository.GetWithIncludesList(listInputIdentityViewOrder.Select(i => i.Id).ToList());
 
-            response.Content = orderId.ToListOutputOrder();
+            response.Content = _mapper.Map<List<OutputOrder>>(orderId);
 
             return response;
         }
@@ -146,20 +152,8 @@ namespace ProjetoTeste.Infrastructure.Service
         #endregion
 
         #region Create
-        //Cria um por vez
-        public async Task<BaseResponse<OutputOrder>> CreateSingle(InputCreateOrder inputCreateOrder)
-        {
-            var response = new BaseResponse<OutputOrder>();
 
-            var result = await Create([inputCreateOrder]);
-
-            response.Success = result.Success;
-            response.Message = result.Message;
-
-            return response;
-        }
-
-        public async Task<BaseResponse<List<OutputOrder>>> Create(List<InputCreateOrder> listInputCreateOrder)
+        public override async Task<BaseResponse<List<OutputOrder>>> Create(List<InputCreateOrder> listInputCreateOrder)
         {
             var response = new BaseResponse<List<OutputOrder>>();
 
@@ -187,7 +181,7 @@ namespace ProjetoTeste.Infrastructure.Service
                          select new Order(i.InputCreateOrder.CustomerId, DateTime.Now)).ToList();
 
             await _orderRepository.CreateAsync(order);
-            response.Content = order.ToListOutputOrder();
+            response.Content = _mapper.Map<List<OutputOrder>>(order);
             return response;
         }
 
@@ -201,6 +195,10 @@ namespace ProjetoTeste.Infrastructure.Service
 
             response.Success = result.Success;
             response.Message = result.Message;
+            if (!response.Success)
+                return response;
+
+            response.Content = result.Content.FirstOrDefault();
 
             return response;
         }
@@ -219,10 +217,10 @@ namespace ProjetoTeste.Infrastructure.Service
                                    {
                                        InputCreate = i,
                                        ExistingOrder = selectedExistingOrder.FirstOrDefault(j => i.OrderId == j),
-                                       ExistingProduct = existingProduct.FirstOrDefault(j => i.ProductId == j.Id).ToProductDto()
+                                       ExistingProduct = existingProduct.FirstOrDefault(j => i.ProductId == j.Id)
                                    }).ToList();
 
-            var listValidateCreateProductOrder = listInputCreate.Select(i => new ProductOrderValidate().CreateProductOrder(i.InputCreate, i.ExistingOrder, i.ExistingProduct)).ToList();
+            var listValidateCreateProductOrder = listInputCreate.Select(i => new ProductOrderValidate().CreateProductOrder(i.InputCreate, i.ExistingOrder, _mapper.Map<ProductDTO>(i.ExistingProduct))).ToList();
 
             var result = await _orderValidateService.ValidateCreateProductOrder(listValidateCreateProductOrder);
 
@@ -249,11 +247,18 @@ namespace ProjetoTeste.Infrastructure.Service
                                           SubTotal = i.InputCreateProductOrder.Quantity * i.ExistingProduct.Price
                                       }).ToList();
 
+            var totalOrder = (from i in existingOrder
+                              from j in createProductOrder
+                              where i.Id == j.OrderId
+                              let total = i.Total += j.SubTotal
+                              select i).ToList();
+
             await _productRepository.Update(existingProduct);
+            await _orderRepository.Update(totalOrder);
 
             await _productOrderRepository.CreateAsync(createProductOrder);
 
-            response.Content = createProductOrder.ToListOuputProductOrder();
+            response.Content = _mapper.Map<List<OutputProductOrder>>(createProductOrder);
             return response;
         }
 

@@ -7,11 +7,11 @@
         public Order(long customerId, DateTime createdDate)
         {
             CustomerId = customerId;
-            CreatedDate = createdDate;
+            OrderDate = createdDate;
         }
 
         public long CustomerId { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public DateTime OrderDate { get; set; }
         public decimal Total { get; set; }
 
         public List<ProductOrder> ListProductOrder { get; set; } = new List<ProductOrder> { };

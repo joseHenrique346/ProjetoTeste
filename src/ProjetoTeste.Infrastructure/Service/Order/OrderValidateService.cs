@@ -68,7 +68,7 @@ public class OrderValidateService : IOrderValidateService
 
         foreach (var i in listInputCreateProductOrder.Select((value, index) => new { Value = value, Index = index }))
         {
-            if (!i.Value.Invalid && listProduct.FirstOrDefault(k => k.Id == i.Value.InputCreateProductOrder?.ProductId)?.Stock > i.Value.InputCreateProductOrder?.Quantity)
+            if (!i.Value.Invalid && listProduct.FirstOrDefault(k => k.Id == i.Value.InputCreateProductOrder?.ProductId)?.Stock >= i.Value.InputCreateProductOrder?.Quantity)
                 listProduct.FirstOrDefault(k => k.Id == i.Value.InputCreateProductOrder.ProductId).Stock -= i.Value.InputCreateProductOrder.Quantity;
             else if (!i.Value.Invalid)
             {

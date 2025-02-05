@@ -4,6 +4,7 @@ using ProjetoTeste.Arguments.Arguments.Brand;
 using ProjetoTeste.Arguments.Arguments.Customer;
 using ProjetoTeste.Arguments.Arguments.Order;
 using ProjetoTeste.Arguments.Arguments.Product;
+using ProjetoTeste.Arguments.Arguments.ProductOrder;
 using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Infrastructure.Mapper
@@ -22,9 +23,12 @@ namespace ProjetoTeste.Infrastructure.Mapper
             CreateMap<Customer, OutputCustomer>();
             CreateMap<Customer, CustomerDTO>().ReverseMap();
 
-
             CreateMap<Order, OutputOrder>()
                 .ForMember(i => i.ProductOrders, opt => opt.MapFrom(src => src.ListProductOrder));
+
+            CreateMap<ProductOrder, OutputProductOrder>();
+
+            //CreateMap<Order, OutputOrder>();
         }
     }
 }

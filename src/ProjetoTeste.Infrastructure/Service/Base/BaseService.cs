@@ -39,13 +39,13 @@ namespace ProjetoTeste.Infrastructure.Service.Base
             return _mapper.Map<List<TOutput>>(getAll);
         }
 
-        public async Task<List<TOutput>> Get(List<TInputIdentityView> listInputIdentityView)
+        public virtual async Task<List<TOutput>> Get(List<TInputIdentityView> listInputIdentityView)
         {
             var getListByListId = await _repository.GetListByListIdWhere(listInputIdentityView.Select(i => i.Id).ToList());
             return _mapper.Map<List<TOutput>>(getListByListId);
         }
 
-        public async Task<TOutput> GetSingle(TInputIdentityView inputIdentityView)
+        public virtual async Task<TOutput> GetSingle(TInputIdentityView inputIdentityView)
         {
             var getId = await _repository.GetById(inputIdentityView.Id);
             return _mapper.Map<TOutput>(getId);
@@ -68,6 +68,11 @@ namespace ProjetoTeste.Infrastructure.Service.Base
             response.Success = result.Success;
             response.Message = result.Message;
 
+            if (!response.Success)
+                return response;
+
+            response.Content = result.Content.FirstOrDefault();
+
             return response;
         }
 
@@ -86,6 +91,11 @@ namespace ProjetoTeste.Infrastructure.Service.Base
             var result = await Update([inputIdentityUpdate]);
             response.Success = result.Success;
             response.Message = result.Message;
+
+            if (!response.Success)
+                return response;
+
+            response.Content = result.Content.FirstOrDefault();
 
             return response;
         }

@@ -13,8 +13,8 @@ namespace ProjetoTeste.Infrastructure.Persistence.Mapping
 
             builder.ToTable("pedido");
 
-            builder.Property(x => x.CreatedDate).HasColumnName("data_de_criacao");
-            builder.Property(x => x.CreatedDate).IsRequired();
+            builder.Property(x => x.OrderDate).HasColumnName("data_de_criacao");
+            builder.Property(x => x.OrderDate).IsRequired();
         }
     }
 }

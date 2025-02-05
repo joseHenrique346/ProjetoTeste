@@ -1,18 +1,15 @@
-﻿using ProjetoTeste.Arguments.Arguments.Order;
+﻿using ProjetoTeste.Arguments.Arguments.Base.Inputs;
+using ProjetoTeste.Arguments.Arguments.Order;
 using ProjetoTeste.Arguments.Arguments.Order.Reports.Outputs;
 using ProjetoTeste.Arguments.Arguments.ProductOrder;
 using ProjetoTeste.Arguments.Arguments.Response;
+using ProjetoTeste.Infrastructure.Interface.Base;
 
 namespace ProjetoTeste.Infrastructure.Interface.Service
 {
-    public interface IOrderService
+    public interface IOrderService : IBaseService<InputIdentityViewOrder, InputCreateOrder, BaseInputIdentityUpdate_0, BaseInputIdentityDelete_0, OutputOrder>
     {
-        Task<List<OutputOrder>> GetAll();
-        Task<BaseResponse<List<OutputOrder>>> Get(List<InputIdentityViewOrder> listInputIdentityViewOrder);
-        Task<BaseResponse<List<OutputOrder>>> Create(List<InputCreateOrder> listInputCreateOrder);
         Task<BaseResponse<List<OutputProductOrder>>> CreateProductOrder(List<InputCreateProductOrder> listInputCreateProductOrder);
-        Task<OutputOrder> GetSingle(InputIdentityViewOrder inputIdentityViewOrder);
-        Task<BaseResponse<OutputOrder>> CreateSingle(InputCreateOrder InputCreateOrder);
         Task<BaseResponse<OutputProductOrder>> CreateProductOrderSingle(InputCreateProductOrder inputCreateProductOrder);
         Task<List<OutputMaxSaleValueProduct>> GetMostOrderedProduct();
         Task<OutputMaxSaleValueBrand> GetMostOrderedBrand();

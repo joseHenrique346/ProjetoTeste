@@ -14,7 +14,7 @@ namespace ProjetoTeste.Infrastructure.Conversor
                 order.ListProductOrder == null ? default :
                 (from i in order.ListProductOrder select i.ToOuputProductOrder()).ToList(),
                 order.Total,
-                order.CreatedDate);
+                order.OrderDate);
         }
 
         public static List<OutputOrder>? ToListOutputOrder(this List<Order> orders)
@@ -24,7 +24,7 @@ namespace ProjetoTeste.Infrastructure.Conversor
                 x.CustomerId,
                 x.ListProductOrder.ToListOuputProductOrder(),
                 x.Total,
-                x.CreatedDate
+                x.OrderDate
             )).ToList();
         }
     }

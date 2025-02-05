@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper.Configuration.Annotations;
+using Microsoft.AspNetCore.Mvc;
+using ProjetoTeste.Arguments.Arguments.Base.Inputs;
 using ProjetoTeste.Arguments.Arguments.Order;
 using ProjetoTeste.Arguments.Arguments.ProductOrder;
 using ProjetoTeste.Arguments.Arguments.Response;
@@ -8,69 +10,69 @@ using ProjetoTeste.Infrastructure.Persistence.Entities;
 
 namespace ProjetoTeste.Api.Controllers
 {
-    public class OrderController : BaseController
+    public class OrderController : BaseController<IOrderService, Order, InputIdentityViewOrder, InputCreateOrder, BaseInputIdentityUpdate_0, BaseInputIdentityDelete_0, OutputOrder>
     {
         #region Dependency Injection
 
         private readonly IOrderService _orderService;
 
-        public OrderController(IUnitOfWork unitOfWork, IOrderService orderService) : base(unitOfWork)
+        public OrderController(IUnitOfWork unitOfWork, IOrderService orderService) : base(unitOfWork, orderService)
         {
             _orderService = orderService;
         }
 
         #endregion
 
-        #region Get
+        //#region Get
 
-        [HttpPost("GetBySingleId")]
-        public async Task<ActionResult> GetWithIncludesAsync(InputIdentityViewOrder inputIdentityViewOrder)
-        {
-            return Ok(await _orderService.GetSingle(inputIdentityViewOrder));
-        }
+        //[HttpPost("GetBySingleId")]
+        //public override async Task<ActionResult<OutputOrder>> GetId(InputIdentityViewOrder inputIdentityViewOrder)
+        //{
+        //    return Ok(await _orderService.GetSingle(inputIdentityViewOrder));
+        //}
 
-        [HttpPost("GetByListId")]
-        public async Task<ActionResult> GetWithIncludesAsync(List<InputIdentityViewOrder> listInputIdentityViewOrder)
-        {
-            return Ok(await _orderService.Get(listInputIdentityViewOrder));
-        }
+        //[HttpPost("GetByListId")]
+        //public override async Task<ActionResult<OutputOrder>> GetId(List<InputIdentityViewOrder> listInputIdentityViewOrder)
+        //{
+        //    return Ok(await _orderService.Get(listInputIdentityViewOrder));
+        //}
 
-        [HttpGet]
-        public async Task<ActionResult> GetWithIncludesAsync()
-        {
-            return Ok(await _orderService.GetAll());
-        }
+        //[HttpGet]
+        //public override async Task<ActionResult<List<OutputOrder>>> GetAll()
+        //{
+        //    return Ok(await _orderService.GetAll());
+        //}
 
-        #endregion
+        //#endregion
 
-        #region Post
+        //#region Post
 
-        [HttpPost("Single")]
-        public async Task<ActionResult<BaseResponse<OutputOrder>>> CreateSingle(InputCreateOrder inputCreateOrder)
-        {
-            var result = await _orderService.CreateSingle(inputCreateOrder);
-            if (!result.Success)
-                return BadRequest(result);
+        //[HttpPost("Create/Single")]
+        //public override async Task<ActionResult<BaseResponse<OutputOrder>>> CreateSingle(InputCreateOrder inputCreateOrder)
+        //{
+        //    var result = await _orderService.CreateSingle(inputCreateOrder);
+        //    if (!result.Success)
+        //        return BadRequest(result);
 
-            return Ok(result);
-        }
+        //    return Ok(result);
+        //}
 
-        [HttpPost("Multiple")]
-        public async Task<ActionResult<BaseResponse<OutputOrder>>> Create(List<InputCreateOrder> listInputCreateOrder)
-        {
-            var result = await _orderService.Create(listInputCreateOrder);
-            if (!result.Success)
-                return BadRequest(result);
+        //[HttpPost("Create/Multiple")]
+        //public override async Task<ActionResult<BaseResponse<OutputOrder>>> Create(List<InputCreateOrder> listInputCreateOrder)
+        //{
+        //    var result = await _orderService.Create(listInputCreateOrder);
+        //    if (!result.Success)
+        //        return BadRequest(result);
 
-            return Ok(result);
-        }
+        //    return Ok(result);
+        //}
 
-        #endregion
+        //#endregion
 
         #region Post Product
 
-        [HttpPost("ProductSingle")]
-        public async Task<ActionResult<BaseResponse<ProductOrder>>> CreateSingle(InputCreateProductOrder inputCreateProductOrder)
+        [HttpPost("Product/Create/Single")]
+        public async Task<ActionResult<BaseResponse<ProductOrder>>> CreateProductSingle(InputCreateProductOrder inputCreateProductOrder)
         {
             var result = await _orderService.CreateProductOrderSingle(inputCreateProductOrder);
             if (!result.Success)
@@ -79,8 +81,8 @@ namespace ProjetoTeste.Api.Controllers
             return Ok(result);
         }
 
-        [HttpPost("ProductMultiple")]
-        public async Task<ActionResult<BaseResponse<ProductOrder>>> Create(List<InputCreateProductOrder> ListInputCreateProductOrder)
+        [HttpPost("Product/Create/Multiple")]
+        public async Task<ActionResult<BaseResponse<ProductOrder>>> CreateProduct(List<InputCreateProductOrder> ListInputCreateProductOrder)
         {
             var result = await _orderService.CreateProductOrder(ListInputCreateProductOrder);
             if (!result.Success)
@@ -128,6 +130,43 @@ namespace ProjetoTeste.Api.Controllers
         {
             return Ok(await _orderService.GetMostValueOrderClient());
         }
+
+        #endregion
+
+        #region Put
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [HttpPut("Single")]
+        public override async Task<ActionResult<BaseResponse<OutputOrder>>> UpdateSingle(BaseInputIdentityUpdate_0 inputIdentityUpdate)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [HttpPut("Multiple")]
+        public override async Task<ActionResult<BaseResponse<List<OutputOrder>>>> Update(List<BaseInputIdentityUpdate_0> listInputIdentityUpdate)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Delete
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [HttpDelete("Single")]
+        public override async Task<ActionResult<BaseResponse<string>>> DeleteSingle(BaseInputIdentityDelete_0 inputIdentityDelete)
+        {
+            throw new NotImplementedException();
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [HttpDelete("Multiple")]
+        public override async Task<ActionResult<BaseResponse<string>>> Delete(List<BaseInputIdentityDelete_0> listInputIdentityDelete)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
     }
 }
-#endregion
